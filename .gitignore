@@ -1,0 +1,4 @@
+vendor
+.env
+admin/assets/vendors
+.htaccess

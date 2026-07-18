@@ -1,0 +1,1563 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+if(session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check admin authentication
+if(!isset($_SESSION['admin_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+include "db-conn.php";
+
+if (!isset($_GET['edit_product_details'])) {
+    die("Product ID is missing from the URL.");
+}
+
+$product_id = intval($_GET['edit_product_details']);
+
+// Fetch product details with prepared statement
+$query = "SELECT p.*, 
+          COALESCE(c.categories, pc.categories) as category_name,
+          sc.categories as subcategory_name,
+          COALESCE(p.pro_cate, pc.cate_id) as resolved_cate_id
+          FROM products p 
+          LEFT JOIN categories c ON p.pro_cate = c.cate_id 
+          LEFT JOIN sub_categories sc ON p.pro_sub_cate = sc.id
+          LEFT JOIN categories pc ON sc.parent_id = pc.cate_id
+          WHERE p.pro_id = ?";
+          
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $product = mysqli_fetch_assoc($result);
+} else {
+    die("Product not found.");
+}
+$stmt->close();
+
+// Fetch categories
+$category_query = "SELECT * FROM `categories` ORDER BY categories";
+$categories_result = mysqli_query($conn, $category_query);
+
+// Add image_fx column if not exists
+$check_column = mysqli_query($conn, "SHOW COLUMNS FROM products LIKE 'image_fx'");
+if(mysqli_num_rows($check_column) == 0) {
+    mysqli_query($conn, "ALTER TABLE products ADD COLUMN image_fx TEXT DEFAULT NULL AFTER text_zones");
+}
+
+// Check if editor_config column exists
+$check_ec = mysqli_query($conn, "SHOW COLUMNS FROM products LIKE 'editor_config'");
+if(mysqli_num_rows($check_ec) == 0) {
+    mysqli_query($conn, "ALTER TABLE products ADD COLUMN editor_config TEXT DEFAULT NULL AFTER text_zones");
+}
+
+// Load Google Fonts list
+include_once 'google_fonts_list.php';
+
+// Get all fonts
+$allGoogleFonts = array_keys($GOOGLE_FONTS);
+$system_fonts = ['Arial','Georgia','Impact','Verdana','Times New Roman','Tahoma','Courier New','Palatino','Garamond','Comic Sans MS','Lucida Console','Trebuchet MS'];
+
+// Filter Google Fonts (exclude system fonts)
+$gf_to_load = array_diff($allGoogleFonts, $system_fonts);
+
+// Limit to first 100 fonts for performance (adjust as needed)
+$gf_to_load = array_slice($gf_to_load, 0, 100, true);
+
+// Build Google Fonts URL
+$gf_url = 'https://fonts.googleapis.com/css2?';
+$font_params = array_map(function($f) { 
+    return 'family=' . urlencode($f) . ':wght@400;700'; 
+}, $gf_to_load);
+$gf_url .= implode('&', array_slice($font_params, 0, 50)) . '&display=swap'; // Limit to 50 font families per request
+
+// Parse editor config
+$editor_config = [];
+if (!empty($product['editor_config'])) {
+    $decoded = json_decode($product['editor_config'], true);
+    if (is_array($decoded)) {
+        $editor_config = $decoded;
+    }
+}
+
+// Helper function for checkbox checked state
+function ec($key, $cfg) { 
+    return !empty($cfg[$key]) ? 'checked' : ''; 
+}
+
+// Get saved fonts or all fonts
+$saved_fonts = !empty($editor_config['fonts']) ? $editor_config['fonts'] : $allGoogleFonts;
+
+// Escape product data for JavaScript
+$product_img = !empty($product['pro_img']) ? 'assets/img/uploads/' . $product['pro_img'] : '';
+$text_zones_json = !empty($product['text_zones']) ? $product['text_zones'] : '[]';
+$image_fx_json = !empty($product['image_fx']) ? $product['image_fx'] : '{}';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Edit Product - <?= htmlspecialchars($product['pro_name']) ?></title>
+    <link rel="icon" href="assets/img/logo.png" type="image/png">
+    <?php include "links.php"; ?>
+    
+    <!-- Google Fonts Loader -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="<?= htmlspecialchars($gf_url) ?>" rel="stylesheet">
+    
+    <style>
+    /* Font Picker Styles */
+    .font-picker-wrap { position:relative; }
+    .font-picker-search { 
+        width:100%; padding:8px 12px; border:1.5px solid #4e73df; 
+        border-radius:8px 8px 0 0; font-size:13px; outline:none; box-sizing:border-box; 
+    }
+    .font-picker-list { 
+        max-height:200px; overflow-y:auto; border:1.5px solid #4e73df; 
+        border-top:none; border-radius:0 0 8px 8px; background:#fff; 
+    }
+    .font-picker-item { 
+        display:flex; align-items:center; justify-content:space-between; 
+        padding:8px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; 
+        transition:background .15s; 
+    }
+    .font-picker-item:hover { background:#f0f4ff; }
+    .font-picker-item.selected { background:#e8eeff; }
+    .font-preview { font-size:15px; flex:1; }
+    .font-name-small { font-size:10px; color:#888; margin-left:8px; white-space:nowrap; }
+    .font-check { color:#4e73df; font-weight:bold; margin-left:8px; font-size:14px; }
+    
+    .selected-fonts-tags { 
+        display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:32px; 
+        padding:6px; background:#f8f9fa; border-radius:8px; border:1px solid #e0e0e0; 
+    }
+    .font-tag { 
+        display:inline-flex; align-items:center; gap:6px; padding:4px 10px; 
+        background:#4e73df; color:#fff; border-radius:20px; font-size:12px; 
+    }
+    .font-tag .remove-tag { cursor:pointer; font-weight:bold; opacity:.8; }
+    .font-tag .remove-tag:hover { opacity:1; }
+    
+    .picker-header { 
+        display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; 
+    }
+    .picker-actions { display:flex; gap:6px; }
+    .picker-btn { 
+        padding:4px 10px; font-size:12px; border:1px solid #4e73df; 
+        color:#4e73df; background:#fff; border-radius:6px; cursor:pointer; 
+    }
+    .picker-btn:hover { background:#4e73df; color:#fff; }
+
+    /* Form Sections */
+    .form-section { 
+        background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        margin-bottom: 25px; padding: 25px; border-left: 4px solid #4e73df; 
+    }
+    .section-title { 
+        font-size: 1.1rem; font-weight: 600; color: #4e73df; 
+        margin-bottom: 20px; display: flex; align-items: center; 
+    }
+    .section-title i { margin-right: 10px; font-size: 1.3rem; }
+    
+    .preview-image-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+    .preview-image { 
+        width: 80px; height: 80px; object-fit: cover; 
+        border-radius: 4px; border: 1px solid #eee; 
+    }
+    .current-image { position: relative; display: inline-block; margin-right: 10px; margin-bottom: 10px; }
+    .current-image img { 
+        width: 100px; height: 100px; object-fit: cover; 
+        border-radius: 4px; border: 1px solid #ddd; 
+    }
+    .remove-image-btn { 
+        position: absolute; top: -5px; right: -5px; background: #e74a3b; 
+        color: white; border: none; border-radius: 50%; width: 24px; height: 24px; 
+        font-size: 12px; cursor: pointer; 
+    }
+    
+    .required-field::after { content: " *"; color: #f44336; }
+    
+    .nav-tabs .nav-link { color: #555; font-weight: 500; }
+    .nav-tabs .nav-link.active { color: #4e73df; border-bottom: 3px solid #4e73df; }
+    
+    /* Text Zone Styles */
+    #tz-wrap { display:flex; gap:18px; flex-wrap:wrap; }
+    #tz-canvas-col { flex:1; min-width:280px; }
+    #tz-panel-col { width:320px; min-width:260px; }
+    
+    #tz-canvas-wrap { 
+        position:relative; background:#f5f5f5; border:2px dashed #ccc; 
+        border-radius:8px; overflow:hidden; cursor:crosshair; 
+    }
+    #tz-canvas { display:block; width:100%; height:auto; }
+    
+    .tz-zone-card { 
+        background:#fff; border:1px solid #e0e0e0; border-radius:8px; 
+        padding:12px; margin-bottom:10px; position:relative; cursor:pointer; 
+    }
+    .tz-zone-card:hover { border-color:#4e73df; }
+    .tz-zone-card.active-zone { 
+        border-color:#4e73df; box-shadow:0 0 0 2px rgba(78,115,223,0.2); 
+    }
+    .tz-zone-card .zone-label { font-weight:600; font-size:13px; color:#4e73df; }
+    .tz-zone-card .delete-zone { 
+        position:absolute; top:8px; right:8px; background:#ef4444; color:#fff; 
+        border:none; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer; 
+    }
+    
+    .tz-mini-label { font-size:11px; color:#888; margin-bottom:3px; }
+    .tz-row { display:flex; gap:6px; margin-bottom:8px; align-items:center; }
+    
+    .tz-btn { 
+        padding:6px 14px; border:1px solid #4e73df; color:#4e73df; 
+        background:#fff; border-radius:6px; cursor:pointer; font-size:13px; 
+    }
+    .tz-btn:hover { background:#4e73df; color:#fff; }
+    
+    .tz-btn-add { 
+        background:#4e73df; color:#fff; border:none; border-radius:6px; 
+        padding:8px 18px; cursor:pointer; font-size:13px; width:100%; margin-bottom:12px; 
+    }
+    
+    .tz-input { 
+        width:100%; padding:5px 8px; border:1px solid #ddd; 
+        border-radius:5px; font-size:13px; 
+    }
+    .tz-select { padding:5px 6px; border:1px solid #ddd; border-radius:5px; font-size:12px; }
+    .tz-hint { font-size:11px; color:#aaa; margin-top:6px; line-height:1.5; }
+    
+    #tz-no-img { 
+        text-align:center; padding:40px 20px; color:#aaa; font-size:13px; 
+    }
+    
+    /* Image Effects */
+    .image-fx-section { 
+        background: #fff; border: 1px solid #e0e0e0; 
+        border-radius: 8px; padding: 12px; margin-bottom: 12px; 
+    }
+    .image-fx-title { 
+        font-size: 13px; font-weight: 600; color: #4e73df; 
+        margin-bottom: 10px; display: flex; align-items: center; gap: 6px; 
+    }
+    
+    .fx-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+    .fx-row label { font-size: 11px; color: #666; min-width: 70px; }
+    .fx-row input[type="range"] { 
+        flex: 1; height: 4px; -webkit-appearance: none; 
+        background: #ddd; border-radius: 2px; outline: none; 
+    }
+    .fx-row input[type="range"]::-webkit-slider-thumb { 
+        -webkit-appearance: none; width: 16px; height: 16px; 
+        border-radius: 50%; background: #4e73df; cursor: pointer; 
+    }
+    .fx-row span { font-size: 11px; color: #888; min-width: 35px; text-align: right; }
+    
+    .fx-preset-btn { 
+        padding: 3px 10px; font-size: 11px; border: 1px solid #4e73df; 
+        color: #4e73df; background: #fff; border-radius: 12px; cursor: pointer; 
+        transition: all 0.2s; 
+    }
+    .fx-preset-btn:hover { background: #4e73df; color: #fff; }
+    .fx-color-input { 
+        width: 32px; height: 28px; padding: 2px; 
+        border: 1px solid #ddd; border-radius: 4px; cursor: pointer; 
+    }
+    
+    .tz-shadow-toggle { display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; }
+    .tz-shadow-color-pick { 
+        width:32px; height:28px; padding:2px; 
+        border:1px solid #ddd; border-radius:4px; cursor:pointer; 
+    }
+    .tz-shadow-opacity-slider { width:100px; }
+    
+    /* Loading state */
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="crm_body_bg">
+    <?php include "header.php"; ?>
+
+    <section class="main_content dashboard_part large_header_bg">
+        <div class="container-fluid g-0">
+            <div class="row">
+                <div class="col-lg-12 p-0">
+                    <?php include "top_nav.php"; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="main_content_iner">
+            <div class="container-fluid p-0 sm_padding_15px">
+                <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="white_card card_height_100 mb_30">
+                            <div class="white_card_header">
+                                <div class="box_header m-0">
+                                    <div class="main-title">
+                                        <h2 class="m-0">
+                                            <i class="fas fa-edit me-2"></i>Edit Product
+                                        </h2>
+                                        <p class="m-0 text-muted">Update product details below</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="white_card_body">
+                                <div class="card-body">
+                                    <!-- Tab Navigation -->
+                                    <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                                                <i class="fas fa-info-circle me-1"></i>Basic Info
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">
+                                                <i class="fas fa-image me-1"></i>Media & SEO
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="editor-tab" data-bs-toggle="tab" data-bs-target="#editor" type="button" role="tab">
+                                                <i class="fas fa-paint-brush me-1"></i>Editor Settings
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="zones-tab" data-bs-toggle="tab" data-bs-target="#zones" type="button" role="tab">
+                                                <i class="fas fa-font me-1"></i>Text Zones
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <form action="functions.php" method="POST" enctype="multipart/form-data" id="productForm">
+                                        <input type="hidden" name="pro_id" value="<?= htmlspecialchars($product['pro_id']) ?>" />
+                                        <input type="hidden" name="removed_images" id="removed_images" value="" />
+                                        <input type="hidden" name="text_zones" id="text_zones_input" value="<?= htmlspecialchars($text_zones_json) ?>">
+                                        <input type="hidden" name="image_fx" id="image_fx_input" value="<?= htmlspecialchars($image_fx_json) ?>">
+                                        <input type="hidden" name="editor_config" id="editor_config_input" value="<?= htmlspecialchars(json_encode($editor_config)) ?>">
+
+                                        <div class="tab-content">
+                                            <!-- Basic Info Tab -->
+                                            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                                                <div class="form-section">
+                                                    <div class="section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label required-field">Product Name</label>
+                                                            <input type="text" class="form-control" name="pro_name" id="pro_name" 
+                                                                   value="<?= htmlspecialchars($product['pro_name']) ?>" required>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label required-field">Main Category</label>
+                                                            <select class="form-select" name="pro_cate" id="pro_cate" 
+                                                                    onchange="getSubcategory(this.value)" required>
+                                                                <option value="">Select a category</option>
+                                                                <?php
+                                                                mysqli_data_seek($categories_result, 0);
+                                                                while ($category = mysqli_fetch_assoc($categories_result)) {
+                                                                    $selected = ($product['resolved_cate_id'] == $category['cate_id']) ? 'selected' : '';
+                                                                    echo "<option value='{$category['cate_id']}' $selected>" . 
+                                                                         htmlspecialchars(ucwords($category['categories'])) . "</option>";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Sub Category</label>
+                                                            <select class="form-select" name="pro_sub_cate" id="subcate_id">
+                                                                <option value="">Select subcategory (optional)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Brand Name</label>
+                                                            <input type="text" class="form-control" name="brand_name" 
+                                                                   value="<?= htmlspecialchars($product['brand_name'] ?? '') ?>">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Short Description</label>
+                                                        <textarea class="form-control" name="short_desc" id="short_desc" rows="3"><?= htmlspecialchars($product['short_desc'] ?? '') ?></textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Full Description</label>
+                                                        <textarea class="form-control" name="description" id="pro_desc" rows="5"><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-section">
+                                                    <div class="section-title"><i class="fas fa-dollar-sign"></i> Pricing & Inventory</div>
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label required-field">MRP (₹)</label>
+                                                            <input type="number" class="form-control" name="mrp" step="0.01" min="0" 
+                                                                   value="<?= htmlspecialchars($product['mrp']) ?>" required>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label required-field">Selling Price (₹)</label>
+                                                            <input type="number" class="form-control" name="selling_price" step="0.01" min="0" 
+                                                                   value="<?= htmlspecialchars($product['selling_price']) ?>" required>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Stock</label>
+                                                            <input type="number" class="form-control" name="stock" min="0" 
+                                                                   value="<?= htmlspecialchars($product['stock'] ?? 0) ?>">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Status</label>
+                                                            <select class="form-select" name="status">
+                                                                <option value="1" <?= ($product['status'] ?? 1) == 1 ? 'selected' : '' ?>>Active</option>
+                                                                <option value="0" <?= ($product['status'] ?? 1) == 0 ? 'selected' : '' ?>>Inactive</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">New Arrival</label>
+                                                            <select class="form-select" name="new_arrival">
+                                                                <option value="0" <?= ($product['new_arrival'] ?? 0) == 0 ? 'selected' : '' ?>>No</option>
+                                                                <option value="1" <?= ($product['new_arrival'] ?? 0) == 1 ? 'selected' : '' ?>>Yes</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Trending</label>
+                                                            <select class="form-select" name="trending">
+                                                                <option value="0" <?= ($product['trending'] ?? 0) == 0 ? 'selected' : '' ?>>No</option>
+                                                                <option value="1" <?= ($product['trending'] ?? 0) == 1 ? 'selected' : '' ?>>Yes</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Media & SEO Tab -->
+                                            <div class="tab-pane fade" id="media" role="tabpanel">
+                                                <div class="form-section">
+                                                    <div class="section-title"><i class="fas fa-images"></i> Product Image</div>
+                                                    <?php if (!empty($product['pro_img'])): ?>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Current Image</label>
+                                                            <div class="current-image">
+                                                                <img src="assets/img/uploads/<?= htmlspecialchars($product['pro_img']) ?>" 
+                                                                     alt="Product Image" onerror="this.style.display='none'">
+                                                                <button type="button" class="remove-image-btn" 
+                                                                        onclick="removeImage('<?= htmlspecialchars($product['pro_img']) ?>')">×</button>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Upload New Image</label>
+                                                        <input type="file" class="form-control" name="pro_img" id="pro_img" accept="image/*">
+                                                        <div class="preview-image-container" id="imagePreview"></div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-section">
+                                                    <div class="section-title"><i class="fas fa-search"></i> SEO Settings</div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Meta Title</label>
+                                                        <input type="text" class="form-control" name="meta_title" maxlength="60" 
+                                                               value="<?= htmlspecialchars($product['meta_title'] ?? '') ?>">
+                                                        <small class="text-muted">Recommended: 50-60 characters</small>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Meta Description</label>
+                                                        <textarea class="form-control" name="meta_desc" rows="3" maxlength="160"><?= htmlspecialchars($product['meta_desc'] ?? '') ?></textarea>
+                                                        <small class="text-muted">Recommended: 150-160 characters</small>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Meta Keywords</label>
+                                                        <input type="text" class="form-control" name="meta_key" 
+                                                               value="<?= htmlspecialchars($product['meta_key'] ?? '') ?>">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Slug URL</label>
+                                                        <input type="text" class="form-control" name="slug_url" id="slug_url" 
+                                                               value="<?= htmlspecialchars($product['slug_url'] ?? '') ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Editor Settings Tab -->
+                                            <div class="tab-pane fade" id="editor" role="tabpanel">
+                                                <div class="form-section">
+                                                    <div class="section-title"><i class="fas fa-paint-brush"></i> Product Page Editor Settings</div>
+                                                    
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #4e73df">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_name_change" 
+                                                                           value="1" <?= ec('name_change', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">✏️ Name / Text Change</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #e74a3b">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_bg_color" 
+                                                                           value="1" <?= ec('bg_color', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">🎨 Product Color</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #1cc88a">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_brush" 
+                                                                           value="1" <?= ec('brush', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">🖌️ Brush Tool</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #f6c23e">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_eraser" 
+                                                                           value="1" <?= ec('eraser', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">🧹 Eraser Tool</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #36b9cc">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_size" 
+                                                                           value="1" <?= ec('size', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">📐 Size Options</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 shadow-sm p-3" style="border-left:4px solid #858796">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="ec_download" 
+                                                                           value="1" <?= ec('download', $editor_config) ?>>
+                                                                    <label class="form-check-label fw-bold">📥 Download Button</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="mt-4">
+                                                        <label class="form-label fw-bold">🎨 Preset Colors</label>
+                                                        <input type="text" class="form-control" name="ec_preset_colors" 
+                                                               value="<?= htmlspecialchars($editor_config['preset_colors'] ?? '#ff0000,#ff8c00,#ffd700,#00aa00,#0000ff,#800080') ?>">
+                                                        <small class="text-muted">Comma-separated hex colors</small>
+                                                    </div>
+                                                    
+                                                    <div class="mt-3">
+                                                        <label class="form-label fw-bold">🏷️ Editor Heading</label>
+                                                        <input type="text" class="form-control" name="ec_heading" 
+                                                               value="<?= htmlspecialchars($editor_config['heading'] ?? 'Customize Your Product') ?>">
+                                                    </div>
+                                                    
+                                                    <div class="mt-4">
+                                                        <label class="form-label fw-bold">🔤 Available Fonts for Editor</label>
+                                                        <div id="ec_fonts_hidden_wrap"></div>
+                                                        
+                                                        <div class="picker-header">
+                                                            <span style="font-size:12px;">Selected: <b id="fontCountBadge"><?= count($saved_fonts) ?></b> fonts</span>
+                                                            <div class="picker-actions">
+                                                                <button type="button" class="picker-btn" onclick="fpSelectAll()">Select All</button>
+                                                                <button type="button" class="picker-btn" onclick="fpClearAll()">Clear All</button>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="selected-fonts-tags" id="selectedFontTags"></div>
+                                                        
+                                                        <div class="font-picker-wrap mt-2">
+                                                            <input type="text" class="font-picker-search" id="fontSearchInput" 
+                                                                   placeholder="🔍 Search fonts...">
+                                                            <div class="font-picker-list" id="fontPickerList"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Text Zones Tab -->
+                                            <div class="tab-pane fade" id="zones" role="tabpanel">
+                                                <div id="tz-wrap">
+                                                    <div id="tz-canvas-col">
+                                                        <p style="font-size:13px;color:#666;margin-bottom:8px;">
+                                                            👆 Click on canvas to add text zone. Drag to move.
+                                                        </p>
+                                                        <div id="tz-canvas-wrap">
+                                                            <div id="tz-no-img">
+                                                                <i class="fas fa-image" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+                                                                Loading product image...
+                                                            </div>
+                                                            <canvas id="tz-canvas" style="display:none;"></canvas>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="tz-panel-col">
+                                                        <button type="button" class="tz-btn-add" onclick="tzAddZone()">
+                                                            + Add New Text Zone
+                                                        </button>
+
+                                                        <!-- Selected Zone Controls -->
+                                                        <div id="tz-active-controls" style="display:none; background:#f8f9ff; border:1px solid #d0d8ff; border-radius:8px; padding:12px; margin-bottom:12px;">
+                                                            <div style="font-size:12px;font-weight:600;color:#4e73df;margin-bottom:10px;">
+                                                                ✏️ Selected Zone Settings
+                                                            </div>
+                                                            
+                                                            <div class="tz-mini-label">Label</div>
+                                                            <input type="text" class="tz-input" id="tz-label" 
+                                                                   placeholder="e.g. Your Name" oninput="tzUpdateSelected('label',this.value)">
+                                                            
+                                                            <div class="tz-mini-label" style="margin-top:8px;">Default Text</div>
+                                                            <input type="text" class="tz-input" id="tz-default" 
+                                                                   placeholder="e.g. SHARMA" oninput="tzUpdateSelected('defaultText',this.value)">
+                                                            
+                                                            <!-- Font Search & Select -->
+                                                            <div class="tz-mini-label" style="margin-top:8px;">Font Family</div>
+                                                            <div class="font-picker-wrap">
+                                                                <input type="text" class="font-picker-search" id="tz-font-search" 
+                                                                       placeholder="🔍 Search font..." autocomplete="off">
+                                                                <div class="font-picker-list" id="tz-font-list" style="max-height:150px;"></div>
+                                                            </div>
+                                                            <input type="hidden" id="tz-font" value="Arial">
+                                                            <div id="tz-selected-font" style="font-size:14px;padding:6px 10px;background:#f0f4ff;border-radius:6px;margin-bottom:8px;font-family:Arial;">
+                                                                Arial ✓
+                                                            </div>
+                                                            
+                                                            <div class="tz-row">
+                                                                <div style="width:70px;">
+                                                                    <div class="tz-mini-label">Size</div>
+                                                                    <input type="number" class="tz-input" id="tz-size" value="30" 
+                                                                           min="10" max="500" oninput="tzUpdateSelected('size',parseInt(this.value)||30)">
+                                                                </div>
+                                                                <div style="flex:1;">
+                                                                    <div class="tz-mini-label">Text Color</div>
+                                                                    <input type="color" id="tz-color" value="#ffffff" 
+                                                                           oninput="tzUpdateSelected('color',this.value)" 
+                                                                           style="width:100%;height:32px;padding:2px;border:1px solid #ddd;border-radius:5px;">
+                                                                </div>
+                                                                <div style="flex:1;">
+                                                                    <div class="tz-mini-label">Align</div>
+                                                                    <select class="tz-select" id="tz-align" onchange="tzUpdateSelected('align',this.value)" style="width:100%;">
+                                                                        <option value="center">Center</option>
+                                                                        <option value="left">Left</option>
+                                                                        <option value="right">Right</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Text Shadow/Glow -->
+                                                            <div style="margin-top:10px; border-top:1px solid #e0e0e0; padding-top:10px;">
+                                                                <div class="tz-mini-label" style="font-weight:600; color:#4e73df;">💫 Text Shadow / Glow</div>
+                                                                <div class="tz-shadow-toggle" style="margin-bottom:8px;">
+                                                                    <input type="checkbox" id="tz-shadow-enabled" onchange="tzUpdateSelected('shadowEnabled',this.checked)">
+                                                                    <span>Enable Shadow / Glow</span>
+                                                                </div>
+                                                                <div id="tz-shadow-settings" style="display:none;">
+                                                                    <div class="tz-row" style="margin-bottom:6px;">
+                                                                        <div style="flex:1;">
+                                                                            <div class="tz-mini-label">Shadow Color</div>
+                                                                            <input type="color" class="tz-shadow-color-pick" id="tz-shadow-color" 
+                                                                                   value="#000000" oninput="tzUpdateSelected('shadowColor',this.value)" 
+                                                                                   style="width:100%;height:32px;">
+                                                                        </div>
+                                                                        <div style="flex:1;">
+                                                                            <div class="tz-mini-label">Blur (px)</div>
+                                                                            <input type="number" class="tz-input" id="tz-shadow-blur" value="8" 
+                                                                                   min="0" max="50" oninput="tzUpdateSelected('shadowBlur',parseInt(this.value)||0)">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tz-row" style="margin-bottom:6px;">
+                                                                        <div style="flex:1;">
+                                                                            <div class="tz-mini-label">Offset X</div>
+                                                                            <input type="number" class="tz-input" id="tz-shadow-offx" value="2" 
+                                                                                   min="-20" max="20" oninput="tzUpdateSelected('shadowOffX',parseInt(this.value)||0)">
+                                                                        </div>
+                                                                        <div style="flex:1;">
+                                                                            <div class="tz-mini-label">Offset Y</div>
+                                                                            <input type="number" class="tz-input" id="tz-shadow-offy" value="2" 
+                                                                                   min="-20" max="20" oninput="tzUpdateSelected('shadowOffY',parseInt(this.value)||0)">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tz-row">
+                                                                        <div style="flex:1;">
+                                                                            <div class="tz-mini-label">Opacity</div>
+                                                                            <input type="range" class="tz-shadow-opacity-slider" id="tz-shadow-opacity" 
+                                                                                   min="0" max="100" value="80" 
+                                                                                   oninput="tzUpdateSelected('shadowOpacity',parseInt(this.value)); 
+                                                                                   document.getElementById('tz-shadow-opacity-val').textContent=this.value+'%';">
+                                                                            <span id="tz-shadow-opacity-val" style="font-size:11px;">80%</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="tz-mini-label" style="margin-top:8px;">Bold / Italic</div>
+                                                            <div class="tz-row">
+                                                                <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                                                                    <input type="checkbox" id="tz-bold" onchange="tzUpdateSelected('bold',this.checked)"> Bold
+                                                                </label>
+                                                                <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                                                                    <input type="checkbox" id="tz-italic" onchange="tzUpdateSelected('italic',this.checked)"> Italic
+                                                                </label>
+                                                            </div>
+                                                            
+                                                            <div class="tz-mini-label" style="margin-top:8px;">Max Characters (0 = unlimited)</div>
+                                                            <input type="number" class="tz-input" id="tz-maxlen" value="0" min="0" max="200" 
+                                                                   oninput="tzUpdateSelected('maxLen',parseInt(this.value)||0)">
+                                                            
+                                                            <div class="tz-mini-label" style="margin-top:8px;">Required Field?</div>
+                                                            <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                                                                <input type="checkbox" id="tz-required" onchange="tzUpdateSelected('required',this.checked)"> 
+                                                                Yes, this field is required
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Image Border Shadow -->
+                                                        <div class="image-fx-section">
+                                                            <div class="image-fx-title">💫 Image Border Shadow / Glow</div>
+                                                            <div class="tz-shadow-toggle" style="margin-bottom:10px;">
+                                                                <input type="checkbox" id="fx-shadow-enabled" onchange="toggleImageShadow(this.checked)">
+                                                                <span>Enable Image Border Shadow</span>
+                                                            </div>
+                                                            <div id="fx-shadow-settings" style="display:none;">
+                                                                <div class="fx-row">
+                                                                    <label>Color:</label>
+                                                                    <input type="color" class="fx-color-input" id="fx-shadow-color" value="#000000" oninput="updateImageFX()">
+                                                                </div>
+                                                                <div class="fx-row">
+                                                                    <label>Blur:</label>
+                                                                    <input type="range" id="fx-shadow-blur" min="0" max="100" value="20" 
+                                                                           oninput="updateImageFX(); document.getElementById('fx-shadow-blur-val').textContent=this.value+'px';">
+                                                                    <span id="fx-shadow-blur-val">20px</span>
+                                                                </div>
+                                                                <div class="fx-row">
+                                                                    <label>Spread:</label>
+                                                                    <input type="range" id="fx-shadow-spread" min="0" max="50" value="5" 
+                                                                           oninput="updateImageFX(); document.getElementById('fx-shadow-spread-val').textContent=this.value+'px';">
+                                                                    <span id="fx-shadow-spread-val">5px</span>
+                                                                </div>
+                                                                <div class="fx-row">
+                                                                    <label>Offset X:</label>
+                                                                    <input type="range" id="fx-shadow-offx" min="-50" max="50" value="0" 
+                                                                           oninput="updateImageFX(); document.getElementById('fx-shadow-offx-val').textContent=this.value+'px';">
+                                                                    <span id="fx-shadow-offx-val">0px</span>
+                                                                </div>
+                                                                <div class="fx-row">
+                                                                    <label>Offset Y:</label>
+                                                                    <input type="range" id="fx-shadow-offy" min="-50" max="50" value="5" 
+                                                                           oninput="updateImageFX(); document.getElementById('fx-shadow-offy-val').textContent=this.value+'px';">
+                                                                    <span id="fx-shadow-offy-val">5px</span>
+                                                                </div>
+                                                                <div class="fx-row">
+                                                                    <label>Opacity:</label>
+                                                                    <input type="range" id="fx-shadow-opacity" min="0" max="100" value="60" 
+                                                                           oninput="updateImageFX(); document.getElementById('fx-shadow-opacity-val').textContent=this.value+'%';">
+                                                                    <span id="fx-shadow-opacity-val">60%</span>
+                                                                </div>
+                                                            </div>
+                                                            <div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;">
+                                                                <button type="button" class="fx-preset-btn" onclick="applyFXPreset('soft')">Soft Glow</button>
+                                                                <button type="button" class="fx-preset-btn" onclick="applyFXPreset('dark')">Dark Shadow</button>
+                                                                <button type="button" class="fx-preset-btn" onclick="applyFXPreset('colored')">Colored Glow</button>
+                                                                <button type="button" class="fx-preset-btn" onclick="applyFXPreset('neon')">Neon Glow</button>
+                                                                <button type="button" class="fx-preset-btn" onclick="applyFXPreset('reset')">Reset</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="tz-zone-list" style="max-height:300px;overflow-y:auto;"></div>
+                                                        
+                                                        <div style="margin-top:12px;">
+                                                            <button type="button" class="tz-btn" onclick="tzSaveZones()" 
+                                                                    style="width:100%;background:#1cc88a;color:#fff;border-color:#1cc88a;font-weight:600;padding:10px;">
+                                                                💾 Save Zones
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between mt-4">
+                                            <a href="products.php" class="btn btn-outline-secondary">
+                                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                                            </a>
+                                            <input type="submit" name="update-product" value="Update Product" class="btn btn-primary">
+                                                
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php include "footer.php"; ?>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+    // Initialize CKEditor
+    CKEDITOR.replace('pro_desc');
+    CKEDITOR.replace('short_desc');
+    
+    // Image preview
+    document.getElementById('pro_img').addEventListener('change', function(e) {
+        var container = document.getElementById('imagePreview');
+        container.innerHTML = '';
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = document.createElement('img');
+                img.src = ev.target.result;
+                img.classList.add('preview-image');
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Auto-generate slug from product name
+    $('#pro_name').on('keyup', function() {
+        var slug = $(this).val()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+        $('#slug_url').val(slug);
+    });
+    
+    // Remove image functionality
+    var removedImages = [];
+    window.removeImage = function(filename) {
+        if (confirm('Remove this image?')) {
+            removedImages.push(filename);
+            document.getElementById('removed_images').value = removedImages.join(',');
+            var currentImage = document.querySelector('.current-image');
+            if (currentImage) currentImage.remove();
+        }
+    };
+    
+    // Get subcategories via AJAX
+    function getSubcategory(cateId, selectedSubId) {
+        if (!cateId) {
+            $('#subcate_id').html('<option value="">Select Sub Category</option>');
+            return;
+        }
+        
+        $.ajax({
+            url: 'functions.php',
+            method: 'POST',
+            data: { cate_id: cateId },
+            success: function(data) {
+                $("#subcate_id").html('<option value="">Select subcategory (optional)</option>' + data);
+                if (selectedSubId) {
+                    $("#subcate_id option[value='" + selectedSubId + "']").prop('selected', true);
+                }
+            },
+            error: function() {
+                $("#subcate_id").html('<option value="">Error loading subcategories</option>');
+            }
+        });
+    }
+    
+    // Load subcategory on page load
+    $(function() {
+        var selectedCate = "<?= intval($product['resolved_cate_id'] ?? 0) ?>";
+        var selectedSub = "<?= intval($product['pro_sub_cate'] ?? 0) ?>";
+        if (selectedCate) getSubcategory(selectedCate, selectedSub);
+    });
+    
+    // Form validation
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        var mrp = parseFloat(document.querySelector('input[name="mrp"]').value);
+        var selling = parseFloat(document.querySelector('input[name="selling_price"]').value);
+        
+        if (selling > mrp) {
+            alert('Selling price cannot be higher than MRP');
+            e.preventDefault();
+            return false;
+        }
+        
+        if (selling <= 0) {
+            alert('Selling price must be greater than 0');
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        var submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Updating...';
+        
+        return true;
+    });
+    </script>
+
+    <!-- Font Picker JavaScript -->
+    <script>
+    (function() {
+        var allFonts = <?= json_encode(array_values($allGoogleFonts)) ?>;
+        var selected = new Set(<?= json_encode(array_values($saved_fonts)) ?>);
+        
+        function renderFontList(searchTerm) {
+            searchTerm = (searchTerm || '').toLowerCase();
+            var list = document.getElementById('fontPickerList');
+            
+            var filtered = allFonts.filter(function(f) {
+                return f.toLowerCase().indexOf(searchTerm) > -1;
+            });
+            
+            list.innerHTML = filtered.map(function(font) {
+                var isSelected = selected.has(font);
+                return '<div class="font-picker-item ' + (isSelected ? 'selected' : '') + 
+                       '" onclick="fpToggle(\'' + font.replace(/'/g, "\\'") + '\')">' +
+                       '<span class="font-preview" style="font-family:\'' + font + '\'">' + font + '</span>' +
+                       '<span class="font-name-small">' + font + '</span>' +
+                       (isSelected ? '<span class="font-check">✓</span>' : '') +
+                       '</div>';
+            }).join('');
+        }
+        
+        function renderTags() {
+            var tagsContainer = document.getElementById('selectedFontTags');
+            var hiddenWrap = document.getElementById('ec_fonts_hidden_wrap');
+            var countBadge = document.getElementById('fontCountBadge');
+            
+            tagsContainer.innerHTML = Array.from(selected).map(function(font) {
+                return '<span class="font-tag" style="font-family:\'' + font + '\'">' + font + 
+                       ' <span class="remove-tag" onclick="event.stopPropagation();fpToggle(\'' + 
+                       font.replace(/'/g, "\\'") + '\')">×</span></span>';
+            }).join('');
+            
+            hiddenWrap.innerHTML = Array.from(selected).map(function(font) {
+                return '<input type="hidden" name="ec_fonts[]" value="' + 
+                       font.replace(/"/g, '&quot;') + '">';
+            }).join('');
+            
+            countBadge.textContent = selected.size;
+        }
+        
+        window.fpToggle = function(font) {
+            if (selected.has(font)) {
+                selected.delete(font);
+            } else {
+                selected.add(font);
+            }
+            renderFontList(document.getElementById('fontSearchInput').value);
+            renderTags();
+        };
+        
+        window.fpSelectAll = function() {
+            allFonts.forEach(function(f) { selected.add(f); });
+            renderFontList(document.getElementById('fontSearchInput').value);
+            renderTags();
+        };
+        
+        window.fpClearAll = function() {
+            selected.clear();
+            renderFontList(document.getElementById('fontSearchInput').value);
+            renderTags();
+        };
+        
+        document.getElementById('fontSearchInput').addEventListener('input', function() {
+            renderFontList(this.value);
+        });
+        
+        // Initial render
+        renderFontList('');
+        renderTags();
+    })();
+    </script>
+
+    <!-- Text Zone Font Search -->
+    <script>
+    var TZ_FONTS = <?= json_encode(array_values($allGoogleFonts)) ?>;
+    
+    function filterTzFonts(query) {
+        var q = (query || '').toLowerCase();
+        var list = document.getElementById('tz-font-list');
+        
+        var filtered = TZ_FONTS.filter(function(f) {
+            return f.toLowerCase().indexOf(q) > -1;
+        });
+        
+        list.innerHTML = filtered.map(function(font) {
+            return '<div class="font-picker-item" onclick="selectTzFont(\'' + 
+                   font.replace(/'/g, "\\'") + '\')" style="font-family:\'' + font + '\';">' +
+                   '<span class="font-preview" style="font-family:\'' + font + '\';">' + font + '</span>' +
+                   '<span class="font-name-small">' + font + '</span>' +
+                   '</div>';
+        }).join('');
+    }
+    
+    function selectTzFont(font) {
+        document.getElementById('tz-font').value = font;
+        document.getElementById('tz-font-search').value = '';
+        document.getElementById('tz-font-list').innerHTML = '';
+        
+        var display = document.getElementById('tz-selected-font');
+        display.textContent = font + ' ✓';
+        display.style.fontFamily = font;
+        
+        tzUpdateSelected('font', font);
+    }
+    
+    // Initialize font search
+    document.getElementById('tz-font-search').addEventListener('focus', function() {
+        if (document.getElementById('tz-font-list').children.length === 0) {
+            filterTzFonts('');
+        }
+    });
+    
+    document.getElementById('tz-font-search').addEventListener('input', function() {
+        filterTzFonts(this.value);
+    });
+    </script>
+
+    <!-- Text Zones Designer JavaScript -->
+    <script>
+    (function() {
+        var zones = [];
+        try { 
+            zones = JSON.parse(<?= json_encode($text_zones_json) ?>) || []; 
+        } catch(e) { 
+            zones = []; 
+        }
+        
+        var selectedZoneId = null;
+        var tzIdCounter = zones.length ? Math.max.apply(null, zones.map(function(z) { return z.id || 0; })) + 1 : 1;
+        var tzCanvas, tzCtx, tzImg, tzDragging = false, tzDragOffX = 0, tzDragOffY = 0;
+        var tzScaleX = 1, tzScaleY = 1;
+        
+        var imageFX = { 
+            shadowEnabled: false, 
+            shadowColor: '#000000', 
+            shadowBlur: 20, 
+            shadowSpread: 5, 
+            shadowOffX: 0, 
+            shadowOffY: 5, 
+            shadowOpacity: 60 
+        };
+        
+        try { 
+            var savedFX = JSON.parse(<?= json_encode($image_fx_json) ?>); 
+            if (savedFX && Object.keys(savedFX).length > 0) { 
+                for (var k in savedFX) { 
+                    imageFX[k] = savedFX[k]; 
+                } 
+            } 
+        } catch(e) {}
+        
+        // Handle tab switching
+        document.getElementById('zones-tab').addEventListener('shown.bs.tab', function() {
+            setTimeout(function() { 
+                initTzCanvas(); 
+                loadImageFXControls(); 
+            }, 100);
+        });
+        
+        function loadImageFXControls() {
+            document.getElementById('fx-shadow-enabled').checked = imageFX.shadowEnabled || false;
+            document.getElementById('fx-shadow-color').value = imageFX.shadowColor || '#000000';
+            document.getElementById('fx-shadow-blur').value = imageFX.shadowBlur || 20;
+            document.getElementById('fx-shadow-spread').value = imageFX.shadowSpread || 5;
+            document.getElementById('fx-shadow-offx').value = imageFX.shadowOffX || 0;
+            document.getElementById('fx-shadow-offy').value = imageFX.shadowOffY || 5;
+            document.getElementById('fx-shadow-opacity').value = imageFX.shadowOpacity || 60;
+            
+            document.getElementById('fx-shadow-blur-val').textContent = (imageFX.shadowBlur || 20) + 'px';
+            document.getElementById('fx-shadow-spread-val').textContent = (imageFX.shadowSpread || 5) + 'px';
+            document.getElementById('fx-shadow-offx-val').textContent = (imageFX.shadowOffX || 0) + 'px';
+            document.getElementById('fx-shadow-offy-val').textContent = (imageFX.shadowOffY || 5) + 'px';
+            document.getElementById('fx-shadow-opacity-val').textContent = (imageFX.shadowOpacity || 60) + '%';
+            
+            document.getElementById('fx-shadow-settings').style.display = imageFX.shadowEnabled ? 'block' : 'none';
+        }
+        
+        function initTzCanvas() {
+            tzCanvas = document.getElementById('tz-canvas');
+            if (!tzCanvas) return;
+            
+            tzCtx = tzCanvas.getContext('2d');
+            tzImg = new Image();
+            tzImg.crossOrigin = 'anonymous';
+            
+            var src = <?= json_encode($product_img) ?>;
+            if (!src) {
+                document.getElementById('tz-no-img').style.display = 'block';
+                tzCanvas.style.display = 'none';
+                return;
+            }
+            
+            tzImg.onload = function() {
+                document.getElementById('tz-no-img').style.display = 'none';
+                tzCanvas.style.display = 'block';
+                tzCanvas.width = tzImg.naturalWidth;
+                tzCanvas.height = tzImg.naturalHeight;
+                updateScale();
+                updateImageFX();
+                tzRender();
+                renderZoneList();
+            };
+            
+            tzImg.onerror = function() {
+                document.getElementById('tz-no-img').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle" style="font-size:32px;display:block;margin-bottom:8px;color:#e74a3b;"></i>' +
+                    'Failed to load image';
+            };
+            
+            tzImg.src = src;
+        }
+        
+        function updateScale() {
+            if (!tzCanvas) return;
+            var rect = tzCanvas.getBoundingClientRect();
+            tzScaleX = tzCanvas.width / rect.width;
+            tzScaleY = tzCanvas.height / rect.height;
+        }
+        
+        function getPos(e) {
+            var rect = tzCanvas.getBoundingClientRect();
+            var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { 
+                x: (clientX - rect.left) * tzScaleX, 
+                y: (clientY - rect.top) * tzScaleY 
+            };
+        }
+        
+        function zoneAt(x, y) {
+            return zones.slice().reverse().find(function(z) {
+                var hw = (z.size || 30) * 4;
+                var hh = (z.size || 30) * 1.4;
+                return x >= z.x - hw && x <= z.x + hw && y >= z.y - hh && y <= z.y + hh;
+            });
+        }
+        
+        function hexToRgb(hex) {
+            hex = hex.replace('#', '');
+            return { 
+                r: parseInt(hex.substring(0, 2), 16), 
+                g: parseInt(hex.substring(2, 4), 16), 
+                b: parseInt(hex.substring(4, 6), 16) 
+            };
+        }
+        
+        // Canvas mouse events
+        window.tzCanvasDown = function(e) {
+            e.preventDefault();
+            updateScale();
+            var p = getPos(e);
+            var hit = zoneAt(p.x, p.y);
+            
+            if (hit) {
+                selectZone(hit.id);
+                tzDragging = true;
+                tzDragOffX = p.x - hit.x;
+                tzDragOffY = p.y - hit.y;
+                window._tzDragId = hit.id;
+            } else {
+                tzAddZoneAt(p.x, p.y);
+            }
+        };
+        
+        window.tzCanvasMove = function(e) {
+            if (!tzDragging) return;
+            e.preventDefault();
+            var p = getPos(e);
+            var z = zones.find(function(zz) { return zz.id === window._tzDragId; });
+            if (z) {
+                z.x = p.x - tzDragOffX;
+                z.y = p.y - tzDragOffY;
+                tzRender();
+            }
+        };
+        
+        window.tzCanvasUp = function() {
+            tzDragging = false;
+        };
+        
+        function tzRender() {
+            if (!tzCtx || !tzImg) return;
+            
+            tzCtx.clearRect(0, 0, tzCanvas.width, tzCanvas.height);
+            
+            // Apply image shadow if enabled
+            if (imageFX.shadowEnabled) {
+                tzCtx.save();
+                var sc = imageFX.shadowColor || '#000000';
+                var sb = imageFX.shadowBlur || 20;
+                var ss = imageFX.shadowSpread || 5;
+                var sox = imageFX.shadowOffX || 0;
+                var soy = imageFX.shadowOffY || 5;
+                var so = (imageFX.shadowOpacity || 60) / 100;
+                var srgb = hexToRgb(sc);
+                
+                tzCtx.shadowColor = 'rgba(' + srgb.r + ',' + srgb.g + ',' + srgb.b + ',' + so + ')';
+                tzCtx.shadowBlur = sb;
+                tzCtx.shadowOffsetX = sox;
+                tzCtx.shadowOffsetY = soy;
+                tzCtx.drawImage(tzImg, 0, 0, tzCanvas.width, tzCanvas.height);
+                
+                if (ss > 0) {
+                    for (var i = 1; i <= Math.ceil(ss / 2); i++) {
+                        tzCtx.drawImage(tzImg, 0, 0, tzCanvas.width, tzCanvas.height);
+                    }
+                }
+                
+                tzCtx.shadowColor = 'transparent';
+                tzCtx.shadowBlur = 0;
+                tzCtx.shadowOffsetX = 0;
+                tzCtx.shadowOffsetY = 0;
+                tzCtx.drawImage(tzImg, 0, 0, tzCanvas.width, tzCanvas.height);
+                tzCtx.restore();
+            } else {
+                tzCtx.drawImage(tzImg, 0, 0, tzCanvas.width, tzCanvas.height);
+            }
+            
+            // Render text zones
+            zones.forEach(function(z) {
+                var txt = z.defaultText || z.label || 'Text';
+                var sz = z.size || 30;
+                var weight = z.bold ? 'bold' : 'normal';
+                var style = z.italic ? 'italic ' : '';
+                var align = z.align || 'center';
+                
+                tzCtx.save();
+                tzCtx.font = style + weight + ' ' + sz + 'px "' + (z.font || 'Arial') + '"';
+                
+                var metrics = tzCtx.measureText(txt);
+                var tw = metrics.width;
+                var th = sz * 1.4;
+                
+                // Apply text shadow
+                if (z.shadowEnabled) {
+                    var sc2 = z.shadowColor || '#000000';
+                    var sb2 = z.shadowBlur || 8;
+                    var sox2 = z.shadowOffX || 2;
+                    var soy2 = z.shadowOffY || 2;
+                    var so2 = (z.shadowOpacity || 80) / 100;
+                    var srgb2 = hexToRgb(sc2);
+                    
+                    tzCtx.shadowColor = 'rgba(' + srgb2.r + ',' + srgb2.g + ',' + srgb2.b + ',' + so2 + ')';
+                    tzCtx.shadowBlur = sb2;
+                    tzCtx.shadowOffsetX = sox2;
+                    tzCtx.shadowOffsetY = soy2;
+                } else {
+                    tzCtx.shadowColor = 'rgba(0,0,0,0.3)';
+                    tzCtx.shadowBlur = 2;
+                    tzCtx.shadowOffsetX = 1;
+                    tzCtx.shadowOffsetY = 1;
+                }
+                
+                tzCtx.fillStyle = z.color || '#ffffff';
+                tzCtx.textAlign = align;
+                tzCtx.textBaseline = 'middle';
+                tzCtx.fillText(txt, z.x, z.y);
+                
+                tzCtx.shadowColor = 'transparent';
+                tzCtx.shadowBlur = 0;
+                tzCtx.shadowOffsetX = 0;
+                tzCtx.shadowOffsetY = 0;
+                
+                // Draw bounding box
+                var bx, by;
+                if (align === 'center') {
+                    bx = z.x - tw / 2 - 10;
+                } else if (align === 'left') {
+                    bx = z.x - 10;
+                } else {
+                    bx = z.x - tw - 10;
+                }
+                by = z.y - th / 2 - 6;
+                
+                tzCtx.strokeStyle = z.id === selectedZoneId ? '#4e73df' : 'rgba(200,200,200,0.7)';
+                tzCtx.lineWidth = z.id === selectedZoneId ? 3 : 1.5;
+                tzCtx.setLineDash(z.id === selectedZoneId ? [7, 4] : [4, 4]);
+                tzCtx.strokeRect(bx, by, tw + 20, th + 12);
+                
+                // Draw zone number
+                var idx = zones.findIndex(function(zz) { return zz.id === z.id; }) + 1;
+                tzCtx.setLineDash([]);
+                tzCtx.fillStyle = z.id === selectedZoneId ? '#4e73df' : 'rgba(0,0,0,0.5)';
+                tzCtx.beginPath();
+                tzCtx.arc(bx + 12, by + 12, 12, 0, Math.PI * 2);
+                tzCtx.fill();
+                
+                tzCtx.fillStyle = '#fff';
+                tzCtx.font = 'bold 12px Arial';
+                tzCtx.textAlign = 'center';
+                tzCtx.textBaseline = 'middle';
+                tzCtx.fillText(idx, bx + 12, by + 12);
+                
+                tzCtx.restore();
+            });
+        }
+        
+        function tzAddZoneAt(x, y) {
+            var z = {
+                id: tzIdCounter++,
+                label: 'Text Zone ' + (zones.length + 1),
+                defaultText: '',
+                font: 'Arial',
+                size: 40,
+                color: '#ffffff',
+                align: 'center',
+                bold: false,
+                italic: false,
+                maxLen: 0,
+                required: false,
+                shadowEnabled: false,
+                shadowColor: '#000000',
+                shadowBlur: 8,
+                shadowOffX: 2,
+                shadowOffY: 2,
+                shadowOpacity: 80,
+                x: x,
+                y: y
+            };
+            zones.push(z);
+            selectZone(z.id);
+            tzRender();
+            renderZoneList();
+        }
+        
+        window.tzAddZone = function() {
+            if (!tzCanvas || !tzCanvas.width) {
+                alert('Please save the product image first!');
+                return;
+            }
+            var cx = tzCanvas.width / 2;
+            var cy = tzCanvas.height / 3 + zones.length * 60;
+            tzAddZoneAt(cx, cy);
+        };
+        
+        function selectZone(id) {
+            selectedZoneId = id;
+            var z = zones.find(function(zz) { return zz.id === id; });
+            if (!z) return;
+            
+            document.getElementById('tz-active-controls').style.display = 'block';
+            document.getElementById('tz-label').value = z.label || '';
+            document.getElementById('tz-default').value = z.defaultText || '';
+            document.getElementById('tz-size').value = z.size || 30;
+            document.getElementById('tz-color').value = z.color || '#ffffff';
+            document.getElementById('tz-align').value = z.align || 'center';
+            document.getElementById('tz-bold').checked = !!z.bold;
+            document.getElementById('tz-italic').checked = !!z.italic;
+            document.getElementById('tz-maxlen').value = z.maxLen || 0;
+            document.getElementById('tz-required').checked = !!z.required;
+            document.getElementById('tz-shadow-enabled').checked = !!z.shadowEnabled;
+            document.getElementById('tz-shadow-color').value = z.shadowColor || '#000000';
+            document.getElementById('tz-shadow-blur').value = z.shadowBlur || 8;
+            document.getElementById('tz-shadow-offx').value = z.shadowOffX || 2;
+            document.getElementById('tz-shadow-offy').value = z.shadowOffY || 2;
+            document.getElementById('tz-shadow-opacity').value = z.shadowOpacity || 80;
+            document.getElementById('tz-shadow-opacity-val').textContent = (z.shadowOpacity || 80) + '%';
+            document.getElementById('tz-shadow-settings').style.display = z.shadowEnabled ? 'block' : 'none';
+            
+            // Set font
+            var font = z.font || 'Arial';
+            document.getElementById('tz-font').value = font;
+            document.getElementById('tz-selected-font').textContent = font + ' ✓';
+            document.getElementById('tz-selected-font').style.fontFamily = font;
+            document.getElementById('tz-font-search').value = '';
+            document.getElementById('tz-font-list').innerHTML = '';
+            
+            renderZoneList();
+            tzRender();
+        }
+        
+        window.tzUpdateSelected = function(key, val) {
+            var z = zones.find(function(zz) { return zz.id === selectedZoneId; });
+            if (!z) return;
+            
+            z[key] = val;
+            
+            if (key === 'shadowEnabled') {
+                document.getElementById('tz-shadow-settings').style.display = val ? 'block' : 'none';
+            }
+            if (key === 'shadowOpacity') {
+                document.getElementById('tz-shadow-opacity-val').textContent = val + '%';
+            }
+            
+            tzRender();
+            renderZoneList();
+        };
+        
+        window.tzDeleteZone = function(id) {
+            if (!confirm('Delete this zone?')) return;
+            
+            zones = zones.filter(function(z) { return z.id !== id; });
+            
+            if (selectedZoneId === id) {
+                selectedZoneId = null;
+                document.getElementById('tz-active-controls').style.display = 'none';
+            }
+            
+            tzRender();
+            renderZoneList();
+        };
+        
+        function renderZoneList() {
+            var container = document.getElementById('tz-zone-list');
+            
+            if (!zones.length) {
+                container.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:20px;">No zones added yet</p>';
+                return;
+            }
+            
+            container.innerHTML = zones.map(function(z, i) {
+                var isActive = z.id === selectedZoneId;
+                return '<div class="tz-zone-card ' + (isActive ? 'active-zone' : '') + 
+                       '" onclick="tzSelectZone(' + z.id + ')">' +
+                       '<button class="delete-zone" onclick="event.stopPropagation();tzDeleteZone(' + z.id + ')">✕</button>' +
+                       '<div class="zone-label">' + (i + 1) + '. ' + (z.label || 'Zone ' + (i + 1)) + '</div>' +
+                       '<div style="font-size:11px;color:#888;margin-top:3px;">' +
+                       (z.font || 'Arial') + ' · ' + (z.size || 30) + 'px · ' +
+                       '<span style="display:inline-block;width:10px;height:10px;background:' + (z.color || '#fff') + 
+                       ';border:1px solid #ccc;border-radius:2px;vertical-align:middle;"></span> ' +
+                       (z.align || 'center') + 
+                       (z.bold ? ' · <b>B</b>' : '') + 
+                       (z.italic ? ' · <i>I</i>' : '') + 
+                       (z.shadowEnabled ? ' · 💫Shadow' : '') +
+                       '</div></div>';
+            }).join('');
+        }
+        
+        window.tzSelectZone = function(id) {
+            selectZone(id);
+        };
+        
+        window.toggleImageShadow = function(enabled) {
+            imageFX.shadowEnabled = enabled;
+            document.getElementById('fx-shadow-settings').style.display = enabled ? 'block' : 'none';
+            updateImageFX();
+        };
+        
+        window.updateImageFX = function() {
+            if (imageFX.shadowEnabled) {
+                imageFX.shadowColor = document.getElementById('fx-shadow-color').value || '#000000';
+                imageFX.shadowBlur = parseInt(document.getElementById('fx-shadow-blur').value) || 20;
+                imageFX.shadowSpread = parseInt(document.getElementById('fx-shadow-spread').value) || 5;
+                imageFX.shadowOffX = parseInt(document.getElementById('fx-shadow-offx').value) || 0;
+                imageFX.shadowOffY = parseInt(document.getElementById('fx-shadow-offy').value) || 5;
+                imageFX.shadowOpacity = parseInt(document.getElementById('fx-shadow-opacity').value) || 60;
+            }
+            
+            document.getElementById('fx-shadow-blur-val').textContent = (imageFX.shadowBlur || 20) + 'px';
+            document.getElementById('fx-shadow-spread-val').textContent = (imageFX.shadowSpread || 5) + 'px';
+            document.getElementById('fx-shadow-offx-val').textContent = (imageFX.shadowOffX || 0) + 'px';
+            document.getElementById('fx-shadow-offy-val').textContent = (imageFX.shadowOffY || 5) + 'px';
+            document.getElementById('fx-shadow-opacity-val').textContent = (imageFX.shadowOpacity || 60) + '%';
+            
+            document.getElementById('image_fx_input').value = JSON.stringify(imageFX);
+            tzRender();
+        };
+        
+        window.applyFXPreset = function(preset) {
+            switch(preset) {
+                case 'soft':
+                    imageFX = { shadowEnabled: true, shadowColor: '#000000', shadowBlur: 30, shadowSpread: 10, shadowOffX: 0, shadowOffY: 5, shadowOpacity: 40 };
+                    break;
+                case 'dark':
+                    imageFX = { shadowEnabled: true, shadowColor: '#000000', shadowBlur: 15, shadowSpread: 20, shadowOffX: 5, shadowOffY: 10, shadowOpacity: 80 };
+                    break;
+                case 'colored':
+                    imageFX = { shadowEnabled: true, shadowColor: '#4e73df', shadowBlur: 40, shadowSpread: 5, shadowOffX: 0, shadowOffY: 0, shadowOpacity: 60 };
+                    break;
+                case 'neon':
+                    imageFX = { shadowEnabled: true, shadowColor: '#ff00ff', shadowBlur: 50, shadowSpread: 0, shadowOffX: 0, shadowOffY: 0, shadowOpacity: 90 };
+                    break;
+                case 'reset':
+                    imageFX = { shadowEnabled: false, shadowColor: '#000000', shadowBlur: 20, shadowSpread: 5, shadowOffX: 0, shadowOffY: 5, shadowOpacity: 60 };
+                    break;
+            }
+            loadImageFXControls();
+            document.getElementById('image_fx_input').value = JSON.stringify(imageFX);
+            tzRender();
+        };
+        
+        window.tzSaveZones = function() {
+            document.getElementById('text_zones_input').value = JSON.stringify(zones);
+            document.getElementById('image_fx_input').value = JSON.stringify(imageFX);
+            
+            // Also save editor config
+            var editorConfig = {
+                name_change: document.querySelector('input[name="ec_name_change"]')?.checked ? 1 : 0,
+                bg_color: document.querySelector('input[name="ec_bg_color"]')?.checked ? 1 : 0,
+                brush: document.querySelector('input[name="ec_brush"]')?.checked ? 1 : 0,
+                eraser: document.querySelector('input[name="ec_eraser"]')?.checked ? 1 : 0,
+                size: document.querySelector('input[name="ec_size"]')?.checked ? 1 : 0,
+                download: document.querySelector('input[name="ec_download"]')?.checked ? 1 : 0,
+                preset_colors: document.querySelector('input[name="ec_preset_colors"]')?.value || '',
+                heading: document.querySelector('input[name="ec_heading"]')?.value || '',
+                fonts: Array.from(selected || [])
+            };
+            document.getElementById('editor_config_input').value = JSON.stringify(editorConfig);
+            
+            var btn = event.target;
+            var originalText = btn.textContent;
+            btn.textContent = '✅ Saved!';
+            btn.style.background = '#1cc88a';
+            setTimeout(function() { 
+                btn.textContent = originalText;
+                btn.style.background = '#1cc88a';
+            }, 3000);
+        };
+        
+        // Auto-save on form submit
+        var form = document.getElementById('productForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                document.getElementById('text_zones_input').value = JSON.stringify(zones);
+                document.getElementById('image_fx_input').value = JSON.stringify(imageFX);
+            });
+        }
+        
+        // Attach canvas events
+        setTimeout(function() {
+            var canvas = document.getElementById('tz-canvas');
+            if (!canvas) return;
+            
+            canvas.addEventListener('mousedown', window.tzCanvasDown);
+            canvas.addEventListener('mousemove', window.tzCanvasMove);
+            canvas.addEventListener('mouseup', window.tzCanvasUp);
+            canvas.addEventListener('mouseleave', window.tzCanvasUp);
+            
+            canvas.addEventListener('touchstart', window.tzCanvasDown, { passive: false });
+            canvas.addEventListener('touchmove', window.tzCanvasMove, { passive: false });
+            canvas.addEventListener('touchend', window.tzCanvasUp);
+            
+            window.addEventListener('resize', updateScale);
+        }, 500);
+    })();
+    </script>
+</body>
+</html>

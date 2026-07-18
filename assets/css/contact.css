@@ -1,0 +1,205 @@
+/* 
+=====================
+   Blog Page Styling:
+=====================
+ */
+
+.contact-page-section {
+    padding: 90px 0;
+    background-color: #ffffff;
+}
+
+.section-main-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--primary-blue, #0A192F);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-main-title::after {
+    content: '';
+    position: absolute;
+    width: 70px;
+    height: 3px;
+    background-color: var(--primary-gold, #C49B3B);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.contact-info-card {
+    background: #f9f9f9;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.4s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.contact-info-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--primary-gold, #C49B3B);
+    transition: height 0.3s ease;
+    z-index: -1;
+}
+
+.contact-info-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    border-color: transparent;
+}
+
+.contact-info-card:hover::before {
+    height: 100%;
+    opacity: 0.05;
+}
+
+.contact-icon {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(196, 155, 59, 0.1);
+    /* Light Gold bg */
+    color: var(--primary-gold, #C49B3B);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px auto;
+    transition: all 0.3s ease;
+}
+
+.contact-info-card:hover .contact-icon {
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.contact-info-card h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--primary-blue, #0A192F);
+    margin-bottom: 10px;
+}
+
+.contact-info-card p,
+.contact-info-card a {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #555555;
+    margin: 0;
+    line-height: 1.6;
+    text-decoration: none;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.contact-info-card a:hover {
+    color: var(--primary-gold, #C49B3B);
+}
+
+.form-map-wrapper {
+    margin-top: 60px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #eaeaea;
+}
+
+.contact-form-box {
+    padding: 50px 40px;
+    background-color: #ffffff;
+}
+
+.contact-form-box h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--primary-blue, #0A192F);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #dddddd;
+    padding: 12px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #333333;
+    background-color: #fcfcfc;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-gold, #C49B3B);
+    box-shadow: 0 0 0 3px rgba(196, 155, 59, 0.2);
+    background-color: #ffffff;
+}
+
+textarea.form-control {
+    height: 150px;
+    resize: none;
+}
+
+.btn-submit-form {
+    background-color: var(--primary-blue, #0A192F);
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 35px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-blue, #0A192F);
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-submit-form:hover {
+    background-color: var(--primary-gold, #C49B3B);
+    border-color: var(--primary-gold, #C49B3B);
+    transform: translateY(-2px);
+}
+
+.map-box {
+    height: 100%;
+    min-height: 400px;
+    width: 100%;
+}
+
+.map-box iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+@media (max-width: 991px) {
+    .contact-form-box {
+        padding: 40px 20px;
+    }
+
+    .map-box {
+        min-height: 350px;
+    }
+}

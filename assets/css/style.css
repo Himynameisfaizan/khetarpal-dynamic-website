@@ -1,0 +1,1738 @@
+:root {
+    --primary-blue: #0A192F;
+    --primary-gold: #C49B3B;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --bg-light: #f9f9f9;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* 
+=====================
+    Hero Banner Section Styling:
+=====================
+ */
+
+
+.topbar {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+.topbar a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.topbar a:hover {
+    color: var(--primary-gold);
+}
+
+.topbar-info i {
+    color: var(--primary-gold);
+    margin-right: 5px;
+}
+
+.social-links a {
+    margin-left: 12px;
+    font-size: 15px;
+}
+
+/* Main Header Styling */
+.main-header {
+    background-color: #ffffff;
+    border-bottom: 2px solid #f1f1f1;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    transition: all 0.3s ease;
+}
+
+/* Navigation Links with Hover Animation */
+.navbar-nav .nav-item {
+    margin: 0 8px;
+}
+
+.navbar-nav .nav-link {
+    color: var(--primary-blue) !important;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+/* Animated Underline Effect */
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary-gold);
+    transition: width 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-item.active .nav-link {
+    color: var(--primary-gold) !important;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-item.active .nav-link::after {
+    width: 100%;
+}
+
+/* Button Styling & Animation */
+.btn-quote {
+    background-color: var(--primary-gold);
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 10px 24px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none !important;
+    border: 2px solid var(--primary-gold);
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-quote:hover {
+    background-color: transparent;
+    color: var(--primary-gold) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(196, 155, 59, 0.2);
+}
+
+/* Logo Sizing */
+.header-logo img {
+    max-height: 70px;
+    width: auto;
+}
+
+/* Mobile Menu (Offcanvas) Customization */
+.offcanvas-header {
+    background-color: var(--primary-blue);
+    color: #fff;
+}
+
+.offcanvas-header .btn-close {
+    filter: invert(1);
+}
+
+
+/* 
+=====================
+    Hero Banner Section Styling:
+=====================
+ */
+
+
+.hero-section {
+    background-image: url('../img/banner/banner.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+    padding: 100px 0;
+    color: #ffffff;
+    min-height: 550px;
+    display: flex;
+    align-items: center;
+}
+
+/* Overlay taaki text clear dikhe (jaisa client ki image me left side thoda dark hai) */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gradient overlay: Left se Right (Dark Blue to Transparent) */
+    background: linear-gradient(to right, rgba(10, 25, 47, 0.9) 0%, rgba(10, 25, 47, 0.4) 60%, rgba(10, 25, 47, 0) 100%);
+    z-index: 1;
+}
+
+/* Content ko overlay ke upar laane ke liye z-index */
+.hero-content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 3.5rem;
+    /* Bada text client design ki tarah */
+    line-height: 1.1;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.hero-title span {
+    color: var(--primary-gold);
+    /* Gold color for 'EXPORT COMPANY' */
+    display: block;
+}
+
+.hero-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 40px;
+    max-width: 500px;
+    /* Text ko zyada failne se rokne ke liye */
+    line-height: 1.6;
+}
+
+/* Buttons Styling */
+.hero-btn-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    /* Mobile par buttons stack ho jayenge */
+}
+
+.btn-solid-gold {
+    background-color: var(--primary-gold);
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-gold);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-solid-gold:hover {
+    background-color: transparent;
+    color: var(--primary-gold) !important;
+}
+
+.btn-outline-gold {
+    background-color: transparent;
+    color: var(--primary-gold) !important;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-gold);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-outline-gold:hover {
+    background-color: var(--primary-gold);
+    color: #ffffff !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 80px 0;
+        min-height: 400px;
+        text-align: center;
+        /* Mobile me center align acha lagta hai */
+    }
+
+    .hero-section::before {
+        /* Mobile pe pura dark overlay taaki text clear rahe */
+        background: rgba(10, 25, 47, 0.75);
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .hero-desc {
+        margin: 0 auto 30px auto;
+    }
+
+    .hero-btn-group {
+        justify-content: center;
+    }
+}
+
+
+
+/* 
+=====================
+   Company Features Strip Styling:
+=====================
+ */
+
+
+.features-strip {
+    background-color: #ffffff;
+    padding: 30px 0;
+    border-bottom: 1px solid #eaeaea;
+    box-shadow: 0 4px 6px -6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+    margin-top: -5px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    gap: 15px;
+    cursor: pointer;
+}
+
+.feature-icon {
+    font-size: 2.2rem;
+    color: var(--primary-blue, #0A192F);
+    /* Deep Navy Blue */
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover .feature-icon {
+    transform: scale(1.1);
+    color: var(--primary-gold, #C49B3B);
+}
+
+.feature-text {
+    text-align: left;
+}
+
+.feature-text h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark, #333333);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.feature-text p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: #666666;
+    margin: 0;
+}
+
+@media (min-width: 992px) {
+    .feature-item:not(:last-child) {
+        border-right: 1px solid #eaeaea;
+    }
+}
+
+@media (max-width: 991px) {
+    .feature-item {
+        justify-content: flex-start;
+        padding: 15px 0;
+        border-bottom: 1px solid #eaeaea;
+    }
+
+    .feature-item:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* 
+=====================
+    Product Grid Section Styling:
+=====================
+ */
+
+
+.premium-products-section {
+    padding: 80px 0;
+    background-color: #f9f9f9;
+}
+
+/* Section Header */
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.section-title h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary-blue, #0A192F);
+    text-transform: uppercase;
+    display: inline-block;
+    padding-bottom: 10px;
+    position: relative;
+}
+
+/* Title ke neeche choti gold line (Underline effect) */
+.section-title h2::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-gold, #C49B3B);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Product Card Styling */
+.product-card {
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    /* Halke rounded corners */
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 30px;
+    /* Neeche space (grid gap) */
+    text-align: center;
+    padding-bottom: 25px;
+}
+
+/* Hover Animation on Card */
+.product-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    border-color: var(--primary-gold, #C49B3B);
+}
+
+/* Image Wrapper for Zoom Animation */
+.product-img-wrapper {
+    width: 100%;
+    height: 220px;
+    /* Fixed height for uniformity */
+    overflow: hidden;
+    position: relative;
+    background-color: #fff;
+}
+
+.product-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Image ko crop karke set karega proportion me */
+    transition: transform 0.5s ease;
+}
+
+/* Hover par image slight zoom hogi */
+.product-card:hover .product-img-wrapper img {
+    transform: scale(1.1);
+}
+
+/* Product Details Typography */
+.product-card h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--primary-blue, #0A192F);
+    text-transform: uppercase;
+    margin: 20px 0 10px 0;
+}
+
+.product-meta {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: #555555;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.product-meta span {
+    display: block;
+}
+
+/* Send Inquiry Button */
+.btn-inquiry {
+    background-color: var(--primary-blue, #0A192F);
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: none;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-inquiry:hover {
+    background-color: var(--primary-gold, #C49B3B);
+    /* Hover pe gold ho jayega */
+}
+
+/* View All Button Styling */
+.view-all-wrapper {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-view-all {
+    color: var(--primary-gold, #C49B3B) !important;
+    background: transparent;
+    border: 2px solid var(--primary-gold, #C49B3B);
+    padding: 10px 30px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-view-all:hover {
+    background: var(--primary-gold, #C49B3B);
+    color: #ffffff !important;
+}
+
+
+
+/* 
+=====================
+   custom CSS for About & Stats Section:
+=====================
+ */
+
+.about-stats-section {
+    background-color: var(--primary-blue, #0A192F);
+    /* Deep Navy Blue */
+    padding: 80px 0;
+    color: #ffffff;
+    position: relative;
+}
+
+/* Stats Grid Styling */
+.stat-box {
+    text-align: center;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.stat-icon {
+    font-size: 35px;
+    color: var(--primary-gold, #C49B3B);
+    /* Gold icons */
+    margin-bottom: 15px;
+    transition: transform 0.4s ease, color 0.3s ease;
+}
+
+/* Hover Animation - Icon bounce and color shift */
+.stat-box:hover .stat-icon {
+    transform: translateY(-8px);
+    color: #ffffff;
+}
+
+.stat-number {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: #ffffff;
+}
+
+.stat-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #d1d1d1;
+    /* Light gray text for readability */
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* About Content Styling (Right Side) */
+.about-content {
+    padding-left: 30px;
+    /* Desktop me stats aur text ke beech gap */
+}
+
+.about-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--primary-gold, #C49B3B);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+.about-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+}
+
+/* Read More Button */
+.btn-read-more {
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 25px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-gold, #C49B3B);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-read-more:hover {
+    background-color: transparent;
+    color: var(--primary-gold, #C49B3B) !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 991px) {
+    .about-content {
+        padding-left: 0;
+        text-align: center;
+        /* Mobile par text center align acha lagta hai */
+        margin-top: 40px;
+        /* Upar wale stats se gap */
+    }
+}
+
+
+
+/* 
+=====================
+    Why choose us Section Styling:
+=====================
+ */
+
+.section-main-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary-blue, #0A192F);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section-main-title::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-gold, #C49B3B);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* --- WHY CHOOSE US SECTION --- */
+.why-choose-section {
+    padding: 80px 0;
+    background-color: #f9f9f9;
+    /* Halka light gray background */
+}
+
+.wcu-card {
+    background: #ffffff;
+    padding: 30px 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #eaeaea;
+    transition: all 0.3s ease;
+    height: 100%;
+    cursor: pointer;
+}
+
+.wcu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-gold, #C49B3B);
+}
+
+.wcu-icon {
+    font-size: 35px;
+    color: var(--primary-blue, #0A192F);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.wcu-card:hover .wcu-icon {
+    transform: scale(1.1);
+    color: var(--primary-gold, #C49B3B);
+}
+
+.wcu-card h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-dark, #333333);
+    margin-bottom: 10px;
+}
+
+.wcu-card p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: #666666;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* 
+=====================
+    EXPORT MARKETS SECTION Styling:
+=====================
+ */
+
+.export-markets-section {
+    padding: 40px 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.section-main-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary-blue, #0A192F);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section-main-title::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-gold, #C49B3B);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Grid Layout for Countries */
+.country-grid {
+    display: grid;
+    /* Desktop par auto-adjust karega, minimum 150px width lega har card */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 25px;
+    padding: 0 15px;
+}
+
+/* Single Country Card */
+.country-card {
+    background: #f9f9f9;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Smooth Hover Animation */
+.country-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-gold, #C49B3B);
+    background: #ffffff;
+}
+
+/* Flag Image Styling */
+.flag-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 15px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.4s ease;
+}
+
+.flag-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Image zoom on card hover */
+.country-card:hover .flag-wrapper {
+    transform: scale(1.1);
+    border-color: var(--primary-gold, #C49B3B);
+}
+
+/* Country Name Typography */
+.country-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--primary-blue, #0A192F);
+    margin: 0;
+    text-transform: capitalize;
+    transition: color 0.3s ease;
+}
+
+.country-card:hover .country-name {
+    color: var(--primary-gold, #C49B3B);
+}
+
+/* Global Reach Text */
+.global-reach-text {
+    text-align: center;
+    margin-top: 40px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #666666;
+}
+
+.global-reach-text span {
+    font-weight: 600;
+    color: var(--primary-blue, #0A192F);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 576px) {
+    .country-grid {
+        /* Mobile par exactly 2 columns dikhayega */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .flag-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+
+    .country-name {
+        font-size: 14px;
+    }
+}
+
+/* 
+=====================
+   COUNTRY LIST SECTION Styling:
+=====================
+ */
+
+
+.cta-banner-section {
+    position: relative;
+    padding: 100px 0;
+    /* Desktop par acha space dega */
+    background-color: var(--primary-blue, #0A192F);
+    /* Theme background fallback */
+    color: #ffffff;
+    text-align: center;
+    overflow: hidden;
+    /* Image bahar na nikle */
+    margin-top: 60px;
+    /* Purane 'm-t-100' ka replacement */
+}
+
+/* Background Image Styling (Backend me image yahan aayegi) */
+.cta-banner-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Image automatically stretch hoke fit ho jayegi */
+    z-index: 0;
+}
+
+/* Overlay taaki text hamesha clear dikhe, chahe image kaisi bhi ho */
+.cta-banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 25, 47, 0.75);
+    /* Dark Navy Blue semi-transparent */
+    z-index: 1;
+}
+
+/* Content Wrapper */
+.cta-banner-content {
+    position: relative;
+    z-index: 2;
+    /* Overlay ke upar laane ke liye */
+    max-width: 800px;
+    margin: 0 auto;
+    /* Center karne ke liye */
+}
+
+/* Typography */
+.cta-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--primary-gold, #C49B3B);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.cta-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.cta-desc {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: #e0e0e0;
+    margin-bottom: 35px;
+}
+
+/* Button Styling */
+.btn-cta-gold {
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 35px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-gold, #C49B3B);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-cta-gold:hover {
+    background-color: transparent;
+    color: var(--primary-gold, #C49B3B) !important;
+    transform: translateY(-3px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .cta-banner-section {
+        padding: 60px 15px;
+        /* Mobile par padding kam ki hai */
+    }
+
+    .cta-title {
+        font-size: 28px;
+        /* Heading choti ki hai */
+    }
+
+    .cta-desc {
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+}
+
+/* 
+=====================
+   COUNTRY LIST SECTION Styling:
+=====================
+ */
+
+.countries-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.countries-list li {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark, #333333);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.countries-list li::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-gold, #C49B3B);
+    background-color: transparent;
+}
+
+
+.section-main-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary-blue);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section-main-title::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-gold);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
+
+/* 
+=====================
+    TESTIMONIAL SECTION Styling:
+=====================
+ */
+
+.testimonial-section {
+    padding: 80px 0;
+    background-color: var(--bg-light);
+    /* Halka grey background */
+    position: relative;
+}
+
+/* Customizing the Testimonial Box */
+.testimonial-box {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid var(--primary-gold);
+    margin: 0 15px;
+    /* Spacing for slider if used later */
+}
+
+.quote-icon {
+    font-size: 40px;
+    color: var(--primary-gold);
+    opacity: 0.2;
+    position: absolute;
+    top: 20px;
+    left: 30px;
+}
+
+.testimonial-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.client-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.client-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-gold);
+}
+
+.client-details h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin: 0 0 5px 0;
+}
+
+.client-details span {
+    font-size: 13px;
+    color: var(--primary-gold);
+    font-weight: 500;
+}
+
+/* 
+=====================
+   BLOG SECTION Styling:
+=====================
+ */
+
+.blog-section {
+    padding: 80px 0;
+    background-color: #ffffff;
+}
+
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+/* Modifying title for the flex layout */
+.section-header-flex .section-main-title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    text-align: left;
+}
+
+.section-header-flex .section-main-title::after {
+    display: none;
+    /* Removing center line for left-aligned title */
+}
+
+.title-with-line {
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.title-with-line::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-gold);
+    bottom: 0;
+    left: 0;
+    /* Left align line */
+}
+
+.btn-view-all {
+    color: var(--primary-gold);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.btn-view-all:hover {
+    color: var(--primary-blue);
+}
+
+/* Blog Card Styling */
+.blog-card {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid #eaeaea;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.blog-img-wrapper {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.blog-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.blog-card:hover .blog-img-wrapper img {
+    transform: scale(1.1);
+}
+
+.blog-content {
+    padding: 25px;
+}
+
+.blog-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+    line-height: 1.4;
+    display: block;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.blog-title:hover {
+    color: var(--primary-gold);
+}
+
+.blog-meta {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.blog-meta i {
+    color: var(--primary-gold);
+    margin-right: 5px;
+}
+
+.read-more-link {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.read-more-link i {
+    margin-left: 5px;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.read-more-link:hover {
+    color: var(--primary-gold);
+}
+
+.read-more-link:hover i {
+    transform: translateX(5px);
+}
+
+@media (max-width: 767px) {
+    .section-header-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .testimonial-box {
+        margin: 0 0 30px 0;
+    }
+}
+
+
+/* 
+=====================
+   BLOG SECTION Styling:
+=====================
+ */
+
+.site-footer {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+    padding-top: 70px;
+    font-family: 'Poppins', sans-serif;
+    border-top: 4px solid var(--primary-gold);
+}
+
+/* Footer Top */
+.footer-top {
+    padding-bottom: 50px;
+}
+
+/* Footer Logo & Social Area */
+.footer-brand {
+    margin-bottom: 30px;
+}
+
+.footer-logo {
+    max-width: 220px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+/* If no image logo is available, style a text logo */
+.footer-text-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-gold);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.footer-text-logo span {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 400;
+    display: block;
+}
+
+.footer-social {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0 0 0;
+    display: flex;
+    gap: 15px;
+}
+
+.footer-social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+    background-color: var(--primary-gold);
+    transform: translateY(-3px);
+}
+
+/* Footer Widget Titles */
+.footer-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-gold);
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 2px;
+    background-color: var(--primary-gold);
+}
+
+/* Footer Links Lists */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: #d1d1d1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 300;
+    transition: color 0.3s ease, padding-left 0.3s ease;
+    display: inline-block;
+}
+
+.footer-links a:hover {
+    color: var(--primary-gold);
+    padding-left: 5px;
+}
+
+/* Footer Contact Info */
+.footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-contact li {
+    color: #d1d1d1;
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.6;
+}
+
+.footer-contact i {
+    color: var(--primary-gold);
+    margin-top: 4px;
+    font-size: 16px;
+}
+
+.footer-contact a {
+    color: #d1d1d1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-contact a:hover {
+    color: var(--primary-gold);
+}
+
+/* Footer Bottom (Copyright Area) */
+.footer-bottom {
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Slightly darker than main footer */
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.copyright-text {
+    color: #a0a0a0;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 300;
+}
+
+.copyright-text span {
+    color: var(--primary-gold);
+}
+
+@media (max-width: 991px) {
+    .footer-widget {
+        margin-bottom: 40px;
+    }
+
+    .footer-title::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .footer-title,
+    .footer-links,
+    .footer-contact,
+    .footer-brand {
+        text-align: center;
+    }
+
+    .footer-social {
+        justify-content: center;
+    }
+
+    .footer-contact li {
+        justify-content: center;
+    }
+
+    .copyright-text {
+        text-align: center;
+    }
+}
+
+/* 
+=====================
+   NEWSLETTER SECTION Styling:
+=====================
+ */
+
+
+.newsletter-section {
+    position: relative;
+    padding: 90px 0;
+    background-color: var(--primary-blue, #0A192F);
+    /* Fallback color */
+    overflow: hidden;
+    margin-top: 60px;
+    /* Space from previous section */
+}
+
+/* Background Image Styling */
+.newsletter-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+/* Overlay for text readability */
+.newsletter-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 25, 47, 0.85);
+    /* Dark blue overlay */
+    z-index: 1;
+}
+
+/* Content Wrapper */
+.newsletter-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+}
+
+.newsletter-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.newsletter-title span {
+    color: var(--primary-gold, #C49B3B);
+}
+
+.newsletter-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #d1d1d1;
+    margin-bottom: 35px;
+}
+
+/* Premium Input Group Styling */
+.input-group-custom {
+    position: relative;
+    max-width: 550px;
+    margin: 0 auto;
+    /* Center alignment */
+}
+
+.input-group-custom .input-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888888;
+    font-size: 18px;
+    z-index: 5;
+}
+
+.input-group-custom input {
+    width: 100%;
+    height: 60px;
+    border-radius: 30px;
+    /* Rounded pill shape */
+    border: none;
+    padding: 10px 150px 10px 55px;
+    /* Right padding button ke liye, Left padding icon ke liye */
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #333333;
+    outline: none;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.input-group-custom input:focus {
+    box-shadow: 0 0 0 3px rgba(196, 155, 59, 0.4);
+    /* Gold glow on focus */
+}
+
+/* Inside Subscribe Button */
+.btn-subscribe {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    height: 50px;
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff;
+    border: none;
+    border-radius: 25px;
+    padding: 0 30px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-subscribe:hover {
+    background-color: #a88532;
+    /* Slightly darker gold */
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .newsletter-section {
+        padding: 60px 15px;
+    }
+
+    .newsletter-title {
+        font-size: 24px;
+    }
+
+    .input-group-custom input {
+        height: 55px;
+        padding-right: 120px;
+        padding-left: 45px;
+    }
+
+    .btn-subscribe {
+        height: 45px;
+        padding: 0 15px;
+        font-size: 13px;
+    }
+
+    .input-group-custom .input-icon {
+        left: 15px;
+        font-size: 16px;
+    }
+}
+
+/* 
+=====================
+   QUOTE SECTION Styling:
+=====================
+ */
+
+
+.quote-modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.quote-modal-header {
+    background-color: var(--primary-blue, #0A192F);
+    color: #ffffff;
+    padding: 25px 30px;
+    border-bottom: 4px solid var(--primary-gold, #C49B3B);
+    position: relative;
+}
+
+.quote-modal-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.quote-modal-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: #d1d1d1;
+    margin: 5px 0 0 0;
+}
+
+.quote-modal-header .btn-close-custom {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    transition: color 0.3s ease;
+}
+
+.quote-modal-header .btn-close-custom:hover {
+    color: var(--primary-gold, #C49B3B);
+}
+
+.quote-modal-body {
+    padding: 35px 30px;
+    background-color: #fcfcfc;
+}
+
+/* Form Fields Styling */
+.quote-form-group {
+    margin-bottom: 20px;
+}
+
+.quote-form-group label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--primary-blue, #0A192F);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.quote-form-control {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #dddddd;
+    padding: 12px 15px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #333333;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.quote-form-control:focus {
+    border-color: var(--primary-gold, #C49B3B);
+    box-shadow: 0 0 0 3px rgba(196, 155, 59, 0.2);
+    outline: none;
+}
+
+textarea.quote-form-control {
+    height: 100px;
+    resize: none;
+}
+
+/* Submit Button */
+.btn-submit-quote {
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 30px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    border: 2px solid var(--primary-gold, #C49B3B);
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-submit-quote:hover {
+    background-color: var(--primary-blue, #0A192F);
+    border-color: var(--primary-blue, #0A192F);
+    transform: translateY(-2px);
+}
