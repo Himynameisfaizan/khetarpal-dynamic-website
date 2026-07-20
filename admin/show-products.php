@@ -146,18 +146,12 @@ $offset = ($page - 1) * $perPage;
 
 // Correct JOINs: category on cate_id, subcategory on id (primary key)
 // COALESCE: agar pro_cate NULL hai to subcategory ke parent_id se category nikalo
-$sql = "SELECT p.*, 
-               COALESCE(c.categories, pc.categories) AS category_name, 
-               sc.categories AS subcategory_name
+$sql = "SELECT p.*, c.categories AS category_name 
         FROM products p
-        LEFT JOIN categories c ON p.pro_cate = c.cate_id
-        LEFT JOIN sub_categories sc ON p.pro_sub_cate = sc.id
-        LEFT JOIN categories pc ON sc.parent_id = pc.cate_id";
+        LEFT JOIN categories c ON p.pro_cate = c.cate_id";
 
 $countSql = "SELECT COUNT(*) as total FROM products p
-             LEFT JOIN categories c ON p.pro_cate = c.cate_id
-             LEFT JOIN sub_categories sc ON p.pro_sub_cate = sc.id
-             LEFT JOIN categories pc ON sc.parent_id = pc.cate_id";
+             LEFT JOIN categories c ON p.pro_cate = c.cate_id";
 
 if (!empty($search)) {
     $searchTerm = mysqli_real_escape_string($conn, $search);

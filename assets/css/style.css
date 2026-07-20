@@ -16,122 +16,128 @@ body {
 =====================
  */
 
-
 .topbar {
-    background-color: var(--primary-blue);
+    background-color: var(--primary-blue, #0A192F);
     color: #ffffff;
+    padding: 10px 0;
     font-size: 13px;
-    padding: 8px 0;
 }
-
-.topbar a {
+.topbar .topbar-info span { margin-right: 20px; font-weight: 500; }
+.topbar .topbar-info i { color: var(--primary-gold, #C49B3B); margin-right: 5px; }
+.topbar .social-links a {
     color: #ffffff;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.topbar a:hover {
-    color: var(--primary-gold);
-}
-
-.topbar-info i {
-    color: var(--primary-gold);
-    margin-right: 5px;
-}
-
-.social-links a {
     margin-left: 12px;
-    font-size: 15px;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+.topbar .social-links a:hover {
+    color: var(--primary-gold, #C49B3B);
+    transform: translateY(-2px);
 }
 
-/* Main Header Styling */
+/* Main Navbar */
 .main-header {
     background-color: #ffffff;
-    border-bottom: 2px solid #f1f1f1;
     position: sticky;
     top: 0;
     z-index: 1020;
-    transition: all 0.3s ease;
 }
-
-/* Navigation Links with Hover Animation */
 .navbar-nav .nav-item {
-    margin: 0 8px;
+    margin: 0 5px;
 }
-
 .navbar-nav .nav-link {
-    color: var(--primary-blue) !important;
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
+    color: var(--primary-blue, #0A192F) !important;
+    padding: 10px 15px !important;
     position: relative;
-    padding-bottom: 5px;
     transition: color 0.3s ease;
 }
 
-/* Animated Underline Effect */
+/* Active State & Hover Line */
 .navbar-nav .nav-link::after {
     content: '';
     position: absolute;
-    width: 0%;
+    width: 0;
     height: 2px;
+    background-color: var(--primary-gold, #C49B3B);
     bottom: 0;
-    left: 0;
-    background-color: var(--primary-gold);
-    transition: width 0.3s ease-in-out;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
 }
-
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-item.active .nav-link {
-    color: var(--primary-gold) !important;
+    color: var(--primary-gold, #C49B3B) !important;
 }
-
 .navbar-nav .nav-link:hover::after,
 .navbar-nav .nav-item.active .nav-link::after {
-    width: 100%;
+    width: 70%;
 }
 
-/* Button Styling & Animation */
+/* ==========================================
+   DESKTOP HOVER DROPDOWN (Magic Fix)
+============================================= */
+@media (min-width: 992px) {
+    .dropdown:hover .dropdown-menu {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .dropdown-menu {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(15px); /* Slide up effect */
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 12px 0;
+        min-width: 220px;
+        margin-top: 0;
+    }
+}
+
+.dropdown-item {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #444;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-gold, #C49B3B);
+    padding-left: 26px; /* Smooth Indent on hover */
+}
+
+/* Quote Button Styling */
 .btn-quote {
-    background-color: var(--primary-gold);
-    color: #ffffff !important;
+    background-color: var(--primary-gold, #C49B3B);
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 12px;
     padding: 10px 24px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none !important;
-    border: 2px solid var(--primary-gold);
-    transition: all 0.3s ease-in-out;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
-
 .btn-quote:hover {
-    background-color: transparent;
-    color: var(--primary-gold) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(196, 155, 59, 0.2);
+    background-color: var(--primary-blue, #0A192F);
+    color: #ffffff;
 }
 
-/* Logo Sizing */
-.header-logo img {
-    max-height: 70px;
-    width: auto;
+/* Mobile Offcanvas Active Link */
+.offcanvas-body .nav-item.active .nav-link {
+    color: var(--primary-gold, #C49B3B) !important;
+    font-weight: 700;
+    padding-left: 10px;
+    border-left: 3px solid var(--primary-gold, #C49B3B);
 }
-
-/* Mobile Menu (Offcanvas) Customization */
-.offcanvas-header {
-    background-color: var(--primary-blue);
-    color: #fff;
-}
-
-.offcanvas-header .btn-close {
-    filter: invert(1);
-}
-
-
 /* 
 =====================
     Hero Banner Section Styling:

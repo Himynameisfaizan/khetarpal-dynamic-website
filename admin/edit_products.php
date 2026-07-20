@@ -21,13 +21,10 @@ $product_id = intval($_GET['edit_product_details']);
 
 // Fetch product details with prepared statement
 $query = "SELECT p.*, 
-          COALESCE(c.categories, pc.categories) as category_name,
-          sc.categories as subcategory_name,
-          COALESCE(p.pro_cate, pc.cate_id) as resolved_cate_id
+          c.categories as category_name,
+          p.pro_cate as resolved_cate_id
           FROM products p 
           LEFT JOIN categories c ON p.pro_cate = c.cate_id 
-          LEFT JOIN sub_categories sc ON p.pro_sub_cate = sc.id
-          LEFT JOIN categories pc ON sc.parent_id = pc.cate_id
           WHERE p.pro_id = ?";
           
 $stmt = $conn->prepare($query);
