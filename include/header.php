@@ -92,14 +92,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <!-- Dropdown fixed: Removed data-bs-toggle to make main link clickable -->
                             <li class="nav-item dropdown <?= ($current_page == 'product.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="product.php" id="navbarDropdown">
-                                    Products <i class="fas fa-chevron-down ms-1" style="font-size: 10px;"></i>
+                                    Products 
+                                    <!-- <i class="fas fa-chevron-down ms-1" style="font-size: 10px;"></i> -->
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <!-- <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">Cumin Seeds</a></li>
                                     <li><a class="dropdown-item" href="#">Psyllium Husk</a></li>
                                     <li><a class="dropdown-item" href="#">Castor Seeds</a></li>
                                     <li><a class="dropdown-item" href="product.php">View All Products</a></li>
-                                </ul>
+                                </ul> -->
                             </li>
 
                             <li class="nav-item <?= ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">

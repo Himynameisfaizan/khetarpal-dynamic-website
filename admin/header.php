@@ -25,14 +25,14 @@ if (!isset($_SESSION['admin_logged_in'])) {
         <li><a href="index.php"><i class="fas fa-tachometer-alt" style="color: #3498db;"></i> <span>Dashboard</span></a>
         </li>
 
-        <li>
+        <!-- <li>
             <a class="has-arrow" href="#"><i class="fas fa-home" style="color: #e74c3c;"></i> <span>Home
                     Content</span></a>
             <ul>
                 <li><a href="home-items.php">Add Logo</a></li>
                 <li><a href="add-banner.php">Add Banners</a></li>
             </ul>
-        </li>
+        </li> -->
 
         <li>
             <a class="has-arrow" href="#"><i class="fas fa-layer-group" style="color: #2ecc71;"></i>
@@ -55,14 +55,13 @@ if (!isset($_SESSION['admin_logged_in'])) {
             </ul>
         </li>
 
-        <!-- <li>
-            <a class="has-arrow" href="#"><i class="fas fa-fire" style="color: #ff6b6b;"></i><span>Special Offers</span></a>
+        <li>
+            <a class="has-arrow" href="#"><i class="fas fa-fire" style="color: #ff6b6b;"></i><span>Service</span></a>
             <ul>
-                <li><a href="add-special-offer.php">Add Offers</a></li>
-                <li><a href="show-products.php">Show Products</a></li>
-                <li><a href="show-products-review.php">Products Reviews</a></li>
+                <li><a href="add-service.php">Add Service</a></li>
+                <li><a href="view-service.php">View Service</a></li>
             </ul>
-        </li> -->
+        </li>
 
         <li>
             <a class="has-arrow" href="#"><i class="fas fa-blog" style="color: #9b59b6;"></i> <span>Blogs &
@@ -74,11 +73,10 @@ if (!isset($_SESSION['admin_logged_in'])) {
         </li>
 
         <li>
-            <a class="has-arrow" href="#"><i class="fas fa-award" style="color: #1abc9c;"></i> <span>Our
-                    Client's</span></a>
+            <a class="has-arrow" href="#"><i class="fas fa-award" style="color: #1abc9c;"></i> <span>Country Export</span></a>
             <ul>
-                <li><a href="our-best-brand.php">Add Client's</a></li>
-                <li><a href="view_brands.php">View Client's</a></li>
+                <li><a href="add-country.php">Add Country</a></li>
+                <li><a href="view-country.php">View Country</a></li>
             </ul>
         </li>
 
@@ -101,7 +99,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
             </ul>
         </li> -->
 
-        <li>
+        <!-- <li>
             <a href="about_us.php">
                 <i class="fas fa-info-circle" style="color: #d35400;"></i>
                 <span>About Us</span>
@@ -113,9 +111,9 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 <i class="fa-regular fa-address-book" style="color: #e4d72b;"></i>
                 <span>Contact Details</span>
             </a>
-        </li>
+        </li> -->
 
-        <li>
+        <!-- <li>
             <a href="new-leads.php">
                 <i class="fa-solid fa-inbox" style="color: #3cc008;"></i>
                 <span>Inquiries</span>
@@ -127,7 +125,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 <i class="fas fa-images" style="color: #8e44ad;"></i>
                 <span>Gallery</span>
             </a>
-        </li>
+        </li> -->
 
         <li>
             <a class="has-arrow" href="#"><i class="fas fa-quote-left" style="color: #16a085;"></i>
@@ -146,7 +144,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
         </li> -->
 
         <!-- <li><a href="orders.php"><i class="fas fa-shopping-cart" style="color: #e67e22;"></i> <span>Orders</span></a></li> -->
-        <li>
+        <!-- <li>
             <a href="view-all-policies.php"><i class="fas fa-file-contract" style="color: #e67e22;"></i>
                 <span>Policies</span>
             </a>
@@ -157,7 +155,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 <li><a href="all-admin.php">All Users</a></li>
                 <li><a href="admin-create.php">Create Admin</a></li>
             </ul>
-        </li>
+        </li> -->
 
         <li>
             <a href="auth/logout.php">

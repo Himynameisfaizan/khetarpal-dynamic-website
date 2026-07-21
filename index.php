@@ -9,9 +9,13 @@ $sqlProduct = "SELECT p.*, c.categories AS category_name
         ORDER BY p.pro_id DESC LIMIT 6";
 
 $sqlBlog = "SELECT * FROM blogs WHERE status = 'published' LIMIT 3";
+$sqlTestimonial = "SELECT * From testimonials ORDER BY id DESC";
+$sqlCountry = "SELECT * From country ORDER BY id DESC";
 
 $resultProduct = $conn->query($sqlProduct);
 $resultBLog = $conn->query($sqlBlog);
+$resultTestimonial = $conn->query($sqlTestimonial);
+$resultCountry = $conn->query($sqlCountry);
 
 include('./include/header.php');
 ?>
@@ -336,70 +340,29 @@ include('./include/header.php');
             <!-- The Grid (This is where your PHP while loop will go) -->
             <div class="country-grid">
 
-                <!-- Country 1 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <!-- Replace src with your database flag image path -->
-                        <img src="https://flagcdn.com/w160/ae.png" alt="UAE Flag">
-                    </div>
-                    <h4 class="country-name">UAE</h4>
-                </div>
+                <?php
 
-                <!-- Country 2 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/sa.png" alt="Saudi Arabia Flag">
-                    </div>
-                    <h4 class="country-name">Saudi Arabia</h4>
-                </div>
+                if ($resultCountry && $resultCountry->num_rows > 0) {
+                    while ($row = $resultCountry->fetch_assoc()) {
+                        $con_name = htmlspecialchars($row['country_name']);
 
-                <!-- Country 3 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/vn.png" alt="Vietnam Flag">
-                    </div>
-                    <h4 class="country-name">Vietnam</h4>
-                </div>
+                        // Spelling theek ki ('country_flag') aur Semicolon lagaya
+                        $con_flag = htmlspecialchars($row['country_flag']);
 
-                <!-- Country 4 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/np.png" alt="Nepal Flag">
-                    </div>
-                    <h4 class="country-name">Nepal</h4>
-                </div>
+                        // Dynamic Image Path (Agar admin folder me upload ho raha hai)
+                        $img_path = !empty($con_flag) ? "admin/assets/img/uploads/" . $con_flag : "https://placehold.co/160x100?text=No+Flag";
+                ?>
+                        <!-- Country 1 -->
+                        <div class="country-card">
+                            <div class="flag-wrapper">
+                                <!-- Replace src with your database flag image path -->
+                                <img src="<?php echo $img_path ?>" alt="<?php echo $con_name ?>">
+                            </div>
+                            <h4 class="country-name"><?php echo $con_name ?></h4>
+                        </div>
 
-                <!-- Country 5 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/om.png" alt="Oman Flag">
-                    </div>
-                    <h4 class="country-name">Oman</h4>
-                </div>
-
-                <!-- Country 6 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/my.png" alt="Malaysia Flag">
-                    </div>
-                    <h4 class="country-name">Malaysia</h4>
-                </div>
-
-                <!-- Country 7 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/qa.png" alt="Qatar Flag">
-                    </div>
-                    <h4 class="country-name">Qatar</h4>
-                </div>
-
-                <!-- Country 8 -->
-                <div class="country-card">
-                    <div class="flag-wrapper">
-                        <img src="https://flagcdn.com/w160/id.png" alt="Indonesia Flag">
-                    </div>
-                    <h4 class="country-name">Indonesia</h4>
-                </div>
+                <?php }
+                } ?>
 
             </div>
 
@@ -442,42 +405,65 @@ include('./include/header.php');
                 <!-- Using a standard row for simplicity instead of forcing a slider in static HTML.
                      If you use a slider (like Slick/Owl), this row becomes the slider container. -->
 
-                <!-- Testimonial 1 -->
-                <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-                    <div class="testimonial-box">
-                        <i class="fa-solid fa-quote-left quote-icon"></i>
-                        <p class="testimonial-text">
-                            "Khetarpal Trading Co. has been our most reliable partner for agricultural products. The quality of their spices and their prompt service are always beyond our expectations. Highly recommended for bulk exports."
-                        </p>
-                        <div class="client-info">
-                            <!-- Placeholder image, use real client image -->
-                            <img src="https://ui-avatars.com/api/?name=Ahmed+Al+Mansoori&background=C49B3B&color=fff" alt="Ahmed" class="client-img">
-                            <div class="client-details">
-                                <h5>Ahmed Al Mansoori</h5>
-                                <span>Importer, UAE</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Testimonial 2 (Optional, to balance the grid) -->
-                <div class="col-lg-6 col-md-12">
-                    <div class="testimonial-box">
-                        <i class="fa-solid fa-quote-left quote-icon"></i>
-                        <p class="testimonial-text">
-                            "We have been importing seeds from them for the last two years. Their commitment to international packaging standards and timely delivery makes them stand out in the Indian export market."
-                        </p>
-                        <div class="client-info">
-                            <img src="https://ui-avatars.com/api/?name=David+Smith&background=0A192F&color=fff" alt="David" class="client-img">
-                            <div class="client-details">
-                                <h5>David Smith</h5>
-                                <span>Procurement Head, UK</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php
+if($resultTestimonial && $resultTestimonial->num_rows > 0) {
+    while($row = $resultTestimonial->fetch_assoc()) {
+        
+        // ERROR FIXED HERE: Added ?? ''
+        $client_name = htmlspecialchars($row['client_name'] ?? '');
+        $client_title = htmlspecialchars($row['client_title'] ?? '');
+        $client_company = htmlspecialchars($row['client_company'] ?? '');
+        $text = htmlspecialchars($row['testimonial_text'] ?? '');
+        $client_photo = htmlspecialchars($row['client_photo'] ?? ''); 
 
+        // ==========================================
+        // DYNAMIC IMAGE LOGIC
+        // ==========================================
+        if(!empty($client_photo)) {
+            $img_path = "admin/assets/img/uploads/" . $client_photo;
+        } else {
+            $img_path = "https://ui-avatars.com/api/?name=" . urlencode($client_name) . "&background=C49B3B&color=fff";
+        }
+
+        // ==========================================
+        // DESIGNATION LOGIC (Title, Company)
+        // ==========================================
+        $designation = $client_title;
+        if(!empty($client_company)) {
+            // Agar title nahi hai par company hai, toh comma aage na aaye
+            $designation .= (!empty($designation) ? ", " : "") . $client_company; 
+        }
+?>
+
+    <!-- DYNAMIC TESTIMONIAL CARD -->
+    <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
+        <div class="testimonial-box">
+            <i class="fa-solid fa-quote-left quote-icon"></i>
+            
+            <p class="testimonial-text">
+                <?php echo $text; ?>
+            </p>
+            
+            <div class="client-info">
+                <!-- Dynamic Image -->
+                <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="client-img" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
+                
+                <div class="client-details">
+                    <h5><?php echo $client_name; ?></h5>
+                    <span><?php echo $designation; ?></span>
+                </div>
             </div>
+        </div>
+    </div>
+
+<?php 
+    } 
+} 
+?>
+
+
+        </div>
         </div>
     </section>
     <!-- END: TESTIMONIAL SECTION -->

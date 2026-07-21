@@ -1,220 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+include("./admin/db-conn.php");
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+// Fetch saari services database se
+$sql = "SELECT * FROM services ORDER BY id DESC";
+$result = $conn->query($sql);
 
-<body>
-    <?php
-    $pageTitle = 'Our Services';
-    include("./include/header.php");
-    include ("./include/breadcrumb.php");
-    ?>
+$pageTitle = 'Our Services';
+include("./include/header.php");
+include("./include/breadcrumb.php");
+?>
 
-    <section class="services-page-section">
-        <div class="container">
+<section class="services-page-section">
+    <div class="container">
 
-            <h2 class="section-main-title">Our Premium Services</h2>
+        <h2 class="section-main-title">Our Premium Services</h2>
 
-            <!-- justify-content-center centers the 4th and 5th card -->
-            <div class="row g-4 justify-content-center">
+        <!-- justify-content-center centers the cards nicely -->
+        <div class="row g-4 justify-content-center">
 
-                <!-- SERVICE 1 -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="service-card">
-                        <div class="service-img-wrapper">
-                            <img src="assets/img/blog/feed/ajwain.jpg" alt="Agricultural Product Export" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=Agro+Export'">
+            <?php
+            if ($result && $result->num_rows > 0) {
+                // Ek counter lagate hain service number dikhane ke liye (jaise tumhare purane code mein "1. ", "2." likha tha)
+                $counter = 1;
+
+                while ($row = $result->fetch_assoc()) {
+                    $service_id = $row['id'];
+                    $service_name = htmlspecialchars($row['service_name']);
+                    $short_desc = htmlspecialchars($row['short_desc']);
+                    // Long desc CKEditor se aayega isliye htmlspecialchars nahi lagaya
+                    $long_desc = html_entity_decode($row['long_desc']); 
+                    
+                    // Image Path
+                    $img_path = !empty($row['img_path']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['img_path']) : "https://placehold.co/600x400/eeeeee/999999?text=Service";
+            ?>
+
+            <!-- ==========================================
+                 DYNAMIC SERVICE CARD 
+            =============================================== -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="service-card">
+                    <div class="service-img-wrapper">
+                        <img src="<?php echo $img_path; ?>" alt="<?php echo $service_name; ?>" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
+                    </div>
+                    <div class="service-content">
+                        <!-- Number + Title -->
+                        <h3 class="service-title"><?php echo $counter . ". " . $service_name; ?></h3>
+                        <p class="service-desc"><?php echo $short_desc; ?></p>
+                        
+                        <!-- Modal Trigger Button (Dynamic target ID) -->
+                        <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal<?php echo $service_id; ?>">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 DYNAMIC MODAL POPUP
+            =============================================== -->
+            <div class="modal fade" id="serviceModal<?php echo $service_id; ?>" tabindex="-1" aria-labelledby="serviceModalLabel<?php echo $service_id; ?>" aria-hidden="true">
+                <!-- modal-dialog-scrollable added so long text doesn't break screen -->
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: var(--primary-blue, #0A192F); color: #fff; border-bottom: 3px solid var(--primary-gold, #C49B3B);">
+                            <h5 class="modal-title" id="serviceModalLabel<?php echo $service_id; ?>"><?php echo $service_name; ?></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1) grayscale(100%) brightness(200%);"></button>
                         </div>
-                        <div class="service-content">
-                            <h3 class="service-title">1. Agricultural Product Export</h3>
-                            <p class="service-desc">We export premium quality Indian spices and agro products globally.</p>
-                            <!-- Modal Trigger Button -->
-                            <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal1">
-                                View Details
-                            </button>
+                        <div class="modal-body" style="padding: 30px;">
+                            <!-- Modal Image -->
+                            <img src="<?php echo $img_path; ?>" alt="<?php echo $service_name; ?>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" onerror="this.style.display='none'">
+                            
+                            <!-- Bold Short Description -->
+                            <p style="font-size: 18px; color: var(--primary-gold, #C49B3B);"><strong><?php echo $short_desc; ?></strong></p>
+                            
+                            <!-- Full HTML Long Description -->
+                            <div style="font-family: 'Poppins', sans-serif; color: #444; line-height: 1.8;">
+                                <?php 
+                                    // Agar long_desc khali hai toh kam se kam short_desc wapas dikha de
+                                    echo !empty(trim($long_desc)) ? $long_desc : "<p>Detailed information will be updated soon.</p>"; 
+                                ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- SERVICE 2 -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="service-card">
-                        <div class="service-img-wrapper">
-                            <img src="assets/img/blog/feed/castor.jpg" alt="Bulk Supply" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=Bulk+Supply'">
-                        </div>
-                        <div class="service-content">
-                            <h3 class="service-title">2. Bulk Supply</h3>
-                            <p class="service-desc">We provide bulk quantity supply for wholesalers, importers, and distributors.</p>
-                            <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal2">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SERVICE 3 -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="service-card">
-                        <div class="service-img-wrapper">
-                            <img src="assets/img/blog/feed/fennel.jpg" alt="Custom Packaging" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=Custom+Packaging'">
-                        </div>
-                        <div class="service-content">
-                            <h3 class="service-title">3. Custom Packaging</h3>
-                            <p class="service-desc">Export-standard customized packaging solutions available as per buyer requirements.</p>
-                            <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal3">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SERVICE 4 -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="service-card">
-                        <div class="service-img-wrapper">
-                            <img src="assets/img/blog/feed/chickpeas.jpg" alt="Quality Inspection" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=Quality+Inspection'">
-                        </div>
-                        <div class="service-content">
-                            <h3 class="service-title">4. Quality Inspection</h3>
-                            <p class="service-desc">Every shipment is rigorously quality checked before dispatch.</p>
-                            <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal4">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SERVICE 5 -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="service-card">
-                        <div class="service-img-wrapper">
-                            <img src="assets/img/product/category/mustard.jpg" alt="International Shipping" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=Shipping+Support'">
-                        </div>
-                        <div class="service-content">
-                            <h3 class="service-title">5. International Shipping</h3>
-                            <p class="service-desc">Complete export documentation and shipping support for smooth delivery.</p>
-                            <button type="button" class="btn-view-service" data-bs-toggle="modal" data-bs-target="#serviceModal5">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </div>
-    </section>
 
+            <?php 
+                    $counter++; // Number badhate jao (1, 2, 3...)
+                } // While loop ends
+            } else {
+                // Empty state if database is empty
+                echo "<div class='col-12 text-center py-5 text-muted'><h4>No services added yet. Please check back later.</h4></div>";
+            }
+            ?>
 
-    <!-- ==========================================
-     MODALS (Popups for Services)
-=============================================== -->
-
-    <!-- Modal 1 -->
-    <div class="modal fade" id="serviceModal1" tabindex="-1" aria-labelledby="serviceModalLabel1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel1">Agricultural Product Export</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img src="assets/img/blog/feed/ajwain.jpg" alt="Agro Export" onerror="this.src='https://placehold.co/800x400/eeeeee/999999?text=Agro+Export'">
-                    <p><strong>We export premium quality Indian spices and agro products globally.</strong></p>
-                    <p>Our expansive network and deep-rooted connections with local Indian farmers allow us to source the finest quality agricultural commodities. From authentic spices to staple agro products, we ensure that the global market experiences the true essence and purity of Indian agriculture.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
         </div>
     </div>
+</section>
 
-    <!-- Modal 2 -->
-    <div class="modal fade" id="serviceModal2" tabindex="-1" aria-labelledby="serviceModalLabel2" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel2">Bulk Supply</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img src="assets/img/blog/feed/castor.jpg" alt="Bulk Supply" onerror="this.src='https://placehold.co/800x400/eeeeee/999999?text=Bulk+Supply'">
-                    <p><strong>We provide bulk quantity supply for wholesalers, importers, and distributors.</strong></p>
-                    <p>Scalability is at the core of our operations. Khetarpal Trading Co. is fully equipped to handle large-scale volume requirements consistently. We guarantee a steady supply chain, ensuring our B2B partners, distributors, and wholesalers never face inventory shortages.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 3 -->
-    <div class="modal fade" id="serviceModal3" tabindex="-1" aria-labelledby="serviceModalLabel3" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel3">Custom Packaging</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img src="assets/img/blog/feed/fennel.jpg" alt="Custom Packaging" onerror="this.src='https://placehold.co/800x400/eeeeee/999999?text=Custom+Packaging'">
-                    <p><strong>Export-standard customized packaging solutions available as per buyer requirements.</strong></p>
-                    <p>We understand that packaging plays a vital role in preserving the freshness and quality of agricultural products during transit. We offer highly customizable packing options—from bulk 50kg PP bags to customized retail-ready packaging—strictly adhering to international hygiene and moisture-control standards.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 4 -->
-    <div class="modal fade" id="serviceModal4" tabindex="-1" aria-labelledby="serviceModalLabel4" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel4">Quality Inspection</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img src="assets/img/blog/feed/chickpeas.jpg" alt="Quality Inspection" onerror="this.src='https://placehold.co/800x400/eeeeee/999999?text=Quality+Inspection'">
-                    <p><strong>Every shipment is quality checked before dispatch.</strong></p>
-                    <p>Quality is non-negotiable. Our dedicated quality assurance team conducts rigorous multi-stage inspections. We utilize advanced cleaning, sorting, and grading processes to ensure that only 100% pure, unadulterated, and export-grade products make it into your shipment.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 5 -->
-    <div class="modal fade" id="serviceModal5" tabindex="-1" aria-labelledby="serviceModalLabel5" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel5">International Shipping Support</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img src="assets/img/product/category/mustard.jpg" alt="Shipping Support" onerror="this.src='https://placehold.co/800x400/eeeeee/999999?text=Shipping+Support'">
-                    <p><strong>Complete export documentation and shipping support for smooth delivery.</strong></p>
-                    <p>Navigating cross-border trade can be complex. We simplify this for our clients by handling end-to-end logistics. From managing port forwarding and customs clearances to preparing all mandatory export documentation (Phytosanitary certificates, Certificate of Origin, etc.), we ensure a hassle-free delivery to your destination port.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <?php
-    include("./include/footer.php");
-    ?>
-</body>
-
-</html>
+<?php
+include("./include/footer.php");
+?>
