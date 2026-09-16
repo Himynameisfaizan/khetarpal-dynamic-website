@@ -116,95 +116,80 @@ include('./include/header.php');
 
 
     <section class="premium-products-section">
-        <div class="container">
+    <div class="container">
 
-            <!-- Section Title -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="section-title">
-                        <h2>Our Premium Products</h2>
-                    </div>
+        <!-- Section Title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-title text-center mb-5">
+                    <h2>Our Premium Products</h2>
                 </div>
             </div>
+        </div>
 
-            <!-- Products Grid (PHP loop yahan lagega) -->
-            <div class="row">
-                <?php
+        <!-- Products Grid -->
+        <div class="row g-4">
+            <?php
+            if ($resultProduct && $resultProduct->num_rows > 0) {
+                while ($row = $resultProduct->fetch_assoc()) {
 
-                if ($resultProduct && $resultProduct->num_rows > 0) {
-                    while ($row = $resultProduct->fetch_assoc()) {
+                    $pro_id = $row['pro_id'];
+                    $pro_name = htmlspecialchars($row['pro_name']);
+                    $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Products";
+                    $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
+                    
+                    // Price variables hata diye gaye hain
 
-                        $pro_id = $row['pro_id'];
-                        $pro_name = htmlspecialchars($row['pro_name']);
-                        $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Products";
-                        $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
-                        $mrp = !empty($row['mrp']) ? floatval($row['mrp']) : 0;
-                        $selling_price = !empty($row['selling_price']) ? floatval($row['selling_price']) : 0;
+                    $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
+            ?>
 
-                        $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
+                    <!-- Single Product Card -->
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
+                            <div class="prod-img-box" style="height: 250px; overflow: hidden;">
+                                <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            </div>
+                            
+                            <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                                <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;"><?php echo $pro_name; ?></h3>
 
+                                <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
+                                    <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
+                                    <li><i class="fa-solid fa-box-open me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong> <?php echo $packaging; ?></li>
+                                    <li><i class="fa-solid fa-truck-fast me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready for Export</li>
+                                </ul>
 
-                ?>
-
-                        <!-- Single Product Card 1 -->
-                        <div class="col-lg-4 col-md-6 col-sm-12 mt-4">
-                            <div class="b2b-product-card">
-                                <div class="prod-img-box">
-                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'">
-                                </div>
-                                <div class="prod-content">
-                                    <h3 class="prod-title"><?php echo $pro_name; ?></h3>
-
-                                    <!-- Price Display Box -->
-                                    <div class="prod-price-box" style="margin-bottom: 15px;">
-                                        <?php if ($mrp > $selling_price && $selling_price > 0) { ?>
-                                            <!-- Discounted Price -->
-                                            <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-gold, #C49B3B);">
-                                                ₹<?php echo number_format($selling_price, 2); ?>
-                                            </span>
-                                            <!-- Crossed MRP -->
-                                            <del style="font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 15px; color: #999999; margin-left: 10px;">
-                                                ₹<?php echo number_format($mrp, 2); ?>
-                                            </del>
-                                        <?php } elseif ($selling_price > 0) { ?>
-                                            <!-- Normal Selling Price (Agar MRP nahi hai) -->
-                                            <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-gold, #C49B3B);">
-                                                ₹<?php echo number_format($selling_price, 2); ?>
-                                            </span>
-                                        <?php } else { ?>
-                                            <!-- Agar dono price 0 hain toh -->
-                                            <span style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: var(--primary-blue, #0A192F);">
-                                                Price on Request
-                                            </span>
-                                        <?php } ?>
-                                    </div>
-
-                                    <ul class="prod-specs">
-                                        <li><i class="fa-solid fa-layer-group"></i> <strong>Category:</strong> &nbsp; <?php echo $category; ?></li>
-                                        <li><i class="fa-solid fa-box-open"></i> <strong>Packaging:</strong> &nbsp; <?php echo $packaging; ?></li>
-                                        <li><i class="fa-solid fa-truck-fast"></i> <strong>Status:</strong> &nbsp; Ready for Export</li>
-                                    </ul>
-
-                                    <a href="product-details.php?id=<?php echo $pro_id; ?>" class="btn-details-page">View Details <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
+                                <!-- NEW DUAL BUTTON LAYOUT -->
+                                <div class="mt-auto d-flex gap-2">
+                                    <a href="product-details.php?id=<?php echo $pro_id; ?>" class="btn-custom-outline flex-fill text-center">
+                                        <i class="fa-regular fa-eye me-1"></i> Details
+                                    </a>
+                                    <!-- URL mein product ka naam pass kiya hai -->
+                                    <a href="contact.php?product=<?php echo urlencode($pro_name); ?>" class="btn-custom-solid flex-fill text-center">
+                                        <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                                    </a>
                                 </div>
                             </div>
                         </div>
-
-
-                <?php }
-                } ?>
-            </div>
-            <!-- View All Products Button -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="view-all-wrapper">
-                        <a href="product.php" class="btn-view-all">View All Products</a>
                     </div>
-                </div>
-            </div>
 
+            <?php 
+                }
+            } else {
+                echo "<div class='col-12 text-center py-5'><p class='text-muted'>No premium products available at the moment.</p></div>";
+            } 
+            ?>
         </div>
-    </section>
+        
+        <!-- View All Products Button -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="product.php" class="btn-custom-outline px-4 py-2" style="border-width: 2px;">View All Products <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
+            </div>
+        </div>
+
+    </div>
+</section>
 
     <section class="about-stats-section">
         <div class="container">
@@ -407,63 +392,63 @@ include('./include/header.php');
 
 
                 <?php
-if($resultTestimonial && $resultTestimonial->num_rows > 0) {
-    while($row = $resultTestimonial->fetch_assoc()) {
-        
-        // ERROR FIXED HERE: Added ?? ''
-        $client_name = htmlspecialchars($row['client_name'] ?? '');
-        $client_title = htmlspecialchars($row['client_title'] ?? '');
-        $client_company = htmlspecialchars($row['client_company'] ?? '');
-        $text = htmlspecialchars($row['testimonial_text'] ?? '');
-        $client_photo = htmlspecialchars($row['client_photo'] ?? ''); 
+                if ($resultTestimonial && $resultTestimonial->num_rows > 0) {
+                    while ($row = $resultTestimonial->fetch_assoc()) {
 
-        // ==========================================
-        // DYNAMIC IMAGE LOGIC
-        // ==========================================
-        if(!empty($client_photo)) {
-            $img_path = "admin/assets/img/uploads/" . $client_photo;
-        } else {
-            $img_path = "https://ui-avatars.com/api/?name=" . urlencode($client_name) . "&background=C49B3B&color=fff";
-        }
+                        // ERROR FIXED HERE: Added ?? ''
+                        $client_name = htmlspecialchars($row['client_name'] ?? '');
+                        $client_title = htmlspecialchars($row['client_title'] ?? '');
+                        $client_company = htmlspecialchars($row['client_company'] ?? '');
+                        $text = htmlspecialchars($row['testimonial_text'] ?? '');
+                        $client_photo = htmlspecialchars($row['client_photo'] ?? '');
 
-        // ==========================================
-        // DESIGNATION LOGIC (Title, Company)
-        // ==========================================
-        $designation = $client_title;
-        if(!empty($client_company)) {
-            // Agar title nahi hai par company hai, toh comma aage na aaye
-            $designation .= (!empty($designation) ? ", " : "") . $client_company; 
-        }
-?>
+                        // ==========================================
+                        // DYNAMIC IMAGE LOGIC
+                        // ==========================================
+                        if (!empty($client_photo)) {
+                            $img_path = "admin/assets/img/uploads/" . $client_photo;
+                        } else {
+                            $img_path = "https://ui-avatars.com/api/?name=" . urlencode($client_name) . "&background=C49B3B&color=fff";
+                        }
 
-    <!-- DYNAMIC TESTIMONIAL CARD -->
-    <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-        <div class="testimonial-box">
-            <i class="fa-solid fa-quote-left quote-icon"></i>
-            
-            <p class="testimonial-text">
-                <?php echo $text; ?>
-            </p>
-            
-            <div class="client-info">
-                <!-- Dynamic Image -->
-                <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="client-img" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
-                
-                <div class="client-details">
-                    <h5><?php echo $client_name; ?></h5>
-                    <span><?php echo $designation; ?></span>
-                </div>
+                        // ==========================================
+                        // DESIGNATION LOGIC (Title, Company)
+                        // ==========================================
+                        $designation = $client_title;
+                        if (!empty($client_company)) {
+                            // Agar title nahi hai par company hai, toh comma aage na aaye
+                            $designation .= (!empty($designation) ? ", " : "") . $client_company;
+                        }
+                ?>
+
+                        <!-- DYNAMIC TESTIMONIAL CARD -->
+                        <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
+                            <div class="testimonial-box">
+                                <i class="fa-solid fa-quote-left quote-icon"></i>
+
+                                <p class="testimonial-text">
+                                    <?php echo $text; ?>
+                                </p>
+
+                                <div class="client-info">
+                                    <!-- Dynamic Image -->
+                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="client-img" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
+
+                                    <div class="client-details">
+                                        <h5><?php echo $client_name; ?></h5>
+                                        <span><?php echo $designation; ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                <?php
+                    }
+                }
+                ?>
+
+
             </div>
-        </div>
-    </div>
-
-<?php 
-    } 
-} 
-?>
-
-
-        </div>
         </div>
     </section>
     <!-- END: TESTIMONIAL SECTION -->

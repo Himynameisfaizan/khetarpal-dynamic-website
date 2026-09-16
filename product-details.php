@@ -58,7 +58,7 @@ include("./include/breadcrumb.php");
 
                         <h1 class="product-detail-title"><?php echo $pro_name; ?></h1>
 
-                        <div class="prod-price-box" style="margin-bottom: 20px;">
+                        <!-- <div class="prod-price-box" style="margin-bottom: 20px;">
                             <?php if ($mrp > $selling_price && $selling_price > 0) { ?>
                                 <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: var(--primary-gold, #C49B3B);">
                                     ₹<?php echo number_format($selling_price, 2); ?>
@@ -75,7 +75,7 @@ include("./include/breadcrumb.php");
                                     Price on Request
                                 </span>
                             <?php } ?>
-                        </div>
+                        </div> -->
 
                         <div class="product-short-desc"><?php echo $short_desc; ?></div>
 
@@ -132,14 +132,23 @@ include("./include/breadcrumb.php");
                 </div>
             </div>
 
-            <div class="row">
+           <!-- ==========================================
+                 RELATED PRODUCTS CAROUSEL (DYNAMIC)
+            =============================================== -->
+            <div class="row mt-5">
                 <div class="col-12">
                     <section class="related-products-section">
-                        <h3 class="related-title">Explore More Products</h3>
-                        <div class="related-slider-container">
-
+                        
+                        <h3 class="related-title mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: var(--primary-blue, #0A192F); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+                            Explore More Products
+                        </h3>
+                        
+                        <!-- Note: Agar tum slider (Slick/Owl) use kar rahe ho toh "row g-4" classes hata dena -->
+                        <div class="related-slider-container row g-4">
+                            
                             <?php
-                            $rel_sql = "SELECT * FROM products WHERE status = 1 AND pro_id != $product_id ORDER BY RAND() LIMIT 6";
+                            // Fetch other products except the current one (Limit 6)
+                            $rel_sql = "SELECT * FROM products WHERE status = 1 AND pro_id != $product_id ORDER BY RAND() LIMIT 3";
                             $rel_result = $conn->query($rel_sql);
 
                             if ($rel_result && $rel_result->num_rows > 0) {
@@ -147,36 +156,45 @@ include("./include/breadcrumb.php");
                                     $rel_id = $rel_row['pro_id'];
                                     $rel_name = htmlspecialchars($rel_row['pro_name']);
                                     $rel_img = !empty($rel_row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($rel_row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
-                                    $rel_mrp = !empty($rel_row['mrp']) ? floatval($rel_row['mrp']) : 0;
-                                    $rel_sp = !empty($rel_row['selling_price']) ? floatval($rel_row['selling_price']) : 0;
                             ?>
-
-                                    <div class="related-slide-item">
-                                        <div class="b2b-product-card">
-                                            <div class="prod-img-box">
-                                                <img src="<?php echo $rel_img; ?>" alt="<?php echo $rel_name; ?>">
-                                            </div>
-                                            <div class="prod-content">
-                                                <h3 class="prod-title"><?php echo $rel_name; ?></h3>
-
-                                                <div class="prod-price-box" style="margin-bottom: 10px;">
-                                                    <?php if ($rel_mrp > $rel_sp && $rel_sp > 0) { ?>
-                                                        <span style="font-weight: 700; font-size: 18px; color: var(--primary-gold, #C49B3B);">₹<?php echo number_format($rel_sp, 2); ?></span>
-                                                        <del style="font-size: 13px; color: #999999; margin-left: 5px;">₹<?php echo number_format($rel_mrp, 2); ?></del>
-                                                    <?php } elseif ($rel_sp > 0) { ?>
-                                                        <span style="font-weight: 700; font-size: 18px; color: var(--primary-gold, #C49B3B);">₹<?php echo number_format($rel_sp, 2); ?></span>
-                                                    <?php } else { ?>
-                                                        <span style="font-weight: 600; font-size: 14px; color: var(--primary-blue, #0A192F);">Price on Request</span>
-                                                    <?php } ?>
-                                                </div>
-
-                                                <a href="product-details.php?id=<?php echo $rel_id; ?>" class="btn-details-page mt-3">View Details <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
-                                            </div>
-                                        </div>
+                            
+                            <!-- Slide / Grid Item -->
+                            <div class="related-slide-item col-lg-4 col-md-6 col-sm-12">
+                                <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
+                                    
+                                    <!-- Image Box -->
+                                    <div class="prod-img-box" style="height: 220px; overflow: hidden;">
+                                          <a href="product-details.php?id=<?php echo $rel_id; ?>" style="display: block; width: 100%; height: 100%;">
+                                        <img src="<?php echo $rel_img; ?>" alt="<?php echo $rel_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                        </a>
                                     </div>
-
-                            <?php
-                                }
+                                    
+                                    <!-- Content Box -->
+                                    <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                                        
+                                        <h3 class="prod-title mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: var(--primary-blue, #0A192F); text-transform: uppercase;">
+                                              <a href="product-details.php?id=<?php echo $rel_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
+                                            <?php echo $rel_name; ?>
+                                        </a>
+                                        </h3>
+                                        
+                                        <!-- Dual Buttons (Automatically pushed to bottom via mt-auto) -->
+                                        <div class="mt-auto d-flex gap-2">
+                                            <a href="product-details.php?id=<?php echo $rel_id; ?>" class="btn-custom-outline flex-fill text-center px-2 py-2" style="font-size: 12px;">
+                                                <i class="fa-regular fa-eye me-1"></i> Details
+                                            </a>
+                                            <!-- Quote Link passing dynamic Product Name -->
+                                            <a href="contact.php?product=<?php echo urlencode($rel_name); ?>" class="btn-custom-solid flex-fill text-center px-2 py-2" style="font-size: 12px;">
+                                                <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                                            </a>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <?php 
+                                } 
                             } else {
                                 echo "<p class='text-muted'>No other products found.</p>";
                             }
@@ -186,7 +204,7 @@ include("./include/breadcrumb.php");
                     </section>
                 </div>
             </div>
-
+            <!-- END RELATED PRODUCTS -->
         </div>
     </section>
 </main>

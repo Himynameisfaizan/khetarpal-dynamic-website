@@ -1742,3 +1742,53 @@ textarea.quote-form-control {
     border-color: var(--primary-blue, #0A192F);
     transform: translateY(-2px);
 }
+
+/* Product Card Hover Effect */
+.b2b-product-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+}
+
+/* Custom Outline Button (View Details) */
+.btn-custom-outline {
+    background-color: transparent;
+    border: 1px solid var(--primary-blue, #0A192F);
+    color: var(--primary-blue, #0A192F);
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-custom-outline:hover {
+    background-color: var(--primary-blue, #0A192F);
+    color: #ffffff;
+}
+
+/* Custom Solid Button (Request Quote) */
+.btn-custom-solid {
+    background-color: var(--primary-gold, #C49B3B);
+    border: 1px solid var(--primary-gold, #C49B3B);
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-custom-solid:hover {
+    background-color: #a88330; /* Darker Gold for hover */
+    border-color: #a88330;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(196, 155, 59, 0.4);
+}

@@ -30,7 +30,8 @@
                     <div class="contact-info-card">
                         <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                         <h4>Head Office</h4>
-                        <p>Bharuch, Gujarat<br>India</p>
+                        <p>155, APMC Market Yard,
+                            Tharad, Gujarat 385565<br>India</p>
                     </div>
                 </div>
 
@@ -115,8 +116,7 @@
                     <div class="col-lg-6 col-md-12">
                         <div class="map-box">
                             <!-- Google Map Embed Code for Bharuch, Gujarat -->
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d118106.70010221667!2d72.92348395!3d21.7051358!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be020a1122a6139%3A0x803d21b7596ffeb2!2sBharuch%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1716380000000!5m2!1sen!2sin"
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14534.243247152754!2d71.62298093263792!3d24.39657714359742!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395b49aea3d42e4f%3A0xa876e35b5517f7c4!2z4Kqu4Kq-4Kqw4KuN4KqV4KuH4Kqf4Kqv4Kq-4Kqw4KuN4Kqh!5e0!3m2!1sen!2sin!4v1784628885692!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
                                 allowfullscreen=""
                                 loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade">

@@ -69,68 +69,71 @@ include("./include/breadcrumb.php");
 
         <div class="row g-4 justify-content-center">
 
-            <?php
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
+           <?php
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
 
-                    $pro_id = $row['pro_id'];
-                    $pro_name = htmlspecialchars($row['pro_name']);
-                    $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Product";
-                    $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
-                    $mrp = !empty($row['mrp']) ? floatval($row['mrp']) : 0;
-                    $selling_price = !empty($row['selling_price']) ? floatval($row['selling_price']) : 0;
+        // Variables (Price logic removed completely)
+        $pro_id = $row['pro_id'];
+        $pro_name = htmlspecialchars($row['pro_name'] ?? '');
+        $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Products";
+        $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
+        
+        $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
+?>
 
-                    $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
-            ?>
+        <!-- Single Premium Product Card -->
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4"> <!-- mb-4 for perfect vertical spacing -->
+            <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
+                
+                <!-- Product Image -->
+                <div class="prod-img-box" style="height: 250px; overflow: hidden;">
+                    <a href="product-details.php?id=<?php echo $pro_id; ?>" style="display: block; width: 100%; height: 100%;">
+                    <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    </a>
+                </div>
+                
+                <!-- Product Content -->
+                <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                    <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;">
+                        <a href="product-details.php?id=<?php echo $pro_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
+                            <?php echo $pro_name; ?>
+                        </a>
+                    </h3>
 
-                    <!-- PRODUCT CARD -->
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="b2b-product-card">
-                            <div class="prod-img-box">
-                                <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'">
-                            </div>
-                            <div class="prod-content">
-                                <h3 class="prod-title"><?php echo $pro_name; ?></h3>
+                    <!-- Specifications (No Price) -->
+                    <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
+                        <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
+                        <li><i class="fa-solid fa-box-open me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong> <?php echo $packaging; ?></li>
+                        <li><i class="fa-solid fa-truck-fast me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready for Export</li>
+                    </ul>
 
-                                <!-- Price Display Box -->
-                                <div class="prod-price-box" style="margin-bottom: 15px;">
-                                    <?php if ($mrp > $selling_price && $selling_price > 0) { ?>
-                                        <!-- Discounted Price -->
-                                        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-gold, #C49B3B);">
-                                            ₹<?php echo number_format($selling_price, 2); ?>
-                                        </span>
-                                        <!-- Crossed MRP -->
-                                        <del style="font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 15px; color: #999999; margin-left: 10px;">
-                                            ₹<?php echo number_format($mrp, 2); ?>
-                                        </del>
-                                    <?php } elseif ($selling_price > 0) { ?>
-                                        <!-- Normal Selling Price (Agar MRP nahi hai) -->
-                                        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-gold, #C49B3B);">
-                                            ₹<?php echo number_format($selling_price, 2); ?>
-                                        </span>
-                                    <?php } else { ?>
-                                        <!-- Agar dono price 0 hain toh -->
-                                        <span style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: var(--primary-blue, #0A192F);">
-                                            Price on Request
-                                        </span>
-                                    <?php } ?>
-                                </div>
-
-                                <ul class="prod-specs">
-                                    <li><i class="fa-solid fa-layer-group"></i> <strong>Category:</strong> &nbsp; <?php echo $category; ?></li>
-                                    <li><i class="fa-solid fa-box-open"></i> <strong>Packaging:</strong> &nbsp; <?php echo $packaging; ?></li>
-                                    <li><i class="fa-solid fa-truck-fast"></i> <strong>Status:</strong> &nbsp; Ready for Export</li>
-                                </ul>
-
-                                <a href="product-details.php?id=<?php echo $pro_id; ?>" class="btn-details-page">View Details <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
-                            </div>
-                        </div>
+                    <!-- Action Buttons (Bottom Aligned Automatically) -->
+                    <div class="mt-auto d-flex gap-2">
+                        <a href="product-details.php?id=<?php echo $pro_id; ?>" class="btn-custom-outline flex-fill text-center">
+                            <i class="fa-regular fa-eye me-1"></i> Details
+                        </a>
+                        
+                        <!-- Contact page link with Product Name pre-filled in URL -->
+                        <a href="contact.php?product=<?php echo urlencode($pro_name); ?>" class="btn-custom-solid flex-fill text-center">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                        </a>
                     </div>
+                </div>
+                
+            </div>
+        </div>
 
-                <?php
-                } // While loop ends
-                ?>
-
+<?php 
+    } // End While Loop
+} else {
+    // Agar kisi category mein products nahi hain
+    echo "<div class='col-12 text-center py-5'>
+            <i class='fas fa-box-open fa-3x mb-3 text-muted'></i>
+            <h4 class='text-muted'>No products found in this category.</h4>
+          </div>";
+} 
+?>
         </div> <!-- End Row -->
 
         <!-- ==========================================
@@ -162,14 +165,7 @@ include("./include/breadcrumb.php");
         <?php } ?>
         <!-- END PAGINATION UI -->
 
-    <?php
-            } else {
-    ?>
-        <!-- Empty State -->
-        <div class="col-12 text-center py-5">
-            <h4 class="text-muted">No products available at the moment. Please check back later.</h4>
-        </div>
-    <?php } ?>
+    
 
     </div>
 </section>

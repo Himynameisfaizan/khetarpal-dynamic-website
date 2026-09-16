@@ -49,13 +49,11 @@
                                     <li><a href="index.php">Home</a></li>
                                     <li><a href="about.php">About Us</a></li>
                                     <li><a href="product.php">Products</a></li>
-                                    <li><a href="export-market.php">Export Markets</a></li>
                                 </ul>
                             </div>
                             <div class="col-6">
                                 <ul class="footer-links">
                                     <li><a href="blogs.php">Blog</a></li>
-                                    <li><a href="gallery.php">Gallery</a></li>
                                     <li><a href="contact.php">Contact Us</a></li>
                                     <li><a href="privacy.php">Privacy Policy</a></li>
                                 </ul>
