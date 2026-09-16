@@ -147,11 +147,15 @@ include('./include/header.php');
                     <div class="col-lg-4 col-md-6 col-sm-12">
                         <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
                             <div class="prod-img-box" style="height: 250px; overflow: hidden;">
+                                 <a href="product-details.php?id=<?php echo $pro_id; ?>" >
                                 <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                 </a>
                             </div>
                             
                             <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                                 <a href="product-details.php?id=<?php echo $pro_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
                                 <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;"><?php echo $pro_name; ?></h3>
+                                </a>
 
                                 <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
                                     <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
