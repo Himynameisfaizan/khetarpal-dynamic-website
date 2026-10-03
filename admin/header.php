@@ -25,12 +25,27 @@ if (!isset($_SESSION['admin_logged_in'])) {
         <li><a href="index.php"><i class="fas fa-tachometer-alt" style="color: #3498db;"></i> <span>Dashboard</span></a>
         </li>
 
-        <!-- <li>
+        <li>
             <a class="has-arrow" href="#"><i class="fas fa-home" style="color: #e74c3c;"></i> <span>Home
                     Content</span></a>
             <ul>
                 <li><a href="home-items.php">Add Logo</a></li>
                 <li><a href="add-banner.php">Add Banners</a></li>
+                <li><a href="about_us.php">Add About</a></li>
+                <li><a href="add-about-us-section.php"> About sections</a></li>
+                <li><a href="manage-meta.php"> Manage Meta</a></li>
+                <li><a href="manage-schema.php"> Manage Schema</a></li>
+                 <li><a href="add_contact.php"><span>Contact Details</span>
+            </a>
+        </li>
+            </ul>
+        </li>
+
+         <!-- <li>
+            <a class="has-arrow" href="#"><i class="fas fa-info-circle" style="color: #d35400;"></i> <span>About Us
+                    Page</span></a>
+            <ul>
+                <!-- <li><a href="about_us.php">Add About</a></li> 
             </ul>
         </li> -->
 
@@ -64,28 +79,20 @@ if (!isset($_SESSION['admin_logged_in'])) {
         </li>
 
         <li>
-            <a class="has-arrow" href="#"><i class="fas fa-blog" style="color: #9b59b6;"></i> <span>Blogs &
-                    News</span></a>
+            <a class="has-arrow" href="#"><i class="fas fa-blog" style="color: #9b59b6;"></i><span>Blogs</span></a>
             <ul>
+                <li><a href="blog.php">Show Blogs</a></li>
                 <li><a href="add-blog.php">Add Blog</a></li>
-                <li><a href="view-all-blog.php">View Blogs</a></li>
             </ul>
         </li>
 
-        <li>
+      
+
+        <!-- <li>
             <a class="has-arrow" href="#"><i class="fas fa-award" style="color: #1abc9c;"></i> <span>Country Export</span></a>
             <ul>
                 <li><a href="add-country.php">Add Country</a></li>
                 <li><a href="view-country.php">View Country</a></li>
-            </ul>
-        </li>
-
-        <!-- <li>
-            <a class="has-arrow" href="#"><i class="fas fa-info-circle" style="color: #d35400;"></i> <span>About Us
-                    Page</span></a>
-            <ul>
-                <li><a href="about_us.php">Add About</a></li>
-                <li><a href="add-about-us-section.php">Add About sections</a></li>
             </ul>
         </li> -->
 
@@ -104,9 +111,9 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 <i class="fas fa-info-circle" style="color: #d35400;"></i>
                 <span>About Us</span>
             </a>
-        </li>
+        </li> -->
 
-        <li>
+        <!-- <li>
             <a href="add_contact.php">
                 <i class="fa-regular fa-address-book" style="color: #e4d72b;"></i>
                 <span>Contact Details</span>
@@ -118,23 +125,30 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 <i class="fa-solid fa-inbox" style="color: #3cc008;"></i>
                 <span>Inquiries</span>
             </a>
-        </li>
+        </li> -->
 
         <li>
             <a href="add-gallery.php">
                 <i class="fas fa-images" style="color: #8e44ad;"></i>
                 <span>Gallery</span>
             </a>
-        </li> -->
+        </li>
 
         <li>
+            <a href="brands.php">
+                <i class="fas fa-images" style="color: #8e44ad;"></i>
+                <span>Brands</span>
+            </a>
+        </li>
+
+        <!-- <li>
             <a class="has-arrow" href="#"><i class="fas fa-quote-left" style="color: #16a085;"></i>
                 <span>Testimonials</span></a>
             <ul>
                 <li><a href="add-testimonial.php">Add Testimonials</a></li>
                 <li><a href="view-testimonials.php">View Testimonials</a></li>
             </ul>
-        </li>
+        </li> -->
 
         <!-- <li>
             <a class="has-arrow" href="#"><i class="fas fa-users" style="color: #c0392b;"></i> <span>Customers</span></a>

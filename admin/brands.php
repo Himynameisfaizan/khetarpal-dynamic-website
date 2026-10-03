@@ -3,7 +3,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
-include "db-conn.php";
+
+// Database central core mapping connection pipeline
+include "db-conn.php"; 
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,17 +13,17 @@ include "db-conn.php";
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Product Management | Admin Panel</title>
+    <title>Brands Management | Admin Panel</title>
     <link rel="icon" href="assets/img/logo.png" type="image/png">
     <?php include "links.php"; ?>
     <style>
-        .product-card {
+        .brand-card {
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .product-card:hover {
+        .brand-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
@@ -44,33 +46,20 @@ include "db-conn.php";
             color: #6c757d;
         }
 
-        .product-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
+        .brand-logo-preview {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+            background-color: #fff;
             border: 1px solid #eee;
-        }
-
-        .action-btn {
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin: 0 3px;
+            padding: 4px;
+            border-radius: 8px;
         }
 
         .table thead th {
             background-color: #2c3e50;
             color: white;
             font-weight: 500;
-        }
-
-        .price-highlight {
-            font-weight: 600;
-            color: #2e7d32;
         }
 
         .pagination .page-item.active .page-link {
@@ -100,17 +89,18 @@ include "db-conn.php";
                             <div class="card-header bg-white border-0 py-3">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                                     <div class="mb-3 mb-md-0">
-                                        <h2 class="mb-0 fw-bold">Product Management</h2>
-                                        <p class="text-muted mb-0 small">Manage your product inventory</p>
+                                        <h2 class="mb-0 fw-bold">Brands Management</h2>
+                                        <p class="text-muted mb-0 small">Manage your dynamic client logos and industrial associations</p>
                                     </div>
-                                    <div class="d-flex">
-                                        <form method="GET" class="position-relative me-3">
+                                    <div class="d-flex align-items-center">
+                                        <form method="GET" class="position-relative me-3 search-box">
+                                            <i class="fas fa-search"></i>
                                             <input type="text" class="form-control" name="search"
-                                                placeholder="Search products..."
+                                                placeholder="Search brands..."
                                                 value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                                         </form>
-                                        <a href="add-products.php" class="btn btn-primary">
-                                            <i class="fas fa-plus me-2"></i>Add Product
+                                        <a href="add-brand.php" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Add New Brand
                                         </a>
                                     </div>
                                 </div>
@@ -125,14 +115,9 @@ include "db-conn.php";
                                                     <tr>
                                                         <th>#</th>
                                                         <th>ID</th>
-                                                        <th>Product</th>
-                                                        <th>Category</th>
-                                                        <th>Image</th>
-                                                        <th>Add More Image</th>
-                                                        <th>MRP</th>
-                                                        <th>Sale Price</th>
-                                                        <th>Status</th>
-
+                                                        <th>Brand Logo</th>
+                                                        <th>Brand Name</th>
+                                                        <th>Created At</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -144,69 +129,53 @@ include "db-conn.php";
                                                     $perPage = 10;
                                                     $offset = ($page - 1) * $perPage;
 
-                                                    $sql = "SELECT * FROM products";
-                                                    $countSql = "SELECT COUNT(*) as total FROM products";
+                                                    // 🎯 SCHEMA-BASED TARGETING: Mapping against brands database schema
+                                                    $sql = "SELECT * FROM `brands`";
+                                                    $countSql = "SELECT COUNT(*) as total FROM `brands`";
 
                                                     if (!empty($search)) {
                                                         $searchTerm = mysqli_real_escape_string($conn, $search);
-                                                        $sql .= " WHERE pro_name LIKE '%$searchTerm%' OR pro_id LIKE '%$searchTerm%'";
-                                                        $countSql .= " WHERE pro_name LIKE '%$searchTerm%' OR pro_id LIKE '%$searchTerm%'";
+                                                        $sql .= " WHERE `brand_name` LIKE '%$searchTerm%' OR `id` LIKE '%$searchTerm%'";
+                                                        $countSql .= " WHERE `brand_name` LIKE '%$searchTerm%' OR `id` LIKE '%$searchTerm%'";
                                                     }
 
-                                                    $sql .= " ORDER BY pro_id DESC LIMIT $offset, $perPage";
+                                                    $sql .= " ORDER BY `id` DESC LIMIT $offset, $perPage";
 
                                                     $result = mysqli_query($conn, $sql);
                                                     $countResult = mysqli_query($conn, $countSql);
                                                     $totalRows = mysqli_fetch_assoc($countResult)['total'];
                                                     $totalPages = ceil($totalRows / $perPage);
 
-                                                    if (mysqli_num_rows($result) > 0) {
+                                                    if ($result && mysqli_num_rows($result) > 0) {
                                                         while ($row = mysqli_fetch_assoc($result)) {
-                                                            $status_text = $row['status'] == "1" ? "Active" : "Inactive";
-                                                            $status_color = $row['status'] == "1" ? "text-success" : "text-danger";
+                                                            $brand_id   = $row['id'];
+                                                            $brand_name = htmlspecialchars($row['brand_name']);
+                                                            $logo_path  = htmlspecialchars($row['logo_path']);
+                                                            $created_at = htmlspecialchars($row['created_at']);
 
-                                                            $image = $row['pro_img'];
-                                                            $images = explode(",", $image);
-                                                            $first_image = $images[0];
+                                                            // Image validation path mapping architecture
+                                                            $final_logo_src = (!empty($logo_path) && file_exists($logo_path)) ? $logo_path : 'uploads/default-brand.png';
                                                             ?>
                                                             <tr>
-                                                                <td><?= $sno++ ?></td>
-                                                                <td class="fw-bold">
-                                                                    <?= htmlspecialchars(string: $row['pro_id']) ?>
-                                                                </td>
-                                                                <td><?= htmlspecialchars($row['pro_name']) ?></td>
-                                                                <td><?= htmlspecialchars($row['pro_cate']) ?></td>
+                                                                <td><?= $offset + ($sno++) ?></td>
+                                                                <td class="fw-bold text-secondary">#<?= $brand_id ?></td>
                                                                 <td>
-                                                                    <img src="assets/img/uploads/<?= htmlspecialchars($first_image) ?>"
-                                                                        alt="<?= htmlspecialchars($row['pro_name']) ?>"
-                                                                        style="width: 100px;" class="img-thumbnail">
+                                                                    <img src="<?= $final_logo_src ?>"
+                                                                        alt="<?= $brand_name ?>"
+                                                                        class="brand-logo-preview"
+                                                                        onerror="this.src='uploads/default-brand.png'">
                                                                 </td>
-                                                                <td>
-                                                                    <a href="multiple_img.php?id=<?= $row['pro_id'] ?>" class="btn btn-success btn-sm">Manage
-                                                                        Images</a>
-                                                                </td>
-                                                                <td>
-    <del>
-        ₹<?= number_format((float)$row['mrp'], 2) ?>
-    </del>
-</td>
-
-<td class="text-primary">
-    ₹<?= number_format((float)$row['selling_price'], 2) ?>
-</td>
-                                                                    
-                                                                    
-                                                                <td class="<?= $status_color ?>"><?= $status_text ?></td>
-
+                                                                <td class="fw-bold"><?= $brand_name ?></td>
+                                                                <td class="text-muted small"><?= $created_at ?></td>
                                                                 <td>
                                                                     <div class="d-flex justify-content-center">
-                                                                        <a href="edit_products.php?edit_product_details=<?= $row['pro_id'] ?>"
-                                                                            class="btn btn-outline-info btn-sm me-2">
+                                                                        <a href="edit-brand.php?id=<?= $brand_id ?>"
+                                                                            class="btn btn-outline-info btn-sm me-2" data-bs-toggle="tooltip" title="Edit Brand">
                                                                             <i class="fas fa-edit"></i>
                                                                         </a>
-                                                                        <a href="product_delete.php?delete=<?= $row['pro_id'] ?>"
-                                                                            class="btn btn-outline-danger btn-sm"
-                                                                            onclick="return confirm('Are you sure you want to delete this product?')">
+                                                                        <a href="brand-delete.php?id=<?= $brand_id ?>" 
+                                                                           onclick="return confirm('Are you sure you want to permanently delete this client logo?');" 
+                                                                           class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Delete Brand">
                                                                             <i class="fas fa-trash-alt"></i>
                                                                         </a>
                                                                     </div>
@@ -215,35 +184,30 @@ include "db-conn.php";
                                                             <?php
                                                         }
                                                     } else {
-                                                        echo '<tr><td colspan="9" class="text-center text-muted py-4">No products found</td></tr>';
+                                                        echo '<tr><td colspan="6" class="text-center text-muted py-4">No associated brand logos found</td></tr>';
                                                     }
                                                     ?>
                                                 </tbody>
                                             </table>
                                         </div>
 
-                                        <!-- Pagination -->
                                         <?php if ($totalPages > 1): ?>
                                             <div class="d-flex justify-content-between align-items-center mt-4">
                                                 <div class="text-muted small">
-                                                    Showing <?= $offset + 1 ?> to <?= min($offset + $perPage, $totalRows) ?>
-                                                    of <?= $totalRows ?> entries
+                                                    Showing <?= $offset + 1 ?> to <?= min($offset + $perPage, $totalRows) ?> of <?= $totalRows ?> entries
                                                 </div>
                                                 <nav>
                                                     <ul class="pagination mb-0">
                                                         <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                                            <a class="page-link"
-                                                                href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">Previous</a>
+                                                            <a class="page-link" href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">Previous</a>
                                                         </li>
                                                         <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                                                             <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-                                                                <a class="page-link"
-                                                                    href="?page=<?= $i ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
+                                                                <a class="page-link" href="?page=<?= $i ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
                                                             </li>
                                                         <?php endfor; ?>
                                                         <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                                                            <a class="page-link"
-                                                                href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next</a>
+                                                            <a class="page-link" href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next</a>
                                                         </li>
                                                     </ul>
                                                 </nav>
@@ -257,21 +221,16 @@ include "db-conn.php";
                     </div>
                 </div>
             </div>
-
+        </div>
     </section>
+
     <?php include "footer.php"; ?>
 
-
     <script>
-        // Initialize tooltips
+        // Initialize structural tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Focus search input when search icon is clicked
-        document.querySelector('.search-box i').addEventListener('click', function () {
-            this.parentElement.querySelector('input').focus();
         });
     </script>
 </body>
