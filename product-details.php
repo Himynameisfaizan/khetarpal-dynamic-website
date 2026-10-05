@@ -32,12 +32,15 @@ $packaging = !empty($product['qty']) ? htmlspecialchars($product['qty']) : "Cust
 $short_desc = !empty($product['short_desc']) ? html_entity_decode($product['short_desc']) : "Premium quality agricultural product exported by Khetarpal Trading Co.";
 $long_desc = !empty($product['description']) ? $product['description'] : "<p>Detailed description will be updated soon.</p>";
 
-$mrp = !empty($product['mrp']) ? floatval($product['mrp']) : 0;
-$selling_price = !empty($product['selling_price']) ? floatval($product['selling_price']) : 0;
-
 $img_path = !empty($product['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($product['pro_img']) : "https://placehold.co/800x800/eeeeee/999999?text=No+Image";
 
 $pageTitle = $pro_name;
+
+// SEO Variables Setup (Products table se)
+$meta_title = !empty($product['meta_title']) ? $product['meta_title'] : $pro_name;
+$meta_desc = !empty($product['meta_desc']) ? $product['meta_desc'] : strip_tags($short_desc);
+$meta_keywords = !empty($product['meta_key']) ? $product['meta_key'] : "";
+
 include("./include/header.php");
 include("./include/breadcrumb.php");
 ?>
@@ -57,25 +60,6 @@ include("./include/breadcrumb.php");
                     <div class="product-info-wrapper">
 
                         <h1 class="product-detail-title"><?php echo $pro_name; ?></h1>
-
-                        <!-- <div class="prod-price-box" style="margin-bottom: 20px;">
-                            <?php if ($mrp > $selling_price && $selling_price > 0) { ?>
-                                <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: var(--primary-gold, #C49B3B);">
-                                    ₹<?php echo number_format($selling_price, 2); ?>
-                                </span>
-                                <del style="font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: #999999; margin-left: 10px;">
-                                    ₹<?php echo number_format($mrp, 2); ?>
-                                </del>
-                            <?php } elseif ($selling_price > 0) { ?>
-                                <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: var(--primary-gold, #C49B3B);">
-                                    ₹<?php echo number_format($selling_price, 2); ?>
-                                </span>
-                            <?php } else { ?>
-                                <span style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 20px; color: var(--primary-blue, #0A192F);">
-                                    Price on Request
-                                </span>
-                            <?php } ?>
-                        </div> -->
 
                         <div class="product-short-desc"><?php echo $short_desc; ?></div>
 
@@ -123,6 +107,7 @@ include("./include/breadcrumb.php");
                     </div>
                 </div>
             </div>
+            
             <div class="row product-full-details">
                 <div class="col-12">
                     <h3 class="detail-heading">Product Description</h3>
@@ -132,22 +117,15 @@ include("./include/breadcrumb.php");
                 </div>
             </div>
 
-           <!-- ==========================================
-                 RELATED PRODUCTS CAROUSEL (DYNAMIC)
-            =============================================== -->
+            <!-- RELATED PRODUCTS -->
             <div class="row mt-5">
                 <div class="col-12">
                     <section class="related-products-section">
-                        
                         <h3 class="related-title mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: var(--primary-blue, #0A192F); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                             Explore More Products
                         </h3>
-                        
-                        <!-- Note: Agar tum slider (Slick/Owl) use kar rahe ho toh "row g-4" classes hata dena -->
                         <div class="related-slider-container row g-4">
-                            
                             <?php
-                            // Fetch other products except the current one (Limit 6)
                             $rel_sql = "SELECT * FROM products WHERE status = 1 AND pro_id != $product_id ORDER BY RAND() LIMIT 3";
                             $rel_result = $conn->query($rel_sql);
 
@@ -157,54 +135,35 @@ include("./include/breadcrumb.php");
                                     $rel_name = htmlspecialchars($rel_row['pro_name']);
                                     $rel_img = !empty($rel_row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($rel_row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
                             ?>
-                            
-                            <!-- Slide / Grid Item -->
                             <div class="related-slide-item col-lg-4 col-md-6 col-sm-12">
                                 <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
-                                    
-                                    <!-- Image Box -->
                                     <div class="prod-img-box" style="height: 220px; overflow: hidden;">
                                           <a href="product-details.php?id=<?php echo $rel_id; ?>" style="display: block; width: 100%; height: 100%;">
                                         <img src="<?php echo $rel_img; ?>" alt="<?php echo $rel_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                         </a>
                                     </div>
-                                    
-                                    <!-- Content Box -->
                                     <div class="prod-content p-4 d-flex flex-column flex-grow-1">
-                                        
                                         <h3 class="prod-title mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: var(--primary-blue, #0A192F); text-transform: uppercase;">
                                               <a href="product-details.php?id=<?php echo $rel_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
                                             <?php echo $rel_name; ?>
                                         </a>
                                         </h3>
-                                        
-                                        <!-- Dual Buttons (Automatically pushed to bottom via mt-auto) -->
                                         <div class="mt-auto d-flex gap-2">
                                             <a href="product-details.php?id=<?php echo $rel_id; ?>" class="btn-custom-outline flex-fill text-center px-2 py-2" style="font-size: 12px;">
                                                 <i class="fa-regular fa-eye me-1"></i> Details
                                             </a>
-                                            <!-- Quote Link passing dynamic Product Name -->
                                             <a href="contact.php?product=<?php echo urlencode($rel_name); ?>" class="btn-custom-solid flex-fill text-center px-2 py-2" style="font-size: 12px;">
                                                 <i class="fa-solid fa-paper-plane me-1"></i> Quote
                                             </a>
                                         </div>
-                                        
                                     </div>
                                 </div>
                             </div>
-                            
-                            <?php 
-                                } 
-                            } else {
-                                echo "<p class='text-muted'>No other products found.</p>";
-                            }
-                            ?>
-
+                            <?php } } else { echo "<p class='text-muted'>No other products found.</p>"; } ?>
                         </div>
                     </section>
                 </div>
             </div>
-            <!-- END RELATED PRODUCTS -->
         </div>
     </section>
 </main>

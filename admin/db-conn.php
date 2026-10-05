@@ -5,28 +5,23 @@ if (session_status() === PHP_SESSION_NONE) {
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once dirname(__DIR__) . '/vendor/autoload.php'; // go up from config/ to project root
+require_once dirname(__DIR__) . '/vendor/autoload.php'; 
 
 use Dotenv\Dotenv;
 
-// Load .env from project root
 $dotenv = Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
-// Read env variables
 $host = $_ENV['DB_HOST'];
 $username = $_ENV['DB_USERNAME'];
 $password = $_ENV['DB_PASSWORD'];
 $dbName = $_ENV['DB_NAME'];
 $site = $_ENV['SITE'];
 
-// Make `$site` global
 global $site;
 
-// Create Database Connection
 $conn = new mysqli($host, $username, $password, $dbName);
 
-// Check Connection
 if ($conn->connect_error) {
     die("Database Connection Failed: " . $conn->connect_error);
 }

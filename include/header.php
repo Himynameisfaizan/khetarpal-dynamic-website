@@ -1,14 +1,59 @@
 <?php
-// Ye logic check karega ki browser mein kaunsi file open hai
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// Fix for File Name vs Database Name mismatch
+$db_page_url = $current_page;
+if ($current_page == 'product.php') {
+    $db_page_url = 'products.php';
+} elseif ($current_page == 'blogs.php') {
+    $db_page_url = 'blog.php';
+}
+
+// Agar variables pehle se set nahi hain, tabhi default set karein
+if (!isset($meta_title)) { $meta_title = "Khetarpal | Trading"; }
+if (!isset($meta_desc)) { $meta_desc = ""; }
+if (!isset($meta_keywords)) { $meta_keywords = ""; }
+if (!isset($schema_code)) { $schema_code = ""; }
+
+// Database connection check karke meta aur schema fetch karna
+if (isset($conn)) {
+    // 1. Meta table se data fetch karna
+    $meta_query = "SELECT meta_title, meta_desc, meta_key FROM meta WHERE page_url = '$db_page_url' LIMIT 1";
+    $meta_result = mysqli_query($conn, $meta_query);
+    if ($meta_result && mysqli_num_rows($meta_result) > 0) {
+        $meta_row = mysqli_fetch_assoc($meta_result);
+        if (!empty($meta_row['meta_title'])) { $meta_title = $meta_row['meta_title']; }
+        if (!empty($meta_row['meta_desc'])) { $meta_desc = $meta_row['meta_desc']; }
+        if (!empty($meta_row['meta_key'])) { $meta_keywords = $meta_row['meta_key']; }
+    }
+
+    // 2. Page_schemas table se schema fetch karna
+    $schema_query = "SELECT schema_markup FROM page_schemas WHERE page_url = '$db_page_url' LIMIT 1";
+    $schema_result = mysqli_query($conn, $schema_query);
+    if ($schema_result && mysqli_num_rows($schema_result) > 0) {
+        $schema_row = mysqli_fetch_assoc($schema_result);
+        if (!empty($schema_row['schema_markup'])) { $schema_code = $schema_row['schema_markup']; }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Khetarpal | Trading</title>
-    <meta name="description" content="">
+    
+    <!-- Dynamic SEO Tags Start -->
+    <title><?php echo $meta_title; ?></title>
+    <meta name="description" content="<?php echo $meta_desc; ?>">
+    <meta name="keywords" content="<?php echo $meta_keywords; ?>">
+    
+    <?php 
+    // Dynamic Schema Markup
+    if(!empty($schema_code)) {
+        echo $schema_code;
+    }
+    ?>
+    <!-- Dynamic SEO Tags End -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" href="assets/img/favicon.png" type="image/png">
@@ -77,37 +122,27 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <ul class="navbar-nav align-items-center">
                             
                             <!-- Dynamic Active Class Logic -->
-                            <li class="nav-item <?= ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>">
+                            <li class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="index.php">Home</a>
                             </li>
                             
-                            <li class="nav-item <?= ($current_page == 'about.php') ? 'active' : ''; ?>">
+                            <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="about.php">About Us</a>
                             </li>
                             
-                            <li class="nav-item <?= ($current_page == 'services.php') ? 'active' : ''; ?>">
+                            <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="services.php">Services</a>
                             </li>
 
-                            <!-- Dropdown fixed: Removed data-bs-toggle to make main link clickable -->
-                            <li class="nav-item dropdown <?= ($current_page == 'product.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="product.php" id="navbarDropdown">
-                                    Products 
-                                    <!-- <i class="fas fa-chevron-down ms-1" style="font-size: 10px;"></i> -->
-                                </a>
-                                <!-- <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="#">Cumin Seeds</a></li>
-                                    <li><a class="dropdown-item" href="#">Psyllium Husk</a></li>
-                                    <li><a class="dropdown-item" href="#">Castor Seeds</a></li>
-                                    <li><a class="dropdown-item" href="product.php">View All Products</a></li>
-                                </ul> -->
+                            <li class="nav-item dropdown <?php echo ($current_page == 'product.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
+                                <a class="nav-link" href="product.php" id="navbarDropdown">Products</a>
                             </li>
 
-                            <li class="nav-item <?= ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
+                            <li class="nav-item <?php echo ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="blogs.php">Blog</a>
                             </li>
                             
-                            <li class="nav-item <?= ($current_page == 'contact.php') ? 'active' : ''; ?>">
+                            <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="contact.php">Contact Us</a>
                             </li>
 
@@ -130,13 +165,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav">
-                    <li class="nav-item <?= ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="index.php">Home</a></li>
-                    <li class="nav-item <?= ($current_page == 'about.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="about.php">About Us</a></li>
-                    <li class="nav-item <?= ($current_page == 'product.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="product.php">Products</a></li>
-                    <li class="nav-item <?= ($current_page == 'export-market.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="export-market.php">Export Markets</a></li>
-                    <li class="nav-item <?= ($current_page == 'services.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="services.php">Services</a></li>
-                    <li class="nav-item <?= ($current_page == 'blog.php' || $current_page == 'blogs.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="blog.php">Blog</a></li>
-                    <li class="nav-item <?= ($current_page == 'contact.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="contact.php">Contact Us</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="index.php">Home</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="about.php">About Us</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'product.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="product.php">Products</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'export-market.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="export-market.php">Export Markets</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="services.php">Services</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'blog.php' || $current_page == 'blogs.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="blog.php">Blog</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="contact.php">Contact Us</a></li>
                 </ul>
                 <hr>
                 <div class="mt-4">
@@ -150,6 +185,3 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
     </header>
-</body>
-
-</html>

@@ -9,7 +9,8 @@ $sqlProduct = "SELECT p.*, c.categories AS category_name
         ORDER BY p.pro_id DESC LIMIT 6";
 
 $sqlBlog = "SELECT * FROM blogs WHERE status = 'published' LIMIT 3";
-$sqlTestimonial = "SELECT * From testimonials ORDER BY id DESC";
+// Fixed the column name from 'id' to 'test_id'
+$sqlTestimonial = "SELECT * From testimonials ORDER BY test_id DESC";
 $sqlCountry = "SELECT * From country ORDER BY id DESC";
 
 $resultProduct = $conn->query($sqlProduct);
@@ -20,16 +21,12 @@ $resultCountry = $conn->query($sqlCountry);
 include('./include/header.php');
 ?>
 
-<!-- :::::: Start Main Container Wrapper :::::: -->
-
 <main id="main-container" class="main-container">
 
-    <!-- ::::::  Start Hero Section  ::::::  -->
     <section class="hero-section">
         <div class="container hero-content-wrapper">
             <div class="row">
                 <div class="col-lg-8 col-md-10">
-                    <!-- Headings -->
                     <h1 class="hero-title">
                         Global Agricultural
                         <span>Export Company</span>
@@ -399,12 +396,12 @@ include('./include/header.php');
                 if ($resultTestimonial && $resultTestimonial->num_rows > 0) {
                     while ($row = $resultTestimonial->fetch_assoc()) {
 
-                        // ERROR FIXED HERE: Added ?? ''
-                        $client_name = htmlspecialchars($row['client_name'] ?? '');
-                        $client_title = htmlspecialchars($row['client_title'] ?? '');
+                        // ERROR FIXED HERE: Database column names matched
+                        $client_name = htmlspecialchars($row['name'] ?? '');
+                        $client_title = htmlspecialchars($row['designation'] ?? '');
                         $client_company = htmlspecialchars($row['client_company'] ?? '');
-                        $text = htmlspecialchars($row['testimonial_text'] ?? '');
-                        $client_photo = htmlspecialchars($row['client_photo'] ?? '');
+                        $text = htmlspecialchars($row['message'] ?? '');
+                        $client_photo = htmlspecialchars($row['image'] ?? '');
 
                         // ==========================================
                         // DYNAMIC IMAGE LOGIC
@@ -476,13 +473,14 @@ include('./include/header.php');
                 <?php
                 if ($resultBLog && $resultBLog->num_rows > 0) {
                     while ($row = $resultBLog->fetch_assoc()) {
-                        $blog_id = $row['id'];
+                        // Added prefix logic for 'blog_id' column if it varies across tables (like in khetarpal.sql)
+                        $blog_id = $row['blog_id'] ?? $row['id']; 
                         $title = htmlspecialchars($row['title']);
                         $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                         $date = date('d M, Y', strtotime($row['created_at']));
 
                         // Decode full content (For Modal)
-                        $raw_content = html_entity_decode($row['content']);
+                        $raw_content = html_entity_decode($row['description']); // Fixed property name to match SQL Schema
 
                         // Excerpt for the Card (stripped of tags)
                         $clean_text = strip_tags($raw_content);
