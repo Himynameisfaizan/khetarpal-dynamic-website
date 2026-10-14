@@ -628,7 +628,7 @@ include('./include/header.php');
                 <?php
                 if ($resultBLog && $resultBLog->num_rows > 0) {
                     while ($row = $resultBLog->fetch_assoc()) {
-                        $blog_slug = htmlspecialchars($row['slug_url'] ?? '');
+                        $blog_slug = htmlspecialchars($row['slug'] ?? '');
                         $title = htmlspecialchars($row['title']);
                         $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                         $date = date('d M, Y', strtotime($row['created_at']));

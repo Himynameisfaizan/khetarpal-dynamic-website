@@ -60,7 +60,7 @@ include("./include/breadcrumb.php");
             <?php
             if ($result && $result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $blog_slug = htmlspecialchars($row['slug_url']);
+                    $blog_slug = htmlspecialchars($row['slug']);
                     $title = htmlspecialchars($row['title']);
                     $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                     $date = date('d M, Y', strtotime($row['created_at']));

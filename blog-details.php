@@ -9,7 +9,7 @@ if (isset($_GET['slug']) && !empty($_GET['slug'])) {
     exit;
 }
 
-$sql = "SELECT * FROM blogs WHERE slug_url = ? AND status = 'published'";
+$sql = "SELECT * FROM blogs WHERE slug = ? AND status = 'published'";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $blog_slug);
 $stmt->execute();
@@ -86,7 +86,7 @@ $catSql = "SELECT * FROM categories WHERE status = 1 ORDER BY categories ASC";
 $catResult = $conn->query($catSql);
 
 // Fetch Recent Blogs for Sidebar
-$recentBlogSql = "SELECT title, slug_url, image, created_at FROM blogs WHERE status = 'published' AND blog_id != $blog_id ORDER BY blog_id DESC LIMIT 4";
+$recentBlogSql = "SELECT title, slug, image, created_at FROM blogs WHERE status = 'published' AND blog_id != $blog_id ORDER BY blog_id DESC LIMIT 4";
 $recentBlogResult = $conn->query($recentBlogSql);
 ?>
 
@@ -411,7 +411,7 @@ $recentBlogResult = $conn->query($recentBlogSql);
                         <?php
                         if ($recentBlogResult && $recentBlogResult->num_rows > 0) {
                             while ($rb = $recentBlogResult->fetch_assoc()) {
-                                $rb_slug = htmlspecialchars($rb['slug_url']);
+                                $rb_slug = htmlspecialchars($rb['slug']);
                                 $rb_title = htmlspecialchars($rb['title']);
                                 $rb_date = date('M d, Y', strtotime($rb['created_at']));
                                 $rb_img = !empty($rb['image']) ? "admin/assets/img/uploads/" . htmlspecialchars($rb['image']) : "https://placehold.co/100x100";
