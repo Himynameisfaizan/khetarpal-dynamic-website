@@ -5,12 +5,6 @@ include("./admin/db-conn.php");
 $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
 $cat_slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 
-// Agar dono khali hain, toh product page par bhej do
-if (empty($search_query) && empty($cat_slug)) {
-    header("Location: product.php");
-    exit;
-}
-
 // 2. Pagination Setup
 $limit = 9;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -20,10 +14,10 @@ $offset = ($page - 1) * $limit;
 $meta_title = "Products | Khetarpal Trading";
 $meta_desc = "Browse our premium agricultural products and spices.";
 $meta_keywords = "agricultural products, export, spices, khetarpal";
-$page_heading = "Our Products";
+$page_heading = "All Products";
 $current_cate_id = 0;
 
-// 3. Database Fetch Logic (Category vs Search)
+// 3. Database Fetch Logic (Category vs Search vs Default All)
 if (!empty($cat_slug)) {
     // Category Data Fetch
     $stmt_cat = $conn->prepare("SELECT * FROM categories WHERE slug_url = ? AND status = 1");
@@ -40,7 +34,8 @@ if (!empty($cat_slug)) {
         $meta_desc = !empty($cat_data['meta_desc']) ? $cat_data['meta_desc'] : "High quality " . $page_heading . " for bulk export.";
         $meta_keywords = !empty($cat_data['meta_key']) ? $cat_data['meta_key'] : $page_heading . ", export, wholesale";
     } else {
-        header("Location: product.php");
+        // Agar slug galat hai, toh wapas main product page par bhej do
+        header("Location: category.php");
         exit;
     }
     
@@ -64,6 +59,14 @@ if (!empty($cat_slug)) {
             LEFT JOIN categories c ON p.pro_cate = c.cate_id 
             WHERE p.pro_name LIKE '%$search_esc%' AND p.status = 1 
             ORDER BY p.pro_id DESC LIMIT $limit OFFSET $offset";
+} else {
+    // Default Fallback: Show All Products (Fix for the redirect issue)
+    $countSql = "SELECT COUNT(pro_id) as total FROM products WHERE status = 1";
+    $sql = "SELECT p.*, c.categories AS category_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.pro_cate = c.cate_id 
+            WHERE p.status = 1 
+            ORDER BY p.pro_id DESC LIMIT $limit OFFSET $offset";
 }
 
 $countResult = $conn->query($countSql);
@@ -79,7 +82,14 @@ $pageTitle = $page_heading;
 $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 $domainName = $_SERVER['HTTP_HOST'];
 $current_uri = strtok($_SERVER["REQUEST_URI"], '?'); 
-$query_string = !empty($cat_slug) ? "?slug=" . urlencode($cat_slug) : "?q=" . urlencode($search_query);
+
+// Query string build karna dynamically
+$query_string = "";
+if (!empty($cat_slug)) {
+    $query_string = "?slug=" . urlencode($cat_slug);
+} elseif (!empty($search_query)) {
+    $query_string = "?q=" . urlencode($search_query);
+}
 
 // Canonical URL
 $canonical_url = $protocol . $domainName . $current_uri . $query_string;
@@ -160,6 +170,7 @@ $allCatResult = $conn->query($allCatSql);
                     <div class="sidebar-widget">
                         <h4 class="widget-title">Categories</h4>
                         <ul class="cat-list">
+                            <li><a href="category.php" class="<?php echo empty($cat_slug) ? 'active-cat' : ''; ?>">All Products <i class="fa-solid fa-angle-right"></i></a></li>
                             <?php 
                             if ($allCatResult && $allCatResult->num_rows > 0) {
                                 while($cat = $allCatResult->fetch_assoc()) {
@@ -251,7 +262,14 @@ $allCatResult = $conn->query($allCatSql);
                     <?php if ($totalPages > 1) { ?>
                         <nav aria-label="Product Category Navigation">
                             <ul class="pagination custom-pagination">
-                                <?php $query_append = !empty($cat_slug) ? "&slug=".urlencode($cat_slug) : "&q=".urlencode($search_query); ?>
+                                <?php 
+                                $query_append = "";
+                                if (!empty($cat_slug)) {
+                                    $query_append = "&slug=" . urlencode($cat_slug);
+                                } elseif (!empty($search_query)) {
+                                    $query_append = "&q=" . urlencode($search_query);
+                                }
+                                ?>
                                 
                                 <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
                                     <a class="page-link" href="?page=<?php echo $page - 1 . $query_append; ?>"><i class="fa-solid fa-angle-left"></i> Prev</a>
