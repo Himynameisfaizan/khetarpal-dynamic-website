@@ -15,68 +15,16 @@ include "db-conn.php";
     <link rel="icon" href="assets/img/logo.png" type="image/png">
     <?php include "links.php"; ?>
     <style>
-        .product-card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-box {
-            position: relative;
-            max-width: 400px;
-        }
-
-        .search-box input {
-            padding-left: 40px;
-            border-radius: 20px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .product-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #eee;
-        }
-
-        .action-btn {
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin: 0 3px;
-        }
-
-        .table thead th {
-            background-color: #2c3e50;
-            color: white;
-            font-weight: 500;
-        }
-
-        .price-highlight {
-            font-weight: 600;
-            color: #2e7d32;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #2c3e50;
-            border-color: #2c3e50;
-        }
+        .product-card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
+        .search-box { position: relative; max-width: 400px; }
+        .search-box input { padding-left: 40px; border-radius: 20px; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .product-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+        .action-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 3px; }
+        .table thead th { background-color: #2c3e50; color: white; font-weight: 500; }
+        .price-highlight { font-weight: 600; color: #2e7d32; }
+        .pagination .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
     </style>
 </head>
 
@@ -132,7 +80,6 @@ include "db-conn.php";
                                                         <th>MRP</th>
                                                         <th>Sale Price</th>
                                                         <th>Status</th>
-
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -144,23 +91,23 @@ include "db-conn.php";
                                                     $perPage = 10;
                                                     $offset = ($page - 1) * $perPage;
 
-                                                    $sql = "SELECT * FROM products";
-                                                    $countSql = "SELECT COUNT(*) as total FROM products";
+                                                    $sql = "SELECT p.*, c.categories AS category_name FROM products p LEFT JOIN categories c ON p.pro_cate = c.cate_id";
+                                                    $countSql = "SELECT COUNT(*) as total FROM products p";
 
                                                     if (!empty($search)) {
                                                         $searchTerm = mysqli_real_escape_string($conn, $search);
-                                                        $sql .= " WHERE pro_name LIKE '%$searchTerm%' OR pro_id LIKE '%$searchTerm%'";
-                                                        $countSql .= " WHERE pro_name LIKE '%$searchTerm%' OR pro_id LIKE '%$searchTerm%'";
+                                                        $sql .= " WHERE p.pro_name LIKE '%$searchTerm%' OR p.pro_id LIKE '%$searchTerm%'";
+                                                        $countSql .= " WHERE p.pro_name LIKE '%$searchTerm%' OR p.pro_id LIKE '%$searchTerm%'";
                                                     }
 
-                                                    $sql .= " ORDER BY pro_id DESC LIMIT $offset, $perPage";
+                                                    $sql .= " ORDER BY p.pro_id DESC LIMIT $offset, $perPage";
 
                                                     $result = mysqli_query($conn, $sql);
                                                     $countResult = mysqli_query($conn, $countSql);
                                                     $totalRows = mysqli_fetch_assoc($countResult)['total'];
                                                     $totalPages = ceil($totalRows / $perPage);
 
-                                                    if (mysqli_num_rows($result) > 0) {
+                                                    if ($result && mysqli_num_rows($result) > 0) {
                                                         while ($row = mysqli_fetch_assoc($result)) {
                                                             $status_text = $row['status'] == "1" ? "Active" : "Inactive";
                                                             $status_color = $row['status'] == "1" ? "text-success" : "text-danger";
@@ -171,33 +118,23 @@ include "db-conn.php";
                                                             ?>
                                                             <tr>
                                                                 <td><?= $sno++ ?></td>
-                                                                <td class="fw-bold">
-                                                                    <?= htmlspecialchars(string: $row['pro_id']) ?>
-                                                                </td>
-                                                                <td><?= htmlspecialchars($row['pro_name']) ?></td>
-                                                                <td><?= htmlspecialchars($row['pro_cate']) ?></td>
+                                                                <td class="fw-bold"><?= htmlspecialchars($row['pro_id'] ?? '') ?></td>
+                                                                <td><?= htmlspecialchars($row['pro_name'] ?? '') ?></td>
+                                                                
+                                                                <!-- FIX APPLIED HERE: If category is empty, show empty string -->
+                                                                <td><?= htmlspecialchars($row['category_name'] ?? 'Uncategorized') ?></td>
+                                                                
                                                                 <td>
-                                                                    <img src="assets/img/uploads/<?= htmlspecialchars($first_image) ?>"
-                                                                        alt="<?= htmlspecialchars($row['pro_name']) ?>"
-                                                                        style="width: 100px;" class="img-thumbnail">
-                                                                </td>
-                                                                <td>
-                                                                    <a href="multiple_img.php?id=<?= $row['pro_id'] ?>" class="btn btn-success btn-sm">Manage
-                                                                        Images</a>
+                                                                    <img src="assets/img/uploads/<?= htmlspecialchars($first_image ?? '') ?>"
+                                                                        alt="<?= htmlspecialchars($row['pro_name'] ?? '') ?>"
+                                                                        style="width: 100px;" class="img-thumbnail" onerror="this.src='https://placehold.co/100x100?text=No+Image'">
                                                                 </td>
                                                                 <td>
-    <del>
-        ₹<?= number_format((float)$row['mrp'], 2) ?>
-    </del>
-</td>
-
-<td class="text-primary">
-    ₹<?= number_format((float)$row['selling_price'], 2) ?>
-</td>
-                                                                    
-                                                                    
+                                                                    <a href="multiple_img.php?id=<?= $row['pro_id'] ?>" class="btn btn-success btn-sm">Manage Images</a>
+                                                                </td>
+                                                                <td><del>₹<?= number_format((float)$row['mrp'], 2) ?></del></td>
+                                                                <td class="text-primary">₹<?= number_format((float)$row['selling_price'], 2) ?></td>
                                                                 <td class="<?= $status_color ?>"><?= $status_text ?></td>
-
                                                                 <td>
                                                                     <div class="d-flex justify-content-center">
                                                                         <a href="edit_products.php?edit_product_details=<?= $row['pro_id'] ?>"
@@ -215,7 +152,7 @@ include "db-conn.php";
                                                             <?php
                                                         }
                                                     } else {
-                                                        echo '<tr><td colspan="9" class="text-center text-muted py-4">No products found</td></tr>';
+                                                        echo '<tr><td colspan="10" class="text-center text-muted py-4">No products found</td></tr>';
                                                     }
                                                     ?>
                                                 </tbody>
@@ -261,19 +198,5 @@ include "db-conn.php";
     </section>
     <?php include "footer.php"; ?>
 
-
-    <script>
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Focus search input when search icon is clicked
-        document.querySelector('.search-box i').addEventListener('click', function () {
-            this.parentElement.querySelector('input').focus();
-        });
-    </script>
 </body>
-
 </html>

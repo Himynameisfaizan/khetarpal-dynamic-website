@@ -10,9 +10,9 @@ if (!isset($_GET['edit_product_details'])) {
 
 $product_id = intval($_GET['edit_product_details']);
 
-// Fetch product details using mysqli_query()
+// Fetch product details safely
 $query = "SELECT * FROM products WHERE pro_id = $product_id";
-$result = mysqli_query($conn, $query);
+$result = mysqli_query($conn,$query);
 
 if ($result && mysqli_num_rows($result) > 0) {
     $product = mysqli_fetch_assoc($result);
@@ -22,12 +22,18 @@ if ($result && mysqli_num_rows($result) > 0) {
 
 // Fetch Parent Categories
 $sql = "SELECT * FROM `categories` WHERE `status` = 1 ORDER BY id DESC";
-$check = mysqli_query($conn, $sql);
+$check = mysqli_query($conn,$sql);
 
-// Fetch Subcategories for the selected parent category
-$parent_cate_id = $product['pro_cate'];
-$sub_cate_query = "SELECT * FROM `sub_categories` WHERE cate_id = '$parent_cate_id' AND status = 1";
-$sub_categories = mysqli_query($conn,$sub_cate_query);
+// FIX APPLIED HERE: Safely check if 'sub_categories' table exists before querying
+$sub_categories = false;
+$table_check = mysqli_query($conn, "SHOW TABLES LIKE 'sub_categories'");
+
+if ($table_check && mysqli_num_rows($table_check) > 0) {
+    $parent_cate_id =$product['pro_cate'] ?? 0;
+    $sub_cate_query = "SELECT * FROM `sub_categories` WHERE cate_id = '$parent_cate_id' AND status = 1";
+    // @ is used to suppress any unexpected query warning
+    $sub_categories = @mysqli_query($conn,$sub_cate_query);
+}
 ?>
 
 <!DOCTYPE html>
@@ -71,17 +77,18 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                 <div class="card-body">
                                     <form action="update-product.php" method="POST" enctype="multipart/form-data">
                                         
-                                        <input type="hidden" name="pro_id" value="<?= $product['pro_id'] ?>" />
-                                        <input type="hidden" name="id" value="<?= $product['id'] ?>" />
+                                        <!-- Hidden Inputs (Safeguarded with null coalescing operator ?? '') -->
+                                        <input type="hidden" name="pro_id" value="<?= htmlspecialchars($product['pro_id'] ?? '') ?>" />
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($product['id'] ?? '') ?>" />
 
                                         <div class="row mb-3">
                                             <!-- Product Name -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="pro_name">Product Name</label>
-                                                <input type="text" class="form-control" name="pro_name" id="pro_name" value="<?= htmlspecialchars($product['pro_name']) ?>" required />
+                                                <input type="text" class="form-control" name="pro_name" id="pro_name" value="<?= htmlspecialchars($product['pro_name'] ?? '') ?>" required />
                                             </div>
 
-                                            <!-- NEW: Custom Slug Field -->
+                                            <!-- Custom Slug Field -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="slug_url">Custom Slug (SEO URL)</label>
                                                 <div class="input-group">
@@ -96,30 +103,36 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                                 <input type="text" class="form-control" name="brand_name" id="brand_name" value="<?= htmlspecialchars($product['brand_name'] ?? '') ?>" />
                                             </div>
 
-                                            <!-- Parent Category -->
+                                            <!-- Parent Category (Safeguarded fetch loop) -->
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label" for="pro_cate">Parent Category</label>
+                                                <label class="form-label" for="pro_cate">Category</label>
                                                 <select class="form-control" name="pro_cate" id="pro_cate" required onchange="get_subcategory(this.value)">
                                                     <option value="">--Select Category--</option>
-                                                    <?php foreach ($check as$val) { ?>
-                                                        <option value="<?= $val['cate_id'] ?>" <?= ($product['pro_cate'] ==$val['cate_id']) ? 'selected' : '' ?>>
-                                                            <?= ucwords(htmlspecialchars($val['categories'])) ?>
-                                                        </option>
-                                                    <?php } ?>
+                                                    <?php 
+                                                    if ($check && mysqli_num_rows($check) > 0) {
+                                                        while ($val = mysqli_fetch_assoc($check)) {$cat_val = $val['cate_id'] ?? '';$cat_name = $val['categories'] ?? 'Unknown';$selected = (($product['pro_cate'] ?? '') ==$cat_val) ? 'selected' : '';
+                                                    ?>
+                                                            <option value="<?= htmlspecialchars($cat_val) ?>" <?= $selected ?>>
+                                                                <?= ucwords(htmlspecialchars($cat_name)) ?>
+                                                            </option>
+                                                    <?php 
+                                                        } 
+                                                    }
+                                                    ?>
                                                 </select>
                                             </div>
 
-                                            <!-- Sub Category -->
+                                            <!-- Sub Category (Safeguarded fetch loop) -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="pro_sub_cate">Sub Category</label>
                                                 <select class="form-control" name="pro_sub_cate" id="subcate_id">
                                                     <option value="0">--Select Subcategory--</option>
                                                     <?php 
                                                     if ($sub_categories && mysqli_num_rows($sub_categories) > 0) {
-                                                        while ($sub_cate = mysqli_fetch_assoc($sub_categories)) {$selected = ($product['pro_sub_cate'] ==$sub_cate['id']) ? 'selected' : '';
+                                                        while ($sub_cate = mysqli_fetch_assoc($sub_categories)) {$sub_cat_val = $sub_cate['id'] ?? '';$sub_cat_name = $sub_cate['categories'] ?? 'Unknown';$selected = (($product['pro_sub_cate'] ?? '') ==$sub_cat_val) ? 'selected' : '';
                                                     ?>
-                                                            <option value="<?= $sub_cate['id'] ?>" <?= $selected ?>>
-                                                                <?= ucwords(htmlspecialchars($sub_cate['categories'])) ?>
+                                                            <option value="<?= htmlspecialchars($sub_cat_val) ?>" <?= $selected ?>>
+                                                                <?= ucwords(htmlspecialchars($sub_cat_name)) ?>
                                                             </option>
                                                     <?php 
                                                         }
@@ -131,19 +144,19 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                             <!-- Stock -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="stock">Stock Quantity</label>
-                                                <input type="number" class="form-control" name="stock" id="stock" value="<?= $product['stock'] ?>" required />
+                                                <input type="number" class="form-control" name="stock" id="stock" value="<?= htmlspecialchars($product['stock'] ?? '0') ?>" />
                                             </div>
 
                                             <!-- Product Image -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="pro_img">Product Image</label>
                                                 <input type="file" class="form-control" name="pro_img" id="pro_img" accept="image/*" />
-                                                <input type="hidden" name="old_img" value="<?= $product['pro_img'] ?>">
+                                                <input type="hidden" name="old_img" value="<?= htmlspecialchars($product['pro_img'] ?? '') ?>">
                                                 <?php if(!empty($product['pro_img'])): ?>
                                                 <div class="mt-2">
                                                     <small class="text-muted">Current Image:</small>
                                                     <div class="mt-1">
-                                                        <img src="assets/img/uploads/<?= trim($product['pro_img']) ?>" style="height: 100px; width: 100px; object-fit: contain; border-radius: 8px; border: 1px solid #ccc;" alt="Current Product Image">
+                                                        <img src="assets/img/uploads/<?= trim(htmlspecialchars($product['pro_img'])) ?>" style="height: 100px; width: 100px; object-fit: contain; border-radius: 8px; border: 1px solid #ccc;" alt="Current Product Image">
                                                     </div>
                                                 </div>
                                                 <?php endif; ?>
@@ -153,8 +166,8 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="new_arrival">Exclusive Deal</label>
                                                 <select id="new_arrival" name="new_arrival" class="form-control">
-                                                    <option value="0" <?= $product['new_arrival'] == 0 ? 'selected' : '' ?>>No</option>
-                                                    <option value="1" <?= $product['new_arrival'] == 1 ? 'selected' : '' ?>>Yes</option>
+                                                    <option value="0" <?= (($product['new_arrival'] ?? 0) == 0) ? 'selected' : '' ?>>No</option>
+                                                    <option value="1" <?= (($product['new_arrival'] ?? 0) == 1) ? 'selected' : '' ?>>Yes</option>
                                                 </select>
                                             </div>
 
@@ -162,41 +175,41 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="trending">Special Offers</label>
                                                 <select id="trending" name="trending" class="form-control">
-                                                    <option value="0" <?= $product['trending'] == 0 ? 'selected' : '' ?>>No</option>
-                                                    <option value="1" <?= $product['trending'] == 1 ? 'selected' : '' ?>>Yes</option>
+                                                    <option value="0" <?= (($product['trending'] ?? 0) == 0) ? 'selected' : '' ?>>No</option>
+                                                    <option value="1" <?= (($product['trending'] ?? 0) == 1) ? 'selected' : '' ?>>Yes</option>
                                                 </select>
                                             </div>
 
                                             <!-- Short Description -->
                                             <div class="col-md-12 mb-3">
                                                 <label class="form-label" for="short_desc">Short Description</label>
-                                                <textarea class="form-control" name="short_desc" id="short_desc" required><?= $product['short_desc'] ?></textarea>
+                                                <textarea class="form-control" name="short_desc" id="short_desc" required><?= htmlspecialchars($product['short_desc'] ?? '') ?></textarea>
                                             </div>
 
                                             <!-- Long Description -->
                                             <div class="col-md-12 mb-3">
                                                 <label class="form-label" for="pro_desc">Long Description</label>
-                                                <textarea class="form-control" name="pro_desc" id="pro_desc" required><?= $product['description'] ?></textarea>
+                                                <textarea class="form-control" name="pro_desc" id="pro_desc" required><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
                                             </div>
 
                                             <!-- MRP -->
                                             <div class="col-md-4 mb-3">
                                                 <label class="form-label" for="mrp">MRP</label>
-                                                <input type="text" class="form-control" name="mrp" id="mrp" value="<?= $product['mrp'] ?>" required />
+                                                <input type="text" class="form-control" name="mrp" id="mrp" value="<?= htmlspecialchars($product['mrp'] ?? '0') ?>" required />
                                             </div>
 
                                             <!-- Selling Price -->
                                             <div class="col-md-4 mb-3">
                                                 <label class="form-label" for="selling_price">Selling Price</label>
-                                                <input type="text" class="form-control" name="selling_price" id="selling_price" value="<?= $product['selling_price'] ?>" required />
+                                                <input type="text" class="form-control" name="selling_price" id="selling_price" value="<?= htmlspecialchars($product['selling_price'] ?? '0') ?>" required />
                                             </div>
 
                                             <!-- Status -->
                                             <div class="col-md-4 mb-3">
                                                 <label class="form-label" for="status">Status</label>
                                                 <select id="status" name="status" class="form-control" required>
-                                                    <option value="1" <?= $product['status'] == 1 ? 'selected' : '' ?>>Active</option>
-                                                    <option value="0" <?= $product['status'] == 0 ? 'selected' : '' ?>>Deactive</option>
+                                                    <option value="1" <?= (($product['status'] ?? 1) == 1) ? 'selected' : '' ?>>Active</option>
+                                                    <option value="0" <?= (($product['status'] ?? 1) == 0) ? 'selected' : '' ?>>Deactive</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -221,7 +234,7 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                                             <div class="col-md-12 mb-3">
                                                 <label class="form-label fw-bold" for="schema_markup">SEO Schema Markup (JSON-LD)</label>
                                                 <textarea class="form-control" name="schema_markup" id="schema_markup" rows="6"><?= htmlspecialchars($product['schema_markup'] ?? '') ?></textarea>
-                                                <small class="text-muted">SEO expert yahan product ka custom schema (jaise Product, Price, Rating) paste kar sakte hain.</small>
+                                                <small class="text-muted">Do not include &lt;script&gt; tags.</small>
                                             </div>
                                         </div>
 
@@ -242,6 +255,7 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
         <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
 
         <script>
+            // Ensure CKEditor only loads if element exists
             if (document.getElementById('pro_desc')) {
                 CKEDITOR.replace('pro_desc');
             }
@@ -254,9 +268,12 @@ $sub_categories = mysqli_query($conn,$sub_cate_query);
                 return text.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
             }
             
-            document.getElementById('slug_url').addEventListener('blur', function() {
-                this.value = convertToSlug(this.value);
-            });
+            let slugInput = document.getElementById('slug_url');
+            if(slugInput) {
+                slugInput.addEventListener('blur', function() {
+                    this.value = convertToSlug(this.value);
+                });
+            }
         </script>
 
         <script type="text/javascript">
