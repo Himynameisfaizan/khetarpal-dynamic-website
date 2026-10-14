@@ -357,6 +357,239 @@ include('./include/header.php');
         </div>
     </section>
 
+        <!-- ::::::  Start Testimonial Section  ::::::  -->
+    <style>
+        .testimonial-section {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+        }
+
+        .google-review-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 15px;
+            /* Slick slider ke cards ke beech gap ke liye */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eaeaea;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .google-review-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reviewer-img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .reviewer-details h5 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: #202124;
+        }
+
+        .reviewer-details span {
+            font-size: 13px;
+            color: #70757a;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .verified-badge {
+            color: #1a73e8;
+            font-size: 14px;
+        }
+
+        .google-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+        .review-stars {
+            color: #fbbc04;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .review-text {
+            font-size: 14.5px;
+            color: #4d5156;
+            line-height: 1.7;
+            font-family: 'Poppins', sans-serif;
+            flex-grow: 1;
+        }
+
+        .testimonial-slider .slick-track {
+            display: flex !important;
+        }
+
+        .testimonial-slider .slick-slide {
+            height: inherit !important;
+            display: flex !important;
+        }
+
+        .testimonial-slider .slick-slide>div {
+            width: 100%;
+            display: flex;
+        }
+
+        .testimonial-slider .slick-dots li button:before {
+            font-size: 12px;
+            color: var(--primary-gold, #C49B3B);
+        }
+
+        .testimonial-slider .slick-dots li.slick-active button:before {
+            color: var(--primary-blue, #0A192F);
+        }
+
+        .testimonial-slider .slick-dots {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 40px 0 0 0;
+        }
+
+        .testimonial-slider .slick-dots li {
+            margin: 0 6px;
+        }
+
+        .testimonial-slider .slick-dots li button {
+            font-size: 0;
+            line-height: 0;
+            display: block;
+            width: 12px;
+            height: 12px;
+            padding: 0;
+            cursor: pointer;
+            color: transparent;
+            border: none;
+            outline: none;
+            background-color: #d1d5db;
+            /* Default light grey color */
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-slider .slick-dots li.slick-active button {
+            background-color: var(--primary-gold, #C49B3B);
+            transform: scale(1.3);
+        }
+
+        .testimonial-slider .slick-dots li button:before {
+            display: none !important;
+        }
+    </style>
+
+    <section class="testimonial-section">
+        <div class="container">
+            <h2 class="section-main-title text-center mb-5">Trusted by Buyers Worldwide</h2>
+
+            <div class="testimonial-slider">
+                <?php
+                if ($resultTestimonial && $resultTestimonial->num_rows > 0) {
+                    while ($row = $resultTestimonial->fetch_assoc()) {
+                        $client_name = htmlspecialchars($row['name'] ?? '');
+                        $client_title = htmlspecialchars($row['designation'] ?? '');
+                        $client_company = htmlspecialchars($row['client_company'] ?? '');
+                        $text = htmlspecialchars($row['message'] ?? '');
+                        $client_photo = htmlspecialchars($row['image'] ?? '');
+
+                        $rating = !empty($row['rating']) ? (int)$row['rating'] : 5;
+
+                        // Image Logic
+                        if (!empty($client_photo)) {
+                            $img_path = "admin/uploads/testimonials/" . $client_photo;
+                        } else {
+                            $img_path = "https://ui-avatars.com/api/?name=" . urlencode($client_name) . "&background=C49B3B&color=fff";
+                        }
+
+                        // Designation Logic
+                        $designation = $client_title;
+                        if (!empty($client_company)) {
+                            $designation .= (!empty($designation) ? ", " : "") . $client_company;
+                        }
+                        if (empty($designation)) {
+                            $designation = "Verified Customer"; // Fallback for trust
+                        }
+                ?>
+
+                        <div class="google-review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="reviewer-img" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
+                                    <div class="reviewer-details">
+                                        <h5><?php echo $client_name; ?></h5>
+                                        <span>
+                                            <i class="fa-solid fa-circle-check verified-badge"></i>
+                                            <?php echo $designation; ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Authentic Google 'G' Logo SVG -->
+                                <div class="google-logo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="review-stars">
+                                <?php
+                                // Star Loop
+                                for ($i = 1; $i <= 5; $i++) {
+                                    if ($i <= $rating) {
+                                        echo '<i class="fa-solid fa-star"></i> ';
+                                    } else {
+                                        echo '<i class="fa-regular fa-star" style="color: #ccc;"></i> ';
+                                    }
+                                }
+                                ?>
+                            </div>
+
+                            <p class="review-text">"<?php echo $text; ?>"</p>
+                        </div>
+
+                <?php
+                    }
+                } else {
+                    echo "<div class='col-12 text-center'><p class='text-muted'>Client testimonials will be updated soon.</p></div>";
+                }
+                ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- END: TESTIMONIAL SECTION -->
+
+
     <!-- ::::::  Start banner Section  ::::::  -->
     <section class="cta-banner-section">
         <!-- Backend Note: Yahan img src ko PHP se dynamic kar dena -->
@@ -379,79 +612,7 @@ include('./include/header.php');
         </div>
     </section> <!-- ::::::  End banner Section  ::::::  -->
 
-    <!-- ::::::  Start Testimonial Section  ::::::  -->
-    <section class="testimonial-section">
-        <div class="container">
-            <h2 class="section-main-title">What Our Clients Say</h2>
-
-            <div class="row justify-content-center">
-                <!-- Using a standard row for simplicity instead of forcing a slider in static HTML.
-                     If you use a slider (like Slick/Owl), this row becomes the slider container. -->
-
-
-                <?php
-                if ($resultTestimonial && $resultTestimonial->num_rows > 0) {
-                    while ($row = $resultTestimonial->fetch_assoc()) {
-
-                        // ERROR FIXED HERE: Database column names matched
-                        $client_name = htmlspecialchars($row['name'] ?? '');
-                        $client_title = htmlspecialchars($row['designation'] ?? '');
-                        $client_company = htmlspecialchars($row['client_company'] ?? '');
-                        $text = htmlspecialchars($row['message'] ?? '');
-                        $client_photo = htmlspecialchars($row['image'] ?? '');
-
-                        // ==========================================
-                        // DYNAMIC IMAGE LOGIC
-                        // ==========================================
-                        if (!empty($client_photo)) {
-                            $img_path = "admin/assets/img/uploads/" . $client_photo;
-                        } else {
-                            $img_path = "https://ui-avatars.com/api/?name=" . urlencode($client_name) . "&background=C49B3B&color=fff";
-                        }
-
-                        // ==========================================
-                        // DESIGNATION LOGIC (Title, Company)
-                        // ==========================================
-                        $designation = $client_title;
-                        if (!empty($client_company)) {
-                            // Agar title nahi hai par company hai, toh comma aage na aaye
-                            $designation .= (!empty($designation) ? ", " : "") . $client_company;
-                        }
-                ?>
-
-                        <!-- DYNAMIC TESTIMONIAL CARD -->
-                        <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-                            <div class="testimonial-box">
-                                <i class="fa-solid fa-quote-left quote-icon"></i>
-
-                                <p class="testimonial-text">
-                                    <?php echo $text; ?>
-                                </p>
-
-                                <div class="client-info">
-                                    <!-- Dynamic Image -->
-                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="client-img" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
-
-                                    <div class="client-details">
-                                        <h5><?php echo $client_name; ?></h5>
-                                        <span><?php echo $designation; ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                <?php
-                    }
-                }
-                ?>
-
-
-            </div>
-        </div>
-    </section>
-    <!-- END: TESTIMONIAL SECTION -->
-
-<!-- ==========================================
+    <!-- ==========================================
          START: LATEST NEWS / BLOG SECTION
     =============================================== -->
     <section class="blog-section">
@@ -467,12 +628,12 @@ include('./include/header.php');
                 <?php
                 if ($resultBLog && $resultBLog->num_rows > 0) {
                     while ($row = $resultBLog->fetch_assoc()) {
-                        $blog_slug = htmlspecialchars($row['slug_url'] ?? ''); 
+                        $blog_slug = htmlspecialchars($row['slug_url'] ?? '');
                         $title = htmlspecialchars($row['title']);
                         $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                         $date = date('d M, Y', strtotime($row['created_at']));
 
-                        $raw_content = html_entity_decode($row['description']); 
+                        $raw_content = html_entity_decode($row['description']);
                         $clean_text = strip_tags($raw_content);
                         $excerpt = mb_strlen($clean_text) > 120 ? mb_substr($clean_text, 0, 120) . "..." : $clean_text;
 
@@ -511,7 +672,7 @@ include('./include/header.php');
                         </div>
 
                 <?php
-                    } 
+                    }
                 } else {
                     echo "<div class='col-12 text-center py-4'><p class='text-muted'>No latest news available right now.</p></div>";
                 }
@@ -672,3 +833,37 @@ include("./include/footer.php");
         </div>
     </div>
 </div> <!-- End Modal Quickview cart -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Checking if jQuery and Slick are loaded
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.slick !== 'undefined') {
+            $('.testimonial-slider').slick({
+                dots: true,
+                infinite: true,
+                speed: 600,
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                autoplay: true,
+                autoplaySpeed: 4000,
+                arrows: false,
+                pauseOnHover: true,
+                responsive: [{
+                        breakpoint: 1024,
+                        settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 1,
+                            slidesToScroll: 1
+                        }
+                    }
+                ]
+            });
+        }
+    });
+</script>

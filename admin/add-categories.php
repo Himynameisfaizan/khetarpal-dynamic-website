@@ -87,11 +87,13 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
             font-weight: 600;
             letter-spacing: 0.5px;
             transition: all 0.3s;
+            color: #fff;
         }
 
         .btn-submit:hover {
             background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
             transform: translateY(-2px);
+            color: #fff;
         }
 
         .image-preview-container {
@@ -188,50 +190,42 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                                 <?php unset($_SESSION['errors']); ?>
                             <?php endif; ?>
 
-                            <?php if (isset($_SESSION['form_data'])): ?>
-                                <script>
-                                    // Repopulate form fields
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const formData = <?= json_encode($_SESSION['form_data']) ?>;
-                                        for (const key in formData) {
-                                            const element = document.querySelector(`[name="${key}"]`);
-                                            if (element) {
-                                                element.value = formData[key];
-                                            }
-                                        }
-                                    });
-                                </script>
-                                <?php unset($_SESSION['form_data']); ?>
-                            <?php endif; ?>
                             <div class="white_card_body">
                                 <div class="category-card">
                                     <h3 class="section-title">Category Details</h3>
-                                    <form id="categoryForm" action="functions.php" method="post"
-                                        enctype="multipart/form-data">
+                                    <form id="categoryForm" action="functions.php" method="post" enctype="multipart/form-data">
                                         <div class="row mb-4">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label" for="cate_name">Category Name</label>
-                                                <input type="text" class="form-control" name="cate_name" id="cate_name"
-                                                    placeholder="Enter category name" required />
+                                                <label class="form-label" for="cate_name">Category Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="cate_name" id="cate_name" placeholder="Enter category name" required />
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label" for="meta_title">Meta Title</label>
-                                                <input type="text" class="form-control" name="meta_title"
-                                                    id="meta_title" placeholder="Enter meta title for SEO" required />
+                                                <label class="form-label" for="slug_url">Slug URL (Optional)</label>
+                                                <input type="text" class="form-control" name="slug_url" id="slug_url" placeholder="Auto-generated if left empty" />
                                             </div>
                                         </div>
 
                                         <div class="row mb-4">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label" for="meta_key">Meta Keywords</label>
-                                                <input type="text" class="form-control" name="meta_key" id="meta_key"
-                                                    placeholder="Comma separated keywords" required />
-                                                <small class="text-muted">Example: electronics, gadgets, tech</small>
+                                                <label class="form-label" for="meta_title">Meta Title</label>
+                                                <input type="text" class="form-control" name="meta_title" id="meta_title" placeholder="Enter meta title for SEO" />
                                             </div>
                                             <div class="col-md-6 mb-3">
+                                                <label class="form-label" for="meta_key">Meta Keywords</label>
+                                                <input type="text" class="form-control" name="meta_key" id="meta_key" placeholder="Comma separated keywords" />
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-4">
+                                            <div class="col-md-6 mb-3">
                                                 <label class="form-label" for="meta_desc">Meta Description</label>
-                                                <textarea class="form-control" name="meta_desc" id="meta_desc" rows="1"
-                                                    placeholder="Brief description for SEO" required></textarea>
+                                                <textarea class="form-control" name="meta_desc" id="meta_desc" rows="4" placeholder="Brief description for SEO"></textarea>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <!-- NEW FIELD FOR SCHEMA -->
+                                                <label class="form-label" for="schema_markup">Schema Markup (JSON-LD)</label>
+                                                <textarea class="form-control" name="schema_markup" id="schema_markup" rows="4" placeholder="Enter raw JSON-LD schema (Optional)"></textarea>
+                                                <small class="text-muted">Do not include &lt;script&gt; tags.</small>
                                             </div>
                                         </div>
 
@@ -252,14 +246,11 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                                                         <p class="mb-0">Click to upload or drag and drop</p>
                                                         <small class="text-muted">PNG, JPG, GIF up to 5MB</small>
                                                     </label>
-                                                    <input type="file" class="form-control d-none" name="imageUpload"
-                                                        id="imageUpload" accept="image/*"
-                                                        onchange="previewImage(this)" />
+                                                    <input type="file" class="form-control d-none" name="imageUpload" id="imageUpload" accept="image/*" onchange="previewImage(this)" />
                                                 </div>
                                                 <div class="image-preview-container" id="imagePreviewContainer">
                                                     <img id="imagePreview" class="image-preview" />
-                                                    <button type="button" class="btn btn-sm btn-danger mt-2"
-                                                        onclick="removeImage()">
+                                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeImage()">
                                                         <i class="fas fa-trash me-1"></i> Remove
                                                     </button>
                                                 </div>
@@ -286,83 +277,22 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         <?php include "footer.php"; ?>
 
         <script>
-            // Image preview functionality
             function previewImage(input) {
                 const previewContainer = document.getElementById('imagePreviewContainer');
                 const preview = document.getElementById('imagePreview');
-
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
-
                     reader.onload = function (e) {
                         preview.src = e.target.result;
                         previewContainer.style.display = 'block';
                     }
-
                     reader.readAsDataURL(input.files[0]);
                 }
             }
 
-            // Remove image selection
             function removeImage() {
                 document.getElementById('imageUpload').value = '';
                 document.getElementById('imagePreviewContainer').style.display = 'none';
-            }
-
-            // Form validation
-            document.getElementById('categoryForm').addEventListener('submit', function (e) {
-                const categoryName = document.getElementById('cate_name').value.trim();
-                const metaTitle = document.getElementById('meta_title').value.trim();
-
-                if (!categoryName || !metaTitle) {
-                    e.preventDefault();
-                    alert('Please fill in all required fields');
-                    return false;
-                }
-
-                // You can add more validation as needed
-                return true;
-            });
-
-            // Drag and drop functionality
-            const uploadLabel = document.querySelector('.file-upload-label');
-
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadLabel.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadLabel.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadLabel.addEventListener(eventName, unhighlight, false);
-            });
-
-            function highlight() {
-                uploadLabel.classList.add('bg-light');
-            }
-
-            function unhighlight() {
-                uploadLabel.classList.remove('bg-light');
-            }
-
-            uploadLabel.addEventListener('drop', handleDrop, false);
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                const input = document.getElementById('imageUpload');
-
-                if (files.length) {
-                    input.files = files;
-                    previewImage(input);
-                }
             }
         </script>
     </section>
