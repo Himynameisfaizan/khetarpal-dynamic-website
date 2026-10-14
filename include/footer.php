@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+$footer_about_text = "Khetarpal Trading Co. is a leading exporter of premium agricultural commodities from India.";
+if(isset($conn)) {
+    $about_q = mysqli_query($conn, "SELECT content FROM about_us LIMIT 1");
+    if($about_q && mysqli_num_rows($about_q) > 0){
+        $about_row = mysqli_fetch_assoc($about_q);
+        $clean_about = strip_tags(html_entity_decode($about_row['content']));
+        $footer_about_text = mb_strlen($clean_about) > 130 ? mb_substr($clean_about, 0, 130) . "..." : $clean_about;
+    }
+}
+?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-
-</head>
-
-<body>
-    <footer class="site-footer">
+    <footer class="site-footer mt-5">
         <div class="container">
             <!-- Footer Top Content -->
             <div class="footer-top">
@@ -20,14 +19,15 @@
                     <!-- Widget 1: Brand & Social -->
                     <div class="col-lg-3 col-md-6 footer-widget">
                         <div class="footer-brand">
-                            <!-- Optional Logo Image (Uncomment and set src if you have one) -->
-                            <!-- <img src="assets/img/logo/khetarpal-logo-light.png" alt="Khetarpal Trading Co." class="footer-logo"> -->
-
-                            <!-- Text Logo (Used as fallback based on design) -->
                             <a href="index.php" class="footer-text-logo">
                                 KHETARPAL<br>
                                 <span>TRADING CO.</span>
                             </a>
+                            
+                            <!-- Dynamic About Text -->
+                            <p style="font-size: 14px; color: #b0b0b0; margin-top: 15px; margin-bottom: 20px; line-height: 1.6;">
+                                <?php echo $footer_about_text; ?>
+                            </p>
 
                             <!-- Social Links matching design -->
                             <ul class="footer-social">
@@ -43,44 +43,59 @@
                     <div class="col-lg-3 col-md-6 footer-widget">
                         <h4 class="footer-title">QUICK LINKS</h4>
                         <div class="row">
-                            <!-- Split links into 2 columns for neatness -->
                             <div class="col-6">
                                 <ul class="footer-links">
                                     <li><a href="index.php">Home</a></li>
                                     <li><a href="about.php">About Us</a></li>
-                                    <li><a href="product.php">Products</a></li>
+                                    <li><a href="services.php">Services</a></li>
                                 </ul>
                             </div>
                             <div class="col-6">
                                 <ul class="footer-links">
                                     <li><a href="blogs.php">Blog</a></li>
                                     <li><a href="contact.php">Contact Us</a></li>
-                                    <li><a href="privacy.php">Privacy Policy</a></li>
+                                    <li><a href="product.php">All Products</a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Widget 3: Our Products -->
+                    <!-- Widget 3: Dynamic Categories -->
                     <div class="col-lg-3 col-md-6 footer-widget">
-                        <h4 class="footer-title">OUR PRODUCTS</h4>
+                        <h4 class="footer-title">CATEGORIES</h4>
                         <div class="row">
-                            <div class="col-6">
-                                <ul class="footer-links">
-                                    <li><a href="#">Cumin Seeds</a></li>
-                                    <li><a href="#">Psyllium Husk</a></li>
-                                    <li><a href="#">Castor Seeds</a></li>
-                                    <li><a href="#">Fennel Seeds</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-6">
-                                <ul class="footer-links">
-                                    <li><a href="#">Ajwain Seeds</a></li>
-                                    <li><a href="#">Desi Chickpeas</a></li>
-                                    <li><a href="#">Peanuts</a></li>
-                                    <li><a href="#">Green Chilli</a></li>
-                                </ul>
-                            </div>
+                            <?php 
+                            if(isset($conn)) {
+                                $footer_cat_query = "SELECT categories, slug_url FROM categories WHERE status = 1 ORDER BY categories ASC LIMIT 8";
+                                $footer_cat_result = mysqli_query($conn, $footer_cat_query);
+                                
+                                if($footer_cat_result && mysqli_num_rows($footer_cat_result) > 0) {
+                                    $all_cats = [];
+                                    while($c = mysqli_fetch_assoc($footer_cat_result)){
+                                        $all_cats[] = $c;
+                                    }
+                                    
+                                    // Split categories into two columns automatically
+                                    $half = ceil(count($all_cats) / 2);
+                                    $col1 = array_slice($all_cats, 0, $half);
+                                    $col2 = array_slice($all_cats, $half);
+                                    
+                                    echo '<div class="col-6"><ul class="footer-links">';
+                                    foreach($col1 as $cat1){
+                                        echo '<li><a href="category.php?slug='.htmlspecialchars($cat1['slug_url']).'">'.htmlspecialchars($cat1['categories']).'</a></li>';
+                                    }
+                                    echo '</ul></div>';
+                                    
+                                    echo '<div class="col-6"><ul class="footer-links">';
+                                    foreach($col2 as $cat2){
+                                        echo '<li><a href="category.php?slug='.htmlspecialchars($cat2['slug_url']).'">'.htmlspecialchars($cat2['categories']).'</a></li>';
+                                    }
+                                    echo '</ul></div>';
+                                } else {
+                                    echo "<p style='color:#777; font-size:14px;'>Categories unavailable.</p>";
+                                }
+                            }
+                            ?>
                         </div>
                     </div>
 
@@ -94,11 +109,11 @@
                             </li>
                             <li>
                                 <i class="fa-solid fa-phone"></i>
-                                <a href="tel:+919876543210">+91 89804 32156</a>
+                                <a href="tel:+918980432156">+91 89804 32156</a>
                             </li>
                             <li>
                                 <i class="fa-solid fa-phone"></i>
-                                <a href="tel:+919876543210"> +91 63547 65516</a>
+                                <a href="tel:+916354765516">+91 63547 65516</a>
                             </li>
                             <li>
                                 <i class="fa-solid fa-envelope"></i>
@@ -106,7 +121,7 @@
                             </li>
                             <li>
                                 <i class="fa-solid fa-globe"></i>
-                                <a href="[http://www.khetarpaltradingco.com](http://www.khetarpaltradingco.com)" target="_blank">[www.khetarpaltradingco.com](https://www.khetarpaltradingco.com)</a>
+                                <a href="https://www.khetarpalinternational.com" target="_blank">www.khetarpalinternational.com</a>
                             </li>
                         </ul>
                     </div>
@@ -121,7 +136,7 @@
                 <div class="row">
                     <div class="col-12 text-center">
                         <p class="copyright-text">
-                            &copy; 2024 <span>Khetarpal Trading Co.</span> All Rights Reserved.
+                            &copy; <?php echo date("Y"); ?> <span>Khetarpal Trading Co.</span> All Rights Reserved. Design & Developed by <a href="https://www.digitalwebtrackers.com" target="_blank" style="text-decoration: none;"><span>Digital Web Trackers</span></a>
                         </p>
                     </div>
                 </div>
@@ -132,7 +147,6 @@
     <!-- ::::::  End  Footer ::::::  -->
 
     <!-- ::::::  Start Request to Qoute ::::::  -->
-
     <div class="modal fade quote-modal" id="quoteModal" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -232,7 +246,6 @@
     <script src="assets/js/plugin/jquery.waypoints.js"></script>
     <script src="assets/js/plugin/jquery.lineProgressbar.js"></script>
 
-    <!-- Main js file that contents all jQuery plugins activation. -->
     <script src="assets/js/main.js"></script>
 
 

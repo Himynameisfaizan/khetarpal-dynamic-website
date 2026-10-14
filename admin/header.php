@@ -141,14 +141,14 @@ if (!isset($_SESSION['admin_logged_in'])) {
             </a>
         </li>
 
-        <!-- <li>
+        <li>
             <a class="has-arrow" href="#"><i class="fas fa-quote-left" style="color: #16a085;"></i>
                 <span>Testimonials</span></a>
             <ul>
                 <li><a href="add-testimonial.php">Add Testimonials</a></li>
                 <li><a href="view-testimonials.php">View Testimonials</a></li>
             </ul>
-        </li> -->
+        </li>
 
         <!-- <li>
             <a class="has-arrow" href="#"><i class="fas fa-users" style="color: #c0392b;"></i> <span>Customers</span></a>
