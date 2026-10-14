@@ -6,13 +6,11 @@ $limit = 6;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Fixed: 'id' ki jagah 'blog_id'
 $countSql = "SELECT COUNT(blog_id) as total FROM blogs WHERE status = 'published'";
 $countResult = $conn->query($countSql);
 $totalRecords = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRecords / $limit);
 
-// Fixed: 'id' ki jagah 'blog_id'
 $sql = "SELECT * FROM blogs 
         WHERE status = 'published' 
         ORDER BY blog_id DESC 
@@ -39,26 +37,14 @@ include("./include/breadcrumb.php");
     .blog-content { padding: 30px 25px; flex-grow: 1; display: flex; flex-direction: column; }
     .blog-meta { font-size: 13px; color: #777; margin-bottom: 12px; font-family: 'Poppins', sans-serif; }
     .blog-meta i { color: var(--primary-gold, #C49B3B); margin-right: 5px; }
-    .blog-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); margin-bottom: 15px; line-height: 1.4; display: -webkit-box; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .blog-title a { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); margin-bottom: 15px; line-height: 1.4; display: -webkit-box; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-decoration: none; transition: color 0.3s; }
+    .blog-title a:hover { color: var(--primary-gold, #C49B3B); }
     .blog-excerpt { font-size: 15px; color: #666; line-height: 1.7; margin-bottom: 25px; flex-grow: 1; }
-    .btn-read-more { display: inline-block; font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--primary-blue, #0A192F); text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease; cursor: pointer; border: none; background: transparent; padding: 0;}
+    .btn-read-more { display: inline-block; font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--primary-blue, #0A192F); text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease; }
     .btn-read-more i { transition: transform 0.3s ease; }
     .btn-read-more:hover { color: var(--primary-gold, #C49B3B); }
     .btn-read-more:hover i { transform: translateX(5px); }
 
-    /* --- CUSTOM CSS FOR BLOG MODAL --- */
-    .blog-modal .modal-content { border: none; border-radius: 12px; overflow: hidden; }
-    .blog-modal .modal-header { background-color: var(--primary-blue, #0A192F); color: #ffffff; padding: 20px 25px; border-bottom: 4px solid var(--primary-gold, #C49B3B); }
-    .blog-modal .modal-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.4; }
-    .blog-modal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-    .blog-modal .modal-body { padding: 30px; }
-    .blog-modal-img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    .modal-blog-meta { font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eaeaea; }
-    .modal-blog-meta span { margin-right: 15px; }
-    .modal-blog-meta i { color: var(--primary-gold, #C49B3B); margin-right: 5px; }
-    .modal-full-content { font-family: 'Poppins', sans-serif; color: #444; line-height: 1.8; font-size: 15.5px; }
-    .modal-full-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; }
-    
     /* Pagination CSS */
     .custom-pagination { margin-top: 60px; display: flex; justify-content: center; gap: 8px; }
     .custom-pagination .page-item .page-link { font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--primary-blue, #0A192F); border: 1px solid #eaeaea; border-radius: 6px; padding: 10px 18px; transition: all 0.3s ease; }
@@ -74,13 +60,11 @@ include("./include/breadcrumb.php");
             <?php
             if ($result && $result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    // Fixed: 'id' ki jagah 'blog_id'
-                    $blog_id = $row['blog_id'];
+                    $blog_slug = htmlspecialchars($row['slug_url']);
                     $title = htmlspecialchars($row['title']);
                     $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                     $date = date('d M, Y', strtotime($row['created_at']));
 
-                    // Fixed: 'content' ki jagah 'description'
                     $raw_content = html_entity_decode($row['description']);
                     $clean_text = strip_tags($raw_content);
                     $excerpt = mb_strlen($clean_text) > 120 ? mb_substr($clean_text, 0, 120) . "..." : $clean_text;
@@ -92,40 +76,22 @@ include("./include/breadcrumb.php");
                         <div class="blog-card">
                             <div class="blog-img-box">
                                 <span class="blog-date-badge"><?php echo $date; ?></span>
-                                <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=No+Image'">
+                                <a href="blog-details.php?slug=<?php echo $blog_slug; ?>">
+                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=No+Image'">
+                                </a>
                             </div>
                             <div class="blog-content">
                                 <div class="blog-meta">
                                     <i class="fa-solid fa-user-pen"></i> By <?php echo $author; ?>
                                 </div>
-                                <h3 class="blog-title"><?php echo $title; ?></h3>
+                                <h3 class="blog-title">
+                                    <a href="blog-details.php?slug=<?php echo $blog_slug; ?>"><?php echo $title; ?></a>
+                                </h3>
                                 <p class="blog-excerpt"><?php echo $excerpt; ?></p>
                                 <div class="mt-auto">
-                                    <button class="btn-read-more" data-bs-toggle="modal" data-bs-target="#blogModal<?php echo $blog_id; ?>">
+                                    <a href="blog-details.php?slug=<?php echo $blog_slug; ?>" class="btn-read-more">
                                         Read Full Article <i class="fa-solid fa-arrow-right-long ms-2"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MODAL -->
-                    <div class="modal fade blog-modal" id="blogModal<?php echo $blog_id; ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"><?php echo $title; ?></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <img src="<?php echo $img_path; ?>" class="blog-modal-img" alt="<?php echo $title; ?>" onerror="this.style.display='none'">
-                                    <div class="modal-blog-meta">
-                                        <span><i class="fa-solid fa-user-pen"></i> Author: <strong><?php echo $author; ?></strong></span>
-                                        <span><i class="fa-regular fa-calendar-days"></i> Published: <strong><?php echo $date; ?></strong></span>
-                                    </div>
-                                    <div class="modal-full-content">
-                                        <?php echo $raw_content; ?>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>

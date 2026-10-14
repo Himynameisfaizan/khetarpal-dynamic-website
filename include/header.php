@@ -1,7 +1,6 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Fix for File Name vs Database Name mismatch
 $db_page_url = $current_page;
 if ($current_page == 'product.php') {
     $db_page_url = 'products.php';
@@ -9,15 +8,17 @@ if ($current_page == 'product.php') {
     $db_page_url = 'blog.php';
 }
 
-// Agar variables pehle se set nahi hain, tabhi default set karein
+$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$domainName = $_SERVER['HTTP_HOST'];
+$requestUri = $_SERVER['REQUEST_URI'];
+$canonical_url = $protocol . $domainName . $requestUri;
+
 if (!isset($meta_title)) { $meta_title = "Khetarpal | Trading"; }
 if (!isset($meta_desc)) { $meta_desc = ""; }
 if (!isset($meta_keywords)) { $meta_keywords = ""; }
 if (!isset($schema_code)) { $schema_code = ""; }
 
-// Database connection check karke meta aur schema fetch karna
 if (isset($conn)) {
-    // 1. Meta table se data fetch karna
     $meta_query = "SELECT meta_title, meta_desc, meta_key FROM meta WHERE page_url = '$db_page_url' LIMIT 1";
     $meta_result = mysqli_query($conn, $meta_query);
     if ($meta_result && mysqli_num_rows($meta_result) > 0) {
@@ -27,7 +28,6 @@ if (isset($conn)) {
         if (!empty($meta_row['meta_key'])) { $meta_keywords = $meta_row['meta_key']; }
     }
 
-    // 2. Page_schemas table se schema fetch karna
     $schema_query = "SELECT schema_markup FROM page_schemas WHERE page_url = '$db_page_url' LIMIT 1";
     $schema_result = mysqli_query($conn, $schema_query);
     if ($schema_result && mysqli_num_rows($schema_result) > 0) {
@@ -40,19 +40,23 @@ if (isset($conn)) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <!-- Dynamic SEO Tags Start -->
     <title><?php echo $meta_title; ?></title>
     <meta name="description" content="<?php echo $meta_desc; ?>">
     <meta name="keywords" content="<?php echo $meta_keywords; ?>">
     
+    <link rel="canonical" href="<?php echo $canonical_url; ?>" />
+    
     <?php 
-    // Dynamic Schema Markup
     if(!empty($schema_code)) {
-        echo $schema_code;
+        if (stripos($schema_code, '<script') === false) {
+            echo "<script type=\"application/ld+json\">\n" . $schema_code . "\n</script>\n";
+        } else {
+            echo $schema_code . "\n";
+        }
     }
     ?>
-    <!-- Dynamic SEO Tags End -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 

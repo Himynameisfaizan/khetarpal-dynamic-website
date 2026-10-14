@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Admin panel ko index hone se roko
+Disallow: /admin/
+Disallow: /include/
+
+Sitemap: https://www.khetarpalinternational.com/sitemap.xml

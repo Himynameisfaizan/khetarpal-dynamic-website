@@ -53,7 +53,6 @@ include('./include/header.php');
     </section>
     <!-- ::::::  End Hero Section  ::::::  -->
 
-
     <section class="features-strip">
         <div class="container">
             <div class="row align-items-center">
@@ -110,87 +109,86 @@ include('./include/header.php');
         </div>
     </section>
 
-
-
     <section class="premium-products-section">
-    <div class="container">
+        <div class="container">
 
-        <!-- Section Title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-title text-center mb-5">
-                    <h2>Our Premium Products</h2>
+            <!-- Section Title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-title text-center mb-5">
+                        <h2>Our Premium Products</h2>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Products Grid -->
-        <div class="row g-4">
-            <?php
-            if ($resultProduct && $resultProduct->num_rows > 0) {
-                while ($row = $resultProduct->fetch_assoc()) {
+            <!-- Products Grid -->
+            <div class="row g-4">
+                <?php
+                if ($resultProduct && $resultProduct->num_rows > 0) {
+                    while ($row = $resultProduct->fetch_assoc()) {
 
-                    $pro_id = $row['pro_id'];
-                    $pro_name = htmlspecialchars($row['pro_name']);
-                    $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Products";
-                    $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
-                    
-                    // Price variables hata diye gaye hain
+                        $pro_id = $row['pro_id'];
+                        $pro_slug = $row['slug_url'];
+                        $pro_name = htmlspecialchars($row['pro_name']);
+                        $category = !empty($row['category_name']) ? htmlspecialchars($row['category_name']) : "Agro Products";
+                        $packaging = !empty($row['qty']) ? htmlspecialchars($row['qty']) : "Custom packaging available";
 
-                    $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
-            ?>
+                        // Price variables hata diye gaye hain
 
-                    <!-- Single Product Card -->
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
-                            <div class="prod-img-box" style="height: 250px; overflow: hidden;">
-                                 <a href="product-details.php?id=<?php echo $pro_id; ?>" >
-                                <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                 </a>
-                            </div>
-                            
-                            <div class="prod-content p-4 d-flex flex-column flex-grow-1">
-                                 <a href="product-details.php?id=<?php echo $pro_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
-                                <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;"><?php echo $pro_name; ?></h3>
-                                </a>
+                        $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
+                ?>
 
-                                <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
-                                    <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
-                                    <li><i class="fa-solid fa-box-open me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong> <?php echo $packaging; ?></li>
-                                    <li><i class="fa-solid fa-truck-fast me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready for Export</li>
-                                </ul>
-
-                                <!-- NEW DUAL BUTTON LAYOUT -->
-                                <div class="mt-auto d-flex gap-2">
-                                    <a href="product-details.php?id=<?php echo $pro_id; ?>" class="btn-custom-outline flex-fill text-center">
-                                        <i class="fa-regular fa-eye me-1"></i> Details
+                        <!-- Single Product Card -->
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
+                                <div class="prod-img-box" style="height: 250px; overflow: hidden;">
+                                    <a href="product-details.php?slug=<?php echo $pro_slug; ?>">
+                                        <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                     </a>
-                                    <!-- URL mein product ka naam pass kiya hai -->
-                                    <a href="contact.php?product=<?php echo urlencode($pro_name); ?>" class="btn-custom-solid flex-fill text-center">
-                                        <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                                </div>
+
+                                <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                                    <a href="product-details.php?slug=<?php echo $pro_slug; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
+                                        <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;"><?php echo $pro_name; ?></h3>
                                     </a>
+
+                                    <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
+                                        <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
+                                        <li><i class="fa-solid fa-box-open me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong> <?php echo $packaging; ?></li>
+                                        <li><i class="fa-solid fa-truck-fast me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready for Export</li>
+                                    </ul>
+
+                                    <!-- NEW DUAL BUTTON LAYOUT -->
+                                    <div class="mt-auto d-flex gap-2">
+                                        <a href="product-details.php?slug=<?php echo $pro_slug; ?>" class="btn-custom-outline flex-fill text-center">
+                                            <i class="fa-regular fa-eye me-1"></i> Details
+                                        </a>
+                                        <!-- URL mein product ka naam pass kiya hai -->
+                                        <a href="contact.php?product=<?php echo urlencode($pro_name); ?>" class="btn-custom-solid flex-fill text-center">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-            <?php 
+                <?php
+                    }
+                } else {
+                    echo "<div class='col-12 text-center py-5'><p class='text-muted'>No premium products available at the moment.</p></div>";
                 }
-            } else {
-                echo "<div class='col-12 text-center py-5'><p class='text-muted'>No premium products available at the moment.</p></div>";
-            } 
-            ?>
-        </div>
-        
-        <!-- View All Products Button -->
-        <div class="row mt-5">
-            <div class="col-12 text-center">
-                <a href="product.php" class="btn-custom-outline px-4 py-2" style="border-width: 2px;">View All Products <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
+                ?>
             </div>
-        </div>
 
-    </div>
-</section>
+            <!-- View All Products Button -->
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <a href="product.php" class="btn-custom-outline px-4 py-2" style="border-width: 2px;">View All Products <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </section>
 
     <section class="about-stats-section">
         <div class="container">
@@ -313,7 +311,6 @@ include('./include/header.php');
         </div>
     </section>
     <!-- END: WHY CHOOSE US SECTION -->
-
 
     <!-- ==========================================
      START: OUR EXPORT MARKETS SECTION
@@ -454,46 +451,40 @@ include('./include/header.php');
     </section>
     <!-- END: TESTIMONIAL SECTION -->
 
-
-    <!-- ==========================================
+<!-- ==========================================
          START: LATEST NEWS / BLOG SECTION
     =============================================== -->
     <section class="blog-section">
         <div class="container">
 
-            <!-- Custom Header for Blog Section (Title on left, Link on right) -->
             <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                 <h2 class="section-main-title title-with-line">Latest News</h2>
                 <a href="blogs.php" class="btn-view-all">View All News <i class="fa-solid fa-arrow-right-long ms-1"></i></a>
             </div>
 
-            <!-- Blog Grid -->
             <div class="row g-4">
 
                 <?php
                 if ($resultBLog && $resultBLog->num_rows > 0) {
                     while ($row = $resultBLog->fetch_assoc()) {
-                        // Added prefix logic for 'blog_id' column if it varies across tables (like in khetarpal.sql)
-                        $blog_id = $row['blog_id'] ?? $row['id']; 
+                        $blog_slug = htmlspecialchars($row['slug_url'] ?? ''); 
                         $title = htmlspecialchars($row['title']);
                         $author = !empty($row['author']) ? htmlspecialchars($row['author']) : "Admin";
                         $date = date('d M, Y', strtotime($row['created_at']));
 
-                        // Decode full content (For Modal)
-                        $raw_content = html_entity_decode($row['description']); // Fixed property name to match SQL Schema
-
-                        // Excerpt for the Card (stripped of tags)
+                        $raw_content = html_entity_decode($row['description']); 
                         $clean_text = strip_tags($raw_content);
                         $excerpt = mb_strlen($clean_text) > 120 ? mb_substr($clean_text, 0, 120) . "..." : $clean_text;
 
                         $img_path = !empty($row['image']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['image']) : "https://placehold.co/800x600/eeeeee/999999?text=Blog+Image";
                 ?>
-                        <!-- DYNAMIC BLOG POST -->
                         <div class="col-lg-4 col-md-6 col-12">
                             <div class="blog-card" style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: 100%; display: flex; flex-direction: column;">
 
                                 <div class="blog-img-wrapper" style="height: 220px; overflow: hidden;">
-                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
+                                    <a href="blog-details.php?slug=<?php echo $blog_slug; ?>">
+                                        <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
+                                    </a>
                                 </div>
 
                                 <div class="blog-content" style="padding: 25px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -503,14 +494,14 @@ include('./include/header.php');
                                         <span><i class="fa-solid fa-user-pen" style="color: var(--primary-gold, #C49B3B);"></i> <?php echo $author; ?></span>
                                     </div>
 
-                                    <h3 class="blog-title" style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--primary-blue, #0A192F);"><?php echo $title; ?></h3>
+                                    <h3 class="blog-title" style="font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.4;">
+                                        <a href="blog-details.php?slug=<?php echo $blog_slug; ?>" style="color: var(--primary-blue, #0A192F); text-decoration: none;"><?php echo $title; ?></a>
+                                    </h3>
 
-                                    <!-- Excerpt (Short details) add kiya hai -->
                                     <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.6;"><?php echo $excerpt; ?></p>
 
-                                    <!-- MODAL TRIGGER BUTTON (href hata kar data-bs-target lagaya hai) -->
                                     <div class="mt-auto">
-                                        <a href="javascript:void(0);" class="read-more-link" style="font-weight: 600; color: var(--primary-blue, #0A192F); text-decoration: none;" data-bs-toggle="modal" data-bs-target="#homeBlogModal<?php echo $blog_id; ?>">
+                                        <a href="blog-details.php?slug=<?php echo $blog_slug; ?>" class="read-more-link" style="font-weight: 600; color: var(--primary-blue, #0A192F); text-decoration: none;">
                                             Read Article <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 5px;"></i>
                                         </a>
                                     </div>
@@ -519,41 +510,8 @@ include('./include/header.php');
                             </div>
                         </div>
 
-                        <!-- ==========================================
-                             START: MODAL POPUP FOR THIS SPECIFIC BLOG 
-                        =============================================== -->
-                        <div class="modal fade" id="homeBlogModal<?php echo $blog_id; ?>" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                                <div class="modal-content" style="border: none; border-radius: 12px;">
-
-                                    <div class="modal-header" style="background-color: var(--primary-blue, #0A192F); color: #ffffff; border-bottom: 4px solid var(--primary-gold, #C49B3B); padding: 20px 25px;">
-                                        <h5 class="modal-title" style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 22px;"><?php echo $title; ?></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1) grayscale(100%) brightness(200%);"></button>
-                                    </div>
-
-                                    <div class="modal-body" style="padding: 30px;">
-                                        <!-- Featured Image in Modal -->
-                                        <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" onerror="this.style.display='none'" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-
-                                        <!-- Meta Info -->
-                                        <div style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eaeaea;">
-                                            <span class="me-4"><i class="fa-solid fa-user-pen" style="color: var(--primary-gold, #C49B3B);"></i> Author: <strong><?php echo $author; ?></strong></span>
-                                            <span><i class="fa-regular fa-calendar-days" style="color: var(--primary-gold, #C49B3B);"></i> Published: <strong><?php echo $date; ?></strong></span>
-                                        </div>
-
-                                        <!-- Full HTML Content (From CKEditor) -->
-                                        <div style="font-family: 'Poppins', sans-serif; color: #444; line-height: 1.8; font-size: 15.5px;">
-                                            <?php echo $raw_content; ?>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <!-- END MODAL -->
-
                 <?php
-                    } // end while loop
+                    } 
                 } else {
                     echo "<div class='col-12 text-center py-4'><p class='text-muted'>No latest news available right now.</p></div>";
                 }
@@ -562,6 +520,7 @@ include('./include/header.php');
             </div>
         </div>
     </section>
+
     <!-- ::::::  Start Newsletter Section  ::::::  -->
     <section class="newsletter-section">
         <!-- Backend Note: Img src ko admin panel se dynamic kar dena -->

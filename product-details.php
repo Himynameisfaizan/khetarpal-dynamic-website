@@ -1,20 +1,22 @@
 <?php
 include("./admin/db-conn.php");
 
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $product_id = $_GET['id'];
+// Changed: Validating slug instead of ID
+if (isset($_GET['slug']) && !empty($_GET['slug'])) {
+    $product_slug = $_GET['slug'];
 } else {
     header("Location: product.php");
     exit;
 }
 
+// Changed: Fetching product by slug_url
 $sql = "SELECT p.*, c.categories AS category_name 
         FROM products p
         LEFT JOIN categories c ON p.pro_cate = c.cate_id 
-        WHERE p.pro_id = ? AND p.status = 1";
+        WHERE p.slug_url = ? AND p.status = 1";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $product_id);
+$stmt->bind_param("s", $product_slug);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -26,7 +28,9 @@ if ($result->num_rows === 0) {
 
 $product = $result->fetch_assoc();
 
+$pro_id = $product['pro_id']; // For related products exclusion
 $pro_name = htmlspecialchars($product['pro_name']);
+$pro_brand = !empty($product['brand_name']) ? htmlspecialchars($product['brand_name']) : "Khetarpal Trading Co.";
 $category = !empty($product['category_name']) ? htmlspecialchars($product['category_name']) : "Agro Product";
 $packaging = !empty($product['qty']) ? htmlspecialchars($product['qty']) : "Custom packaging available";
 $short_desc = !empty($product['short_desc']) ? html_entity_decode($product['short_desc']) : "Premium quality agricultural product exported by Khetarpal Trading Co.";
@@ -36,10 +40,43 @@ $img_path = !empty($product['pro_img']) ? "admin/assets/img/uploads/" . htmlspec
 
 $pageTitle = $pro_name;
 
-// SEO Variables Setup (Products table se)
-$meta_title = !empty($product['meta_title']) ? $product['meta_title'] : $pro_name;
+// ==========================================
+// 1. Dynamic Meta Tags Setup
+// ==========================================
+$meta_title = !empty($product['meta_title']) ? $product['meta_title'] : $pro_name . " Export | Khetarpal Trading";
 $meta_desc = !empty($product['meta_desc']) ? $product['meta_desc'] : strip_tags($short_desc);
-$meta_keywords = !empty($product['meta_key']) ? $product['meta_key'] : "";
+$meta_keywords = !empty($product['meta_key']) ? $product['meta_key'] : "$pro_name, Indian Spices Export, $category";
+
+// ==========================================
+// 2. Dynamic Canonical Setup 
+// ==========================================
+$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$domainName = $_SERVER['HTTP_HOST'];
+$canonical_url = $protocol . $domainName . "/office_php_project/khetarpal/product-details.php?slug=" . urlencode($product_slug);
+// Note: Live server par jane ke baad isko "/product-details.php?slug=" kar dena
+
+// ==========================================
+// 3. Dynamic Auto-Generated Schema Markup (JSON-LD)
+// ==========================================
+$schema_arr = [
+    "@context" => "https://schema.org/",
+    "@type" => "Product",
+    "name" => $pro_name,
+    "image" => $protocol . $domainName . "/" . ltrim($img_path, './'),
+    "description" => trim(preg_replace('/\s+/', ' ', strip_tags($short_desc))),
+    "brand" => [
+        "@type" => "Brand",
+        "name" => $pro_brand
+    ],
+    "offers" => [
+        "@type" => "Offer",
+        "url" => $canonical_url,
+        "priceCurrency" => "USD",
+        "price" => "0.00",
+        "availability" => "https://schema.org/InStock"
+    ]
+];
+$schema_code = "<script type=\"application/ld+json\">\n" . json_encode($schema_arr, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n</script>";
 
 include("./include/header.php");
 include("./include/breadcrumb.php");
@@ -52,7 +89,8 @@ include("./include/breadcrumb.php");
             <div class="row">
                 <div class="col-lg-5 col-md-12">
                     <div class="product-main-img-box">
-                        <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" onerror="this.src='https://placehold.co/800x800/eeeeee/999999?text=Image+Not+Found'">
+                        <!-- Added descriptive alt tag for SEO Image Search -->
+                        <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name . ' from ' . $pro_brand; ?>" onerror="this.src='https://placehold.co/800x800/eeeeee/999999?text=Image+Not+Found'">
                     </div>
                 </div>
 
@@ -126,30 +164,31 @@ include("./include/breadcrumb.php");
                         </h3>
                         <div class="related-slider-container row g-4">
                             <?php
-                            $rel_sql = "SELECT * FROM products WHERE status = 1 AND pro_id != $product_id ORDER BY RAND() LIMIT 3";
+                            $rel_sql = "SELECT * FROM products WHERE status = 1 AND pro_id != $pro_id ORDER BY RAND() LIMIT 3";
                             $rel_result = $conn->query($rel_sql);
 
                             if ($rel_result && $rel_result->num_rows > 0) {
                                 while ($rel_row = $rel_result->fetch_assoc()) {
-                                    $rel_id = $rel_row['pro_id'];
+                                    // Fixed: Using slug_url for related products too
+                                    $rel_slug = htmlspecialchars($rel_row['slug_url'] ?? '');
                                     $rel_name = htmlspecialchars($rel_row['pro_name']);
                                     $rel_img = !empty($rel_row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($rel_row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
                             ?>
                             <div class="related-slide-item col-lg-4 col-md-6 col-sm-12">
                                 <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
                                     <div class="prod-img-box" style="height: 220px; overflow: hidden;">
-                                          <a href="product-details.php?id=<?php echo $rel_id; ?>" style="display: block; width: 100%; height: 100%;">
+                                          <a href="product-details.php?slug=<?php echo $rel_slug; ?>" style="display: block; width: 100%; height: 100%;">
                                         <img src="<?php echo $rel_img; ?>" alt="<?php echo $rel_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                         </a>
                                     </div>
                                     <div class="prod-content p-4 d-flex flex-column flex-grow-1">
                                         <h3 class="prod-title mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: var(--primary-blue, #0A192F); text-transform: uppercase;">
-                                              <a href="product-details.php?id=<?php echo $rel_id; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
+                                              <a href="product-details.php?slug=<?php echo $rel_slug; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
                                             <?php echo $rel_name; ?>
                                         </a>
                                         </h3>
                                         <div class="mt-auto d-flex gap-2">
-                                            <a href="product-details.php?id=<?php echo $rel_id; ?>" class="btn-custom-outline flex-fill text-center px-2 py-2" style="font-size: 12px;">
+                                            <a href="product-details.php?slug=<?php echo $rel_slug; ?>" class="btn-custom-outline flex-fill text-center px-2 py-2" style="font-size: 12px;">
                                                 <i class="fa-regular fa-eye me-1"></i> Details
                                             </a>
                                             <a href="contact.php?product=<?php echo urlencode($rel_name); ?>" class="btn-custom-solid flex-fill text-center px-2 py-2" style="font-size: 12px;">
