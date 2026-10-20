@@ -1,8 +1,11 @@
 User-agent: *
 Allow: /
 
-# Admin panel ko index hone se roko
+# Admin panel aur secure folders ko index hone se rokna
 Disallow: /admin/
 Disallow: /include/
+Disallow: /assets/
+Disallow: /config/
 
+# Auto-Generated Sitemap Link
 Sitemap: https://www.khetarpalinternational.com/sitemap.xml
