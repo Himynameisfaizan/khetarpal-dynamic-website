@@ -1,5 +1,5 @@
 <?php
-include('config/connect.php');
+include('admin/db-conn.php');
 
 // SEO Meta Variables
 $pageTitle = "Privacy Policy | Khetarpal Trading Co.";
@@ -14,7 +14,7 @@ include 'include/breadcrumb.php';
 <section class="py-5" style="background-color: #f8f9fa;">
     <div class="container">
         <div class="row g-5">
-            
+
             <!-- LEFT COLUMN: Policy Content -->
             <div class="col-lg-8">
                 <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
@@ -74,7 +74,7 @@ include 'include/breadcrumb.php';
             <!-- RIGHT COLUMN: Sidebar Widgets -->
             <div class="col-lg-4">
                 <div class="sidebar-widgets position-sticky" style="top: 20px;">
-                    
+
                     <!-- Search Widget -->
                     <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
                         <h5 class="fw-bold mb-3 border-bottom pb-2">Search Products</h5>
@@ -91,21 +91,21 @@ include 'include/breadcrumb.php';
                             <?php
                             $catQuery = mysqli_query($conn, "SELECT * FROM categories WHERE status = 1");
                             if ($catQuery && mysqli_num_rows($catQuery) > 0) {
-                                while($catRow = mysqli_fetch_assoc($catQuery)) {
+                                while ($catRow = mysqli_fetch_assoc($catQuery)) {
                             ?>
-                            <li class="mb-2 pb-2 border-bottom">
-                                <a href="category.php?slug=<?= htmlspecialchars($catRow['slug_url']) ?>" class="text-decoration-none d-flex justify-content-between align-items-center text-muted" style="font-size: 0.95rem;">
-                                    <span><i class="fa-solid fa-angle-right me-2" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($catRow['categories']) ?></span>
-                                </a>
-                            </li>
-                            <?php 
+                                    <li class="mb-2 pb-2 border-bottom">
+                                        <a href="category.php?slug=<?= htmlspecialchars($catRow['slug_url']) ?>" class="text-decoration-none d-flex justify-content-between align-items-center text-muted" style="font-size: 0.95rem;">
+                                            <span><i class="fa-solid fa-angle-right me-2" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($catRow['categories']) ?></span>
+                                        </a>
+                                    </li>
+                            <?php
                                 }
                             }
                             ?>
                         </ul>
                     </div>
 
-                   
+
 
                     <!-- Request Quote Banner -->
                     <div class="widget-box rounded shadow-sm text-center p-4 text-white" style="background: linear-gradient(135deg, var(--primary-green, #2b5e2c) 0%, #1a3f1b 100%);">
@@ -123,6 +123,6 @@ include 'include/breadcrumb.php';
     </div>
 </section>
 
-<?php 
-include ('include/footer.php'); 
+<?php
+include('include/footer.php');
 ?>

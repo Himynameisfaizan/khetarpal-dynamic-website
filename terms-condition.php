@@ -1,5 +1,5 @@
 <?php
-include('config/connect.php');
+include('admin/db-conn.php');
 
 $pageTitle = "Terms & Conditions | Khetarpal Trading Co.";
 $meta_description = "Read the terms and conditions of Khetarpal Trading Co. for purchasing spices, dry fruits, seeds, and kernels.";
@@ -12,7 +12,7 @@ include 'include/breadcrumb.php';
 <section class="py-5" style="background-color: #f8f9fa;">
     <div class="container">
         <div class="row g-5">
-            
+
             <!-- LEFT COLUMN: Content -->
             <div class="col-lg-8">
                 <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
@@ -69,6 +69,6 @@ include 'include/breadcrumb.php';
     </div>
 </section>
 
-<?php 
-include 'include/footer.php'; 
+<?php
+include 'include/footer.php';
 ?>

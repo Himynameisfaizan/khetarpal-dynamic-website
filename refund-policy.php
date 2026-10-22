@@ -1,5 +1,5 @@
 <?php
-include('config/connect.php');
+include('admin/db-conn.php');
 
 $pageTitle = "Refund and Cancellation Policy | Khetarpal Trading Co.";
 $meta_description = "Read the refund and cancellation policy of Khetarpal Trading Co. for premium spices, dry fruits, seeds, and kernels orders.";
@@ -12,7 +12,7 @@ include 'include/breadcrumb.php';
 <section class="py-5" style="background-color: #f8f9fa;">
     <div class="container">
         <div class="row g-5">
-            
+
             <!-- LEFT COLUMN: Content -->
             <div class="col-lg-8">
                 <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
@@ -22,20 +22,20 @@ include 'include/breadcrumb.php';
                     <p>At <strong>Khetarpal Trading Co.</strong>, we ensure the highest quality of our agricultural commodities, including premium spices, dry fruits, seeds, and kernels. Because we deal in consumable food products, our refund and cancellation policies are structured to comply with strict food safety, hygiene, and trade standards.</p>
 
                     <h3 class="mt-5 mb-3" style="color: #e65c00; font-size: 1.3rem;">Cancellation Policy</h3>
-                    
+
                     <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">1. Order Cancellation Before Dispatch</h4>
                     <p>You may cancel your order within <strong>24 hours</strong> of placing it, provided it has not yet been processed, packed, or dispatched from our facility. A full refund will be processed immediately upon valid request sent to our official support email.</p>
 
                     <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">2. Cancellation After Dispatch</h4>
                     <p>Due to the perishable and consumable nature of spices and dry fruits, orders <strong>cannot be cancelled</strong> once they have been handed over to our logistics partners or shipped.</p>
-                    
+
                     <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">3. Bulk & Wholesale Orders</h4>
                     <p>For custom-packaged or bulk container export orders of seeds and kernels, cancellations are not permitted once sourcing and processing have commenced. Advance payments for bulk wholesale orders remain strictly non-refundable.</p>
 
                     <hr class="my-5">
 
                     <h3 class="mb-3" style="color: #e65c00; font-size: 1.3rem;">Return and Refund Policy</h3>
-                    
+
                     <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">1. Eligibility for Returns & Refunds</h4>
                     <p>We <strong>do not accept general returns</strong> (such as change of mind) due to strict food safety and hygiene regulations. However, replacements or refunds are applicable if:</p>
                     <ul>
@@ -77,5 +77,5 @@ include 'include/breadcrumb.php';
 </section>
 
 <?php
-include 'include/footer.php'; 
+include 'include/footer.php';
 ?>
