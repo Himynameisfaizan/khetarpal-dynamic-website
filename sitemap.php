@@ -1,9 +1,10 @@
 <?php
+// XML header define kar rahe hain taki browser isko valid sitemap samjhe
 header("Content-Type: application/xml; charset=utf-8");
 include './admin/db-conn.php'; 
 
+// Base URL set karo (Live server ke liye)
 $baseUrl = "https://www.khetarpalinternational.com/";
-
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
@@ -27,13 +28,16 @@ foreach ($staticPages as $page) {
 }
 
 if (isset($conn)) {
-    // 2. Dynamic Categories (Slug based)
+
+    // 2. Dynamic Categories
     $catQuery = mysqli_query($conn, "SELECT slug_url FROM categories WHERE status = 1");
     if ($catQuery && mysqli_num_rows($catQuery) > 0) {
         while ($row = mysqli_fetch_assoc($catQuery)) {
             if (!empty($row['slug_url'])) {
+                // Spaces ko url-safe format mein convert karna
+                $safe_slug = str_replace(' ', '%20', trim($row['slug_url']));
                 echo '<url>' . "\n";
-                echo '  <loc>' . $baseUrl . 'category.php?slug=' . htmlspecialchars($row['slug_url']) . '</loc>' . "\n";
+                echo '  <loc>' . $baseUrl . 'category.php?slug=' . $safe_slug . '</loc>' . "\n";
                 echo '  <changefreq>weekly</changefreq>' . "\n";
                 echo '  <priority>0.8</priority>' . "\n";
                 echo '</url>' . "\n";
@@ -41,13 +45,14 @@ if (isset($conn)) {
         }
     }
 
-    // 3. Dynamic Products (Slug based)
+    // 3. Dynamic Products
     $prodQuery = mysqli_query($conn, "SELECT slug_url FROM products WHERE status = 1");
     if ($prodQuery && mysqli_num_rows($prodQuery) > 0) {
         while ($row = mysqli_fetch_assoc($prodQuery)) {
             if (!empty($row['slug_url'])) {
+                $safe_slug = str_replace(' ', '%20', trim($row['slug_url']));
                 echo '<url>' . "\n";
-                echo '  <loc>' . $baseUrl . 'product-details.php?slug=' . htmlspecialchars($row['slug_url']) . '</loc>' . "\n";
+                echo '  <loc>' . $baseUrl . 'product-details.php?slug=' . $safe_slug . '</loc>' . "\n";
                 echo '  <changefreq>weekly</changefreq>' . "\n";
                 echo '  <priority>0.9</priority>' . "\n";
                 echo '</url>' . "\n";
@@ -55,27 +60,29 @@ if (isset($conn)) {
         }
     }
 
-    // 4. Dynamic Blogs (Slug based)
-    $blogQuery = mysqli_query($conn, "SELECT slug_url FROM blogs WHERE status = 'published'");
+    // 4. Dynamic Blogs (Fixed: Changed 'slug_url' to 'slug')
+    $blogQuery = mysqli_query($conn, "SELECT slug FROM blogs WHERE status = 'published'");
     if ($blogQuery && mysqli_num_rows($blogQuery) > 0) {
         while ($row = mysqli_fetch_assoc($blogQuery)) {
-            if (!empty($row['slug_url'])) {
+            if (!empty($row['slug'])) {
+                $safe_slug = str_replace(' ', '%20', trim($row['slug']));
                 echo '<url>' . "\n";
-                echo '  <loc>' . $baseUrl . 'blog-details.php?slug=' . htmlspecialchars($row['slug_url']) . '</loc>' . "\n";
+                echo '  <loc>' . $baseUrl . 'blog-details.php?slug=' . $safe_slug . '</loc>' . "\n";
                 echo '  <changefreq>weekly</changefreq>' . "\n";
                 echo '  <priority>0.7</priority>' . "\n";
                 echo '</url>' . "\n";
             }
         }
     }
-    
-    // 5. Dynamic Services (Slug based - checking if column exists)
-    $serviceQuery = @mysqli_query($conn, "SELECT slug_url FROM services");
+
+    // 5. Dynamic Services 
+    $serviceQuery = mysqli_query($conn, "SELECT slug_url FROM services");
     if ($serviceQuery && mysqli_num_rows($serviceQuery) > 0) {
         while ($row = mysqli_fetch_assoc($serviceQuery)) {
             if (!empty($row['slug_url'])) {
+                $safe_slug = str_replace(' ', '%20', trim($row['slug_url']));
                 echo '<url>' . "\n";
-                echo '  <loc>' . $baseUrl . 'service-details.php?slug=' . htmlspecialchars($row['slug_url']) . '</loc>' . "\n";
+                echo '  <loc>' . $baseUrl . 'service-details.php?slug=' . $safe_slug . '</loc>' . "\n";
                 echo '  <changefreq>monthly</changefreq>' . "\n";
                 echo '  <priority>0.8</priority>' . "\n";
                 echo '</url>' . "\n";

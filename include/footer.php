@@ -45,16 +45,14 @@ if(isset($conn)) {
                         <div class="row">
                             <div class="col-6">
                                 <ul class="footer-links">
-                                    <li><a href="index.php">Home</a></li>
                                     <li><a href="about.php">About Us</a></li>
-                                    <li><a href="services.php">Services</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-6">
-                                <ul class="footer-links">
                                     <li><a href="blogs.php">Blog</a></li>
+                                    <li><a href="services.php">Services</a></li>
+                                    <li><a href="privacy-policy.php">Privacy Policy</a></li>
+                                    <li><a href="refund-policy.php">Refund Policy</a></li>
+                                    <li><a href="shipping-return.php">Shipping Policy</a></li>
+                                    <li><a href="terms-condition.php">Terms & Condition</a></li>
                                     <li><a href="contact.php">Contact Us</a></li>
-                                    <li><a href="product.php">All Products</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -84,12 +82,7 @@ if(isset($conn)) {
                                     foreach($col1 as $cat1){
                                         echo '<li><a href="category.php?slug='.htmlspecialchars($cat1['slug_url']).'">'.htmlspecialchars($cat1['categories']).'</a></li>';
                                     }
-                                    echo '</ul></div>';
-                                    
-                                    echo '<div class="col-6"><ul class="footer-links">';
-                                    foreach($col2 as $cat2){
-                                        echo '<li><a href="category.php?slug='.htmlspecialchars($cat2['slug_url']).'">'.htmlspecialchars($cat2['categories']).'</a></li>';
-                                    }
+                               
                                     echo '</ul></div>';
                                 } else {
                                     echo "<p style='color:#777; font-size:14px;'>Categories unavailable.</p>";
