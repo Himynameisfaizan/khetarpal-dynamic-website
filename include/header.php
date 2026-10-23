@@ -89,7 +89,7 @@ if (isset($conn)) {
     }
     ?>
 
-    <link rel="shortcut icon" href="assets/img/favicon.png" type="image/png">
+    <!-- <link rel="shortcut icon" href="assets/img/favicon.png" type="image/png"> -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -105,6 +105,13 @@ if (isset($conn)) {
     <link rel="stylesheet" href="assets/css/plugin/venobox.min.css">
     <link rel="stylesheet" href="assets/css/plugin/jquery.lineProgressbar.css">
 
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/about.css">
     <link rel="stylesheet" href="assets/css/service.css">
@@ -113,31 +120,31 @@ if (isset($conn)) {
     <link rel="stylesheet" href="assets/css/contact.css">
 
     <style>
-        /* Hover Dropdown Logic */
-        .navbar-nav .dropdown:hover .dropdown-menu {
-            display: block;
-            margin-top: 0;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #eaeaea;
-        }
+    /* Hover Dropdown Logic */
+    .navbar-nav .dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #eaeaea;
+    }
 
-        .dropdown-menu .dropdown-item {
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            padding: 10px 20px;
-            transition: 0.3s;
-        }
+    .dropdown-menu .dropdown-item {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        padding: 10px 20px;
+        transition: 0.3s;
+    }
 
-        .dropdown-menu .dropdown-item:hover {
-            background-color: #f9f9f9;
-            color: var(--primary-gold, #C49B3B);
-        }
+    .dropdown-menu .dropdown-item:hover {
+        background-color: #f9f9f9;
+        color: var(--primary-gold, #C49B3B);
+    }
 
-        /* Remove default Bootstrap dropdown caret (dot/arrow) */
-        .navbar-nav .dropdown-toggle::after {
-            display: none !important;
-        }
+    /* Remove default Bootstrap dropdown caret (dot/arrow) */
+    .navbar-nav .dropdown-toggle::after {
+        display: none !important;
+    }
     </style>
 </head>
 
@@ -175,14 +182,16 @@ if (isset($conn)) {
                     </a>
 
                     <!-- Mobile Toggle Button -->
-                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#mobileMenu" aria-controls="mobileMenu">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
                     <div class="collapse navbar-collapse justify-content-center d-none d-lg-collapse" id="navbarNav">
                         <ul class="navbar-nav align-items-center">
 
-                            <li class="nav-item <?php echo ($current_page == './' || $current_page == '') ? 'active' : ''; ?>">
+                            <li
+                                class="nav-item <?php echo ($current_page == './' || $current_page == '') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="./">Home</a>
                             </li>
 
@@ -190,17 +199,21 @@ if (isset($conn)) {
                                 <a class="nav-link" href="about.php">About Us</a>
                             </li>
 
-                            <li class="nav-item <?php echo ($current_page == 'services.php' || $current_page == 'service-details.php') ? 'active' : ''; ?>">
+                            <li
+                                class="nav-item <?php echo ($current_page == 'services.php' || $current_page == 'service-details.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="services.php">Services</a>
                             </li>
 
                             <!-- Categories Dropdown with Hover -->
-                            <li class="nav-item dropdown <?php echo ($current_page == 'product.php' || $current_page == 'category.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link dropdown-toggle" href="product.php" id="navbarDropdown" role="button" aria-expanded="false">
+                            <li
+                                class="nav-item dropdown <?php echo ($current_page == 'product.php' || $current_page == 'category.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
+                                <a class="nav-link dropdown-toggle" href="product.php" id="navbarDropdown" role="button"
+                                    aria-expanded="false">
                                     Categories
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item fw-bold" href="product.php" style="color: var(--primary-blue, #0A192F);">View All Products</a></li>
+                                    <li><a class="dropdown-item fw-bold" href="product.php"
+                                            style="color: var(--primary-blue, #0A192F);">View All Products</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -214,7 +227,8 @@ if (isset($conn)) {
                                 </ul>
                             </li>
 
-                            <li class="nav-item <?php echo ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
+                            <li
+                                class="nav-item <?php echo ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
                                 <a class="nav-link" href="blogs.php">Blog</a>
                             </li>
 
@@ -223,7 +237,8 @@ if (isset($conn)) {
                             </li>
 
                             <li class="nav-item ms-3">
-                                <a href="javascript:void(0);" class="btn-quote" data-bs-toggle="modal" data-bs-target="#quoteModal">
+                                <a href="javascript:void(0);" class="btn-quote" data-bs-toggle="modal"
+                                    data-bs-target="#quoteModal">
                                     <i class="fas fa-paper-plane me-1"></i> Request a Quote
                                 </a>
                             </li>
@@ -236,24 +251,37 @@ if (isset($conn)) {
         <!-- Mobile Offcanvas Menu (No Dropdown for mobile, just direct links) -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold" id="mobileMenuLabel" style="color: var(--primary-blue, #0A192F);">Menu</h5>
+                <h5 class="offcanvas-title fw-bold" id="mobileMenuLabel" style="color: var(--primary-blue, #0A192F);">
+                    Menu</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav">
-                    <li class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="index.php">Home</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="about.php">About Us</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'product.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="product.php">Products</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="services.php">Services</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'blog.php' || $current_page == 'blogs.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="blog.php">Blog</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>"><a class="nav-link text-dark" href="contact.php">Contact Us</a></li>
+                    <li
+                        class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="index.php">Home</a>
+                    </li>
+                    <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>"><a
+                            class="nav-link text-dark" href="about.php">About Us</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'product.php') ? 'active' : ''; ?>"><a
+                            class="nav-link text-dark" href="product.php">Products</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>"><a
+                            class="nav-link text-dark" href="services.php">Services</a></li>
+                    <li
+                        class="nav-item <?php echo ($current_page == 'blog.php' || $current_page == 'blogs.php') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="blog.php">Blog</a>
+                    </li>
+                    <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>"><a
+                            class="nav-link text-dark" href="contact.php">Contact Us</a></li>
                 </ul>
                 <hr>
                 <div class="mt-4">
                     <p><i class="fas fa-phone-alt" style="color: var(--primary-gold, #C49B3B);"></i> +91 63547 65516</p>
                     <p><i class="fas fa-phone-alt" style="color: var(--primary-gold, #C49B3B);"></i> +91 89804 32156</p>
-                    <p><i class="fas fa-envelope" style="color: var(--primary-gold, #C49B3B);"></i> khetarpaltradingc@gmail.com</p>
-                    <a href="javascript:void(0);" class="btn-quote mt-3 w-100 text-center" data-bs-toggle="modal" data-bs-target="#quoteModal">
+                    <p><i class="fas fa-envelope" style="color: var(--primary-gold, #C49B3B);"></i>
+                        khetarpaltradingc@gmail.com</p>
+                    <a href="javascript:void(0);" class="btn-quote mt-3 w-100 text-center" data-bs-toggle="modal"
+                        data-bs-target="#quoteModal">
                         <i class="fas fa-paper-plane me-1"></i> Request a Quote
                     </a>
                 </div>
