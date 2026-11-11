@@ -213,23 +213,23 @@ if (isset($conn)) {
                             </li>
 
                             <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="<?php echo $base_url; ?>about.php">About Us</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>about">About Us</a>
                             </li>
 
                             <li
                                 class="nav-item <?php echo ($current_page == 'services.php' || $current_page == 'service-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="<?php echo $base_url; ?>services.php">Services</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>services">Services</a>
                             </li>
 
                             <!-- Categories Dropdown with Hover -->
                             <li
                                 class="nav-item dropdown <?php echo ($current_page == 'product.php' || $current_page == 'category.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link dropdown-toggle" href="<?php echo $base_url; ?>product.php"
+                                <a class="nav-link dropdown-toggle" href="<?php echo $base_url; ?>product"
                                     id="navbarDropdown" role="button" aria-expanded="false">
                                     Categories
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item fw-bold" href="<?php echo $base_url; ?>product.php"
+                                    <li><a class="dropdown-item fw-bold" href="<?php echo $base_url; ?>product"
                                             style="color: var(--primary-blue, #0A192F);">View All Products</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -247,11 +247,11 @@ if (isset($conn)) {
 
                             <li
                                 class="nav-item <?php echo ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="<?php echo $base_url; ?>blogs.php">Blog</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>blogs">Blog</a>
                             </li>
 
                             <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="<?php echo $base_url; ?>contact.php">Contact Us</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>contact">Contact Us</a>
                             </li>
 
                             <li class="nav-item ms-3">

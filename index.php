@@ -40,10 +40,11 @@ include('./include/header.php');
 
                     <!-- Buttons -->
                     <div class="hero-btn-group">
-                        <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#quoteModal" class="btn-solid-gold">
+                        <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#quoteModal"
+                            class="btn-solid-gold">
                             <i class="fas fa-paper-plane me-2"></i> Request a Quote
                         </a>
-                        <a href="contact.php" class="btn-outline-gold">
+                        <a href="contact" class="btn-outline-gold">
                             <i class="fas fa-phone-alt me-2"></i> Contact Us
                         </a>
                     </div>
@@ -138,39 +139,57 @@ include('./include/header.php');
                         $img_path = !empty($row['pro_img']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['pro_img']) : "https://placehold.co/600x500/eeeeee/999999?text=No+Image";
                 ?>
 
-                        <!-- Single Product Card -->
-                        <div class="col-lg-4 col-md-6 col-sm-12">
-                            <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden" style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
-                                <div class="prod-img-box" style="height: 250px; overflow: hidden;">
-                                    <a href="product-details.php?slug=<?php echo $pro_slug; ?>">
-                                        <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                    </a>
-                                </div>
+                <!-- Single Product Card -->
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="b2b-product-card d-flex flex-column h-100 shadow-sm bg-white rounded-3 overflow-hidden"
+                        style="border: 1px solid #f0f0f0; transition: transform 0.3s ease;">
+                        <div class="prod-img-box" style="height: 250px; overflow: hidden;">
+                            <a href="product/<?php echo $pro_slug; ?>">
+                                <img src="<?php echo $img_path; ?>" alt="<?php echo $pro_name; ?>"
+                                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
+                                    onerror="this.src='https://placehold.co/600x500/eeeeee/999999?text=Image+Not+Found'"
+                                    onmouseover="this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.transform='scale(1)'">
+                            </a>
+                        </div>
 
-                                <div class="prod-content p-4 d-flex flex-column flex-grow-1">
-                                    <a href="product-details.php?slug=<?php echo $pro_slug; ?>" style="text-decoration: none; color: inherit;" onmouseover="this.style.color='var(--primary-gold, #C49B3B)'" onmouseout="this.style.color='inherit'">
-                                        <h3 class="prod-title mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;"><?php echo $pro_name; ?></h3>
-                                    </a>
+                        <div class="prod-content p-4 d-flex flex-column flex-grow-1">
+                            <a href="product/<?php echo $pro_slug; ?>" style="text-decoration: none; color: inherit;"
+                                onmouseover="this.style.color='var(--primary-gold, #C49B3B)'"
+                                onmouseout="this.style.color='inherit'">
+                                <h3 class="prod-title mb-3"
+                                    style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary-blue, #0A192F); text-transform: uppercase;">
+                                    <?php echo $pro_name; ?></h3>
+                            </a>
 
-                                    <ul class="prod-specs list-unstyled mb-4" style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
-                                        <li><i class="fa-solid fa-layer-group me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong> <?php echo $category; ?></li>
-                                        <li><i class="fa-solid fa-box-open me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong> <?php echo $packaging; ?></li>
-                                        <li><i class="fa-solid fa-truck-fast me-2" style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready for Export</li>
-                                    </ul>
+                            <ul class="prod-specs list-unstyled mb-4"
+                                style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; line-height: 1.8;">
+                                <li><i class="fa-solid fa-layer-group me-2"
+                                        style="color: var(--primary-gold, #C49B3B);"></i> <strong>Category:</strong>
+                                    <?php echo $category; ?></li>
+                                <li><i class="fa-solid fa-box-open me-2"
+                                        style="color: var(--primary-gold, #C49B3B);"></i> <strong>Packaging:</strong>
+                                    <?php echo $packaging; ?></li>
+                                <li><i class="fa-solid fa-truck-fast me-2"
+                                        style="color: var(--primary-gold, #C49B3B);"></i> <strong>Status:</strong> Ready
+                                    for Export</li>
+                            </ul>
 
-                                    <!-- NEW DUAL BUTTON LAYOUT -->
-                                    <div class="mt-auto d-flex gap-2">
-                                        <a href="product-details.php?slug=<?php echo $pro_slug; ?>" class="btn-custom-outline flex-fill text-center">
-                                            <i class="fa-regular fa-eye me-1"></i> Details
-                                        </a>
-                                        <!-- URL mein product ka naam pass kiya hai -->
-                                        <a href="contact.php?product=<?php echo urlencode($pro_name); ?>" class="btn-custom-solid flex-fill text-center">
-                                            <i class="fa-solid fa-paper-plane me-1"></i> Quote
-                                        </a>
-                                    </div>
-                                </div>
+                            <!-- NEW DUAL BUTTON LAYOUT -->
+                            <div class="mt-auto d-flex gap-2">
+                                <a href="product/<?php echo $pro_slug; ?>"
+                                    class="btn-custom-outline flex-fill text-center">
+                                    <i class="fa-regular fa-eye me-1"></i> Details
+                                </a>
+                                <!-- URL mein product ka naam pass kiya hai -->
+                                <a href="contact.php?product=<?php echo urlencode($pro_name); ?>"
+                                    class="btn-custom-solid flex-fill text-center">
+                                    <i class="fa-solid fa-paper-plane me-1"></i> Quote
+                                </a>
                             </div>
                         </div>
+                    </div>
+                </div>
 
                 <?php
                     }
@@ -183,7 +202,8 @@ include('./include/header.php');
             <!-- View All Products Button -->
             <div class="row mt-5">
                 <div class="col-12 text-center">
-                    <a href="product.php" class="btn-custom-outline px-4 py-2" style="border-width: 2px;">View All Products <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
+                    <a href="product" class="btn-custom-outline px-4 py-2" style="border-width: 2px;">View All
+                        Products <i class="fa-solid fa-arrow-right-long ms-2"></i></a>
                 </div>
             </div>
 
@@ -224,7 +244,8 @@ include('./include/header.php');
                         <!-- Stat 4 -->
                         <div class="col-6 col-md-3 col-lg-3">
                             <div class="stat-box">
-                                <i class="fa-solid fa-weight-scale stat-icon"></i> <!-- Use fa-box if scale looks odd -->
+                                <i class="fa-solid fa-weight-scale stat-icon"></i>
+                                <!-- Use fa-box if scale looks odd -->
                                 <h4 class="stat-number">1000+</h4>
                                 <p class="stat-text">MT Monthly<br>Supply</p>
                             </div>
@@ -237,10 +258,13 @@ include('./include/header.php');
                     <div class="about-content">
                         <h3 class="about-title">About Khetarpal Trading Co.</h3>
                         <p class="about-desc">
-                            Khetarpal Trading Co. is a trusted name in the field of agriculture export. We bring you the finest quality products sourced from reliable farmers and processed with utmost care to meet international standards.<br><br>
-                            Our commitment to quality, timely delivery and customer satisfaction makes us a preferred export partner worldwide.
+                            Khetarpal Trading Co. is a trusted name in the field of agriculture export. We bring you the
+                            finest quality products sourced from reliable farmers and processed with utmost care to meet
+                            international standards.<br><br>
+                            Our commitment to quality, timely delivery and customer satisfaction makes us a preferred
+                            export partner worldwide.
                         </p>
-                        <a href="about.php" class="btn-read-more">Read More</a>
+                        <a href="about" class="btn-read-more">Read More</a>
                     </div>
                 </div>
 
@@ -335,14 +359,14 @@ include('./include/header.php');
                         // Dynamic Image Path (Agar admin folder me upload ho raha hai)
                         $img_path = !empty($con_flag) ? "admin/assets/img/uploads/" . $con_flag : "https://placehold.co/160x100?text=No+Flag";
                 ?>
-                        <!-- Country 1 -->
-                        <div class="country-card">
-                            <div class="flag-wrapper">
-                                <!-- Replace src with your database flag image path -->
-                                <img src="<?php echo $img_path ?>" alt="<?php echo $con_name ?>">
-                            </div>
-                            <h4 class="country-name"><?php echo $con_name ?></h4>
-                        </div>
+                <!-- Country 1 -->
+                <div class="country-card">
+                    <div class="flag-wrapper">
+                        <!-- Replace src with your database flag image path -->
+                        <img src="<?php echo $img_path ?>" alt="<?php echo $con_name ?>">
+                    </div>
+                    <h4 class="country-name"><?php echo $con_name ?></h4>
+                </div>
 
                 <?php }
                 } ?>
@@ -357,152 +381,152 @@ include('./include/header.php');
         </div>
     </section>
 
-        <!-- ::::::  Start Testimonial Section  ::::::  -->
+    <!-- ::::::  Start Testimonial Section  ::::::  -->
     <style>
-        .testimonial-section {
-            background-color: #f8f9fa;
-            padding: 80px 0;
-        }
+    .testimonial-section {
+        background-color: #f8f9fa;
+        padding: 80px 0;
+    }
 
-        .google-review-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 15px;
-            /* Slick slider ke cards ke beech gap ke liye */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-            border: 1px solid #eaeaea;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
+    .google-review-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 15px;
+        /* Slick slider ke cards ke beech gap ke liye */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        border: 1px solid #eaeaea;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .google-review-card:hover {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-        }
+    .google-review-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
 
-        .review-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
+    .review-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
 
-        .reviewer-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-        .reviewer-img {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
+    .reviewer-img {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 
-        .reviewer-details h5 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            color: #202124;
-        }
+    .reviewer-details h5 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #202124;
+    }
 
-        .reviewer-details span {
-            font-size: 13px;
-            color: #70757a;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+    .reviewer-details span {
+        font-size: 13px;
+        color: #70757a;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
 
-        .verified-badge {
-            color: #1a73e8;
-            font-size: 14px;
-        }
+    .verified-badge {
+        color: #1a73e8;
+        font-size: 14px;
+    }
 
-        .google-logo {
-            width: 24px;
-            height: 24px;
-        }
+    .google-logo {
+        width: 24px;
+        height: 24px;
+    }
 
-        .review-stars {
-            color: #fbbc04;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
+    .review-stars {
+        color: #fbbc04;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
 
-        .review-text {
-            font-size: 14.5px;
-            color: #4d5156;
-            line-height: 1.7;
-            font-family: 'Poppins', sans-serif;
-            flex-grow: 1;
-        }
+    .review-text {
+        font-size: 14.5px;
+        color: #4d5156;
+        line-height: 1.7;
+        font-family: 'Poppins', sans-serif;
+        flex-grow: 1;
+    }
 
-        .testimonial-slider .slick-track {
-            display: flex !important;
-        }
+    .testimonial-slider .slick-track {
+        display: flex !important;
+    }
 
-        .testimonial-slider .slick-slide {
-            height: inherit !important;
-            display: flex !important;
-        }
+    .testimonial-slider .slick-slide {
+        height: inherit !important;
+        display: flex !important;
+    }
 
-        .testimonial-slider .slick-slide>div {
-            width: 100%;
-            display: flex;
-        }
+    .testimonial-slider .slick-slide>div {
+        width: 100%;
+        display: flex;
+    }
 
-        .testimonial-slider .slick-dots li button:before {
-            font-size: 12px;
-            color: var(--primary-gold, #C49B3B);
-        }
+    .testimonial-slider .slick-dots li button:before {
+        font-size: 12px;
+        color: var(--primary-gold, #C49B3B);
+    }
 
-        .testimonial-slider .slick-dots li.slick-active button:before {
-            color: var(--primary-blue, #0A192F);
-        }
+    .testimonial-slider .slick-dots li.slick-active button:before {
+        color: var(--primary-blue, #0A192F);
+    }
 
-        .testimonial-slider .slick-dots {
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-            list-style: none;
-            padding: 0;
-            margin: 40px 0 0 0;
-        }
+    .testimonial-slider .slick-dots {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 40px 0 0 0;
+    }
 
-        .testimonial-slider .slick-dots li {
-            margin: 0 6px;
-        }
+    .testimonial-slider .slick-dots li {
+        margin: 0 6px;
+    }
 
-        .testimonial-slider .slick-dots li button {
-            font-size: 0;
-            line-height: 0;
-            display: block;
-            width: 12px;
-            height: 12px;
-            padding: 0;
-            cursor: pointer;
-            color: transparent;
-            border: none;
-            outline: none;
-            background-color: #d1d5db;
-            /* Default light grey color */
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
+    .testimonial-slider .slick-dots li button {
+        font-size: 0;
+        line-height: 0;
+        display: block;
+        width: 12px;
+        height: 12px;
+        padding: 0;
+        cursor: pointer;
+        color: transparent;
+        border: none;
+        outline: none;
+        background-color: #d1d5db;
+        /* Default light grey color */
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
 
-        .testimonial-slider .slick-dots li.slick-active button {
-            background-color: var(--primary-gold, #C49B3B);
-            transform: scale(1.3);
-        }
+    .testimonial-slider .slick-dots li.slick-active button {
+        background-color: var(--primary-gold, #C49B3B);
+        transform: scale(1.3);
+    }
 
-        .testimonial-slider .slick-dots li button:before {
-            display: none !important;
-        }
+    .testimonial-slider .slick-dots li button:before {
+        display: none !important;
+    }
     </style>
 
     <section class="testimonial-section">
@@ -538,31 +562,36 @@ include('./include/header.php');
                         }
                 ?>
 
-                        <div class="google-review-card">
-                            <div class="review-header">
-                                <div class="reviewer-info">
-                                    <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="reviewer-img" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
-                                    <div class="reviewer-details">
-                                        <h5><?php echo $client_name; ?></h5>
-                                        <span>
-                                            <i class="fa-solid fa-circle-check verified-badge"></i>
-                                            <?php echo $designation; ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <!-- Authentic Google 'G' Logo SVG -->
-                                <div class="google-logo">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                                    </svg>
-                                </div>
+                <div class="google-review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <img src="<?php echo $img_path; ?>" alt="<?php echo $client_name; ?>" class="reviewer-img"
+                                onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($client_name); ?>&background=C49B3B&color=fff'">
+                            <div class="reviewer-details">
+                                <h5><?php echo $client_name; ?></h5>
+                                <span>
+                                    <i class="fa-solid fa-circle-check verified-badge"></i>
+                                    <?php echo $designation; ?>
+                                </span>
                             </div>
+                        </div>
+                        <!-- Authentic Google 'G' Logo SVG -->
+                        <div class="google-logo">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                <path fill="#EA4335"
+                                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                                <path fill="#4285F4"
+                                    d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                                <path fill="#FBBC05"
+                                    d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                                <path fill="#34A853"
+                                    d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                            </svg>
+                        </div>
+                    </div>
 
-                            <div class="review-stars">
-                                <?php
+                    <div class="review-stars">
+                        <?php
                                 // Star Loop
                                 for ($i = 1; $i <= 5; $i++) {
                                     if ($i <= $rating) {
@@ -572,10 +601,10 @@ include('./include/header.php');
                                     }
                                 }
                                 ?>
-                            </div>
+                    </div>
 
-                            <p class="review-text">"<?php echo $text; ?>"</p>
-                        </div>
+                    <p class="review-text">"<?php echo $text; ?>"</p>
+                </div>
 
                 <?php
                     }
@@ -607,7 +636,7 @@ include('./include/header.php');
                 <p class="cta-desc">Take now 20% off for all bulk and wholesale orders.</p>
 
                 <!-- Backend Note: Link aur Button text ko bhi dynamic kar sakte ho -->
-                <a href="product.php" class="btn-cta-gold">Shop Now</a>
+                <a href="product" class="btn-cta-gold">Shop Now</a>
             </div>
         </div>
     </section> <!-- ::::::  End banner Section  ::::::  -->
@@ -618,9 +647,10 @@ include('./include/header.php');
     <section class="blog-section">
         <div class="container">
 
-            <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div class="section-header-flex"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                 <h2 class="section-main-title title-with-line">Latest News</h2>
-                <a href="blogs.php" class="btn-view-all">View All News <i class="fa-solid fa-arrow-right-long ms-1"></i></a>
+                <a href="blogs" class="btn-view-all">View All News <i class="fa-solid fa-arrow-right-long ms-1"></i></a>
             </div>
 
             <div class="row g-4">
@@ -639,37 +669,48 @@ include('./include/header.php');
 
                         $img_path = !empty($row['image']) ? "admin/assets/img/uploads/" . htmlspecialchars($row['image']) : "https://placehold.co/800x600/eeeeee/999999?text=Blog+Image";
                 ?>
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="blog-card" style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: 100%; display: flex; flex-direction: column;">
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="blog-card"
+                        style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: 100%; display: flex; flex-direction: column;">
 
-                                <div class="blog-img-wrapper" style="height: 220px; overflow: hidden;">
-                                    <a href="blog-details.php?slug=<?php echo $blog_slug; ?>">
-                                        <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
-                                    </a>
-                                </div>
-
-                                <div class="blog-content" style="padding: 25px; flex-grow: 1; display: flex; flex-direction: column;">
-
-                                    <div class="blog-meta" style="font-size: 13px; color: #777; margin-bottom: 10px;">
-                                        <span class="me-3"><i class="fa-regular fa-calendar" style="color: var(--primary-gold, #C49B3B);"></i> <?php echo $date; ?></span>
-                                        <span><i class="fa-solid fa-user-pen" style="color: var(--primary-gold, #C49B3B);"></i> <?php echo $author; ?></span>
-                                    </div>
-
-                                    <h3 class="blog-title" style="font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.4;">
-                                        <a href="blog-details.php?slug=<?php echo $blog_slug; ?>" style="color: var(--primary-blue, #0A192F); text-decoration: none;"><?php echo $title; ?></a>
-                                    </h3>
-
-                                    <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.6;"><?php echo $excerpt; ?></p>
-
-                                    <div class="mt-auto">
-                                        <a href="blog-details.php?slug=<?php echo $blog_slug; ?>" class="read-more-link" style="font-weight: 600; color: var(--primary-blue, #0A192F); text-decoration: none;">
-                                            Read Article <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 5px;"></i>
-                                        </a>
-                                    </div>
-
-                                </div>
-                            </div>
+                        <div class="blog-img-wrapper" style="height: 220px; overflow: hidden;">
+                            <a href="blog/<?php echo $blog_slug; ?>">
+                                <img src="<?php echo $img_path; ?>" alt="<?php echo $title; ?>"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
+                            </a>
                         </div>
+
+                        <div class="blog-content"
+                            style="padding: 25px; flex-grow: 1; display: flex; flex-direction: column;">
+
+                            <div class="blog-meta" style="font-size: 13px; color: #777; margin-bottom: 10px;">
+                                <span class="me-3"><i class="fa-regular fa-calendar"
+                                        style="color: var(--primary-gold, #C49B3B);"></i> <?php echo $date; ?></span>
+                                <span><i class="fa-solid fa-user-pen" style="color: var(--primary-gold, #C49B3B);"></i>
+                                    <?php echo $author; ?></span>
+                            </div>
+
+                            <h3 class="blog-title"
+                                style="font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.4;">
+                                <a href="blog/<?php echo $blog_slug; ?>"
+                                    style="color: var(--primary-blue, #0A192F); text-decoration: none;"><?php echo $title; ?></a>
+                            </h3>
+
+                            <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.6;">
+                                <?php echo $excerpt; ?></p>
+
+                            <div class="mt-auto">
+                                <a href="blog/<?php echo $blog_slug; ?>" class="read-more-link"
+                                    style="font-weight: 600; color: var(--primary-blue, #0A192F); text-decoration: none;">
+                                    Read Article <i class="fa-solid fa-chevron-right"
+                                        style="font-size: 12px; margin-left: 5px;"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
 
                 <?php
                     }
@@ -694,14 +735,16 @@ include('./include/header.php');
                 <div class="col-lg-8 col-md-10 col-12 text-center newsletter-content">
 
                     <h2 class="newsletter-title">Subscribe To Our <span>Newsletter</span></h2>
-                    <p class="newsletter-desc">Get the latest updates on agricultural commodities, market trends, and exclusive offers.</p>
+                    <p class="newsletter-desc">Get the latest updates on agricultural commodities, market trends, and
+                        exclusive offers.</p>
 
                     <!-- Newsletter Form -->
                     <!-- Backend Note: Jab PHP script likhoge tab 'action' update kar dena -->
                     <form class="newsletter-form" action="#" method="post">
                         <div class="input-group-custom">
                             <i class="fa-solid fa-envelope input-icon"></i>
-                            <input type="email" name="newsletter-mail" id="newsletter-mail" placeholder="Enter your email address" required>
+                            <input type="email" name="newsletter-mail" id="newsletter-mail"
+                                placeholder="Enter your email address" required>
                             <button type="submit" class="btn-subscribe">Subscribe</button>
                         </div>
                     </form>
@@ -738,23 +781,30 @@ include("./include/footer.php");
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="modal__product-img">
-                                        <img class="img-fluid" src="assets/img/product/size-normal/product-home-1-img-1.jpg" alt="">
+                                        <img class="img-fluid"
+                                            src="assets/img/product/size-normal/product-home-1-img-1.jpg" alt="">
                                     </div>
                                 </div>
                                 <div class="col-md-8">
-                                    <div class="link--green link--icon-left"><i class="fal fa-check-square"></i>Added to cart successfully!</div>
+                                    <div class="link--green link--icon-left"><i class="fal fa-check-square"></i>Added to
+                                        cart successfully!</div>
                                     <div class="modal__product-cart-buttons m-tb-15">
-                                        <a href="#" class="btn btn--box  btn--tiny btn--green btn--green-hover-black btn--uppercase">View Cart</a>
-                                        <a href="#" class="btn btn--box  btn--tiny btn--green btn--green-hover-black btn--uppercaset">Checkout</a>
+                                        <a href="#"
+                                            class="btn btn--box  btn--tiny btn--green btn--green-hover-black btn--uppercase">View
+                                            Cart</a>
+                                        <a href="#"
+                                            class="btn btn--box  btn--tiny btn--green btn--green-hover-black btn--uppercaset">Checkout</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-5 modal__border">
                             <ul class="modal__product-shipping-info">
-                                <li class="link--icon-left"><i class="icon-shopping-cart"></i> There Are 5 Items In Your Cart.</li>
+                                <li class="link--icon-left"><i class="icon-shopping-cart"></i> There Are 5 Items In Your
+                                    Cart.</li>
                                 <li>TOTAL PRICE: <span>$187.00</span></li>
-                                <li><a href="#" class="btn text-underline color-green" data-bs-dismiss="modal">CONTINUE SHOPPING</a></li>
+                                <li><a href="#" class="btn text-underline color-green" data-bs-dismiss="modal">CONTINUE
+                                        SHOPPING</a></li>
                             </ul>
                         </div>
                     </div>
@@ -781,7 +831,9 @@ include("./include/footer.php");
                         <div class="col-md-6">
                             <div class="product-gallery-box m-b-60">
                                 <div class="modal-product-image--large">
-                                    <img class="img-fluid" src="assets/img/product/gallery/gallery-large/product-gallery-large-1.jpg" alt="">
+                                    <img class="img-fluid"
+                                        src="assets/img/product/gallery/gallery-large/product-gallery-large-1.jpg"
+                                        alt="">
                                 </div>
                             </div>
                         </div>
@@ -800,16 +852,22 @@ include("./include/footer.php");
                                     <li class="product__review--blank"><i class="icon-star"></i></li>
                                 </ul>
                                 <div class="product__desc m-t-25 m-b-30">
-                                    <p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will</p>
+                                    <p>On the other hand, we denounce with righteous indignation and dislike men who are
+                                        so beguiled and demoralized by the charms of pleasure of the moment, so blinded
+                                        by desire, that they cannot foresee the pain and trouble that are bound to
+                                        ensue; and equal blame belongs to those who fail in their duty through weakness
+                                        of will</p>
                                 </div>
 
                                 <div class="product-var p-t-30">
                                     <div class="product-quantity product-var__item d-flex align-items-center flex-wrap">
                                         <span class="product-var__text">Quantity: </span>
                                         <form class="modal-quantity-scale m-l-20">
-                                            <div class="value-button" id="modal-decrease" onclick="decreaseValueModal()">-</div>
+                                            <div class="value-button" id="modal-decrease"
+                                                onclick="decreaseValueModal()">-</div>
                                             <input type="number" id="modal-number" value="1" />
-                                            <div class="value-button" id="modal-increase" onclick="increaseValueModal()">+</div>
+                                            <div class="value-button" id="modal-increase"
+                                                onclick="increaseValueModal()">+</div>
                                         </form>
                                     </div>
                                 </div>
@@ -835,35 +893,35 @@ include("./include/footer.php");
 </div> <!-- End Modal Quickview cart -->
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Checking if jQuery and Slick are loaded
-        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.slick !== 'undefined') {
-            $('.testimonial-slider').slick({
-                dots: true,
-                infinite: true,
-                speed: 600,
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                autoplay: true,
-                autoplaySpeed: 4000,
-                arrows: false,
-                pauseOnHover: true,
-                responsive: [{
-                        breakpoint: 1024,
-                        settings: {
-                            slidesToShow: 2,
-                            slidesToScroll: 1
-                        }
-                    },
-                    {
-                        breakpoint: 768,
-                        settings: {
-                            slidesToShow: 1,
-                            slidesToScroll: 1
-                        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Checking if jQuery and Slick are loaded
+    if (typeof jQuery !== 'undefined' && typeof jQuery.fn.slick !== 'undefined') {
+        $('.testimonial-slider').slick({
+            dots: true,
+            infinite: true,
+            speed: 600,
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 4000,
+            arrows: false,
+            pauseOnHover: true,
+            responsive: [{
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
                     }
-                ]
-            });
-        }
-    });
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                    }
+                }
+            ]
+        });
+    }
+});
 </script>
