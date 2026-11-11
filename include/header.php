@@ -1,17 +1,34 @@
 <?php
-$current_page = basename($_SERVER['PHP_SELF']);
+$current_page = basename($_SERVER['SCRIPT_NAME']); // Changed from PHP_SELF for better routing
 
 $db_page_url = $current_page;
-if ($current_page == 'product.php' || $current_page == 'category.php') {
+if ($current_page == 'product.php' || $current_page == 'category.php' || $current_page == 'product-details.php') {
     $db_page_url = 'products.php';
-} elseif ($current_page == 'blogs.php') {
+} elseif ($current_page == 'blogs.php' || $current_page == 'blog-details.php') {
     $db_page_url = 'blog.php';
 }
 
+// ==========================================
+// SEO & BASE URL FIX FOR CLEAN HTACCESS URLs
+// ==========================================
 $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-$domainName = $_SERVER['HTTP_HOST'];
-$requestUri = $_SERVER['REQUEST_URI'];
-$canonical_url = $protocol . $domainName . $requestUri;
+$host = $_SERVER['HTTP_HOST'];
+
+// 1. Force 'www.' in Canonical URL for live domains
+$canonical_host = $host;
+if ($host !== 'localhost' && strpos($host, 'www.') !== 0) {
+    $canonical_host = 'www.' . $host;
+}
+
+// 2. Dynamic Base URL for Assets (Fixes broken CSS on clean URLs)
+$script_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$script_dir = rtrim($script_dir, '/') . '/';
+$base_url = $protocol . $host . $script_dir;
+
+// 3. Clean Canonical URL
+$requestUri = explode('?', $_SERVER['REQUEST_URI'])[0]; // Removes internal query strings like ?slug=...
+$canonical_url = $protocol . $canonical_host . $requestUri;
+// ==========================================
 
 if (!isset($meta_title)) {
     $meta_title = "Khetarpal | Trading";
@@ -89,35 +106,34 @@ if (isset($conn)) {
     }
     ?>
 
-    <!-- <link rel="shortcut icon" href="assets/img/favicon.png" type="image/png"> -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <link rel="stylesheet" href="assets/css/vendor/jquery-ui.min.css">
-    <link rel="stylesheet" href="assets/css/vendor/fontawesome.css">
-    <link rel="stylesheet" href="assets/css/vendor/plaza-icon.css">
-    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css">
+    <!-- CSS Links Pre-fixed with $base_url -->
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/vendor/jquery-ui.min.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/vendor/fontawesome.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/vendor/plaza-icon.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/vendor/bootstrap.min.css">
 
-    <link rel="stylesheet" href="assets/css/plugin/slick.css">
-    <link rel="stylesheet" href="assets/css/plugin/material-scrolltop.css">
-    <link rel="stylesheet" href="assets/css/plugin/price_range_style.css">
-    <link rel="stylesheet" href="assets/css/plugin/in-number.css">
-    <link rel="stylesheet" href="assets/css/plugin/venobox.min.css">
-    <link rel="stylesheet" href="assets/css/plugin/jquery.lineProgressbar.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/slick.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/material-scrolltop.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/price_range_style.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/in-number.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/venobox.min.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/plugin/jquery.lineProgressbar.css">
 
-    <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
+    <link rel="icon" href="<?php echo $base_url; ?>favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $base_url; ?>favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo $base_url; ?>favicon-16x16.png">
+    <link rel="apple-touch-icon" href="<?php echo $base_url; ?>apple-touch-icon.png">
+    <link rel="manifest" href="<?php echo $base_url; ?>site.webmanifest">
 
-
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/about.css">
-    <link rel="stylesheet" href="assets/css/service.css">
-    <link rel="stylesheet" href="assets/css/product.css">
-    <link rel="stylesheet" href="assets/css/blog.css">
-    <link rel="stylesheet" href="assets/css/contact.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/about.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/service.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/product.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/blog.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/contact.css">
 
     <style>
     /* Hover Dropdown Logic */
@@ -177,8 +193,9 @@ if (isset($conn)) {
                 <nav class="navbar navbar-expand-lg navbar-light py-2">
 
                     <!-- Logo -->
-                    <a class="navbar-brand header-logo" href="./">
-                        <img src="assets/img/logo/logo.png" alt="Khetarpal Trading Co." style="max-height: 60px;">
+                    <a class="navbar-brand header-logo" href="<?php echo $base_url; ?>">
+                        <img src="<?php echo $base_url; ?>assets/img/logo/logo.png" alt="Khetarpal Trading Co."
+                            style="max-height: 60px;">
                     </a>
 
                     <!-- Mobile Toggle Button -->
@@ -191,28 +208,28 @@ if (isset($conn)) {
                         <ul class="navbar-nav align-items-center">
 
                             <li
-                                class="nav-item <?php echo ($current_page == './' || $current_page == '') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="./">Home</a>
+                                class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>">
+                                <a class="nav-link" href="<?php echo $base_url; ?>">Home</a>
                             </li>
 
                             <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="about.php">About Us</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>about.php">About Us</a>
                             </li>
 
                             <li
                                 class="nav-item <?php echo ($current_page == 'services.php' || $current_page == 'service-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="services.php">Services</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>services.php">Services</a>
                             </li>
 
                             <!-- Categories Dropdown with Hover -->
                             <li
                                 class="nav-item dropdown <?php echo ($current_page == 'product.php' || $current_page == 'category.php' || $current_page == 'product-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link dropdown-toggle" href="product.php" id="navbarDropdown" role="button"
-                                    aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="<?php echo $base_url; ?>product.php"
+                                    id="navbarDropdown" role="button" aria-expanded="false">
                                     Categories
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item fw-bold" href="product.php"
+                                    <li><a class="dropdown-item fw-bold" href="<?php echo $base_url; ?>product.php"
                                             style="color: var(--primary-blue, #0A192F);">View All Products</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -220,7 +237,8 @@ if (isset($conn)) {
                                     <?php
                                     if (!empty($header_categories)) {
                                         foreach ($header_categories as $h_cat) {
-                                            echo '<li><a class="dropdown-item" href="category.php?slug=' . htmlspecialchars($h_cat['slug_url']) . '">' . htmlspecialchars($h_cat['categories']) . '</a></li>';
+                                            // Passing the clean URLs assuming you configured them in .htaccess
+                                            echo '<li><a class="dropdown-item" href="' . $base_url . 'category/' . htmlspecialchars($h_cat['slug_url']) . '">' . htmlspecialchars($h_cat['categories']) . '</a></li>';
                                         }
                                     }
                                     ?>
@@ -229,11 +247,11 @@ if (isset($conn)) {
 
                             <li
                                 class="nav-item <?php echo ($current_page == 'blogs.php' || $current_page == 'blog.php' || $current_page == 'blog-details.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="blogs.php">Blog</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>blogs.php">Blog</a>
                             </li>
 
                             <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>">
-                                <a class="nav-link" href="contact.php">Contact Us</a>
+                                <a class="nav-link" href="<?php echo $base_url; ?>contact.php">Contact Us</a>
                             </li>
 
                             <li class="nav-item ms-3">
@@ -248,7 +266,7 @@ if (isset($conn)) {
             </div>
         </div>
 
-        <!-- Mobile Offcanvas Menu (No Dropdown for mobile, just direct links) -->
+        <!-- Mobile Offcanvas Menu -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title fw-bold" id="mobileMenuLabel" style="color: var(--primary-blue, #0A192F);">
@@ -259,20 +277,24 @@ if (isset($conn)) {
                 <ul class="navbar-nav">
                     <li
                         class="nav-item <?php echo ($current_page == 'index.php' || $current_page == '') ? 'active' : ''; ?>">
-                        <a class="nav-link text-dark" href="index.php">Home</a>
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>">Home</a>
                     </li>
-                    <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>"><a
-                            class="nav-link text-dark" href="about.php">About Us</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'product.php') ? 'active' : ''; ?>"><a
-                            class="nav-link text-dark" href="product.php">Products</a></li>
-                    <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>"><a
-                            class="nav-link text-dark" href="services.php">Services</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'about.php') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>about.php">About Us</a>
+                    </li>
+                    <li class="nav-item <?php echo ($current_page == 'product.php') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>product.php">Products</a>
+                    </li>
+                    <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>services.php">Services</a>
+                    </li>
                     <li
                         class="nav-item <?php echo ($current_page == 'blog.php' || $current_page == 'blogs.php') ? 'active' : ''; ?>">
-                        <a class="nav-link text-dark" href="blog.php">Blog</a>
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>blogs.php">Blog</a>
                     </li>
-                    <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>"><a
-                            class="nav-link text-dark" href="contact.php">Contact Us</a></li>
+                    <li class="nav-item <?php echo ($current_page == 'contact.php') ? 'active' : ''; ?>">
+                        <a class="nav-link text-dark" href="<?php echo $base_url; ?>contact.php">Contact Us</a>
+                    </li>
                 </ul>
                 <hr>
                 <div class="mt-4">
