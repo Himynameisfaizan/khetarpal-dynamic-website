@@ -1,263 +1,324 @@
 <?php
-// SEO ke liye proper 404 HTTP status code send karein
-http_response_code(404);
-include 'admin/db-conn.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+include('admin/db-conn.php'); // Changed path from config/connect.php to match your existing setup
 
-if (file_exists('include/header.php')) {
-    include 'include/header.php';
+// 1. URL LOGIC & REDIRECTION (Error Prevention)
+$rawSlug = $_GET['slug_url'] ?? $_GET['slug'] ?? '';
+$slug = mysqli_real_escape_string($conn, trim((string)$rawSlug));
+
+// Use $base_url fallback if header is not yet included
+$safe_base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/";
+
+if (empty($slug)) {
+    header("Location: " . $safe_base_url . "404.php");
+    exit();
 }
 
+$pageQuery = mysqli_query($conn, "SELECT * FROM custom_pages WHERE slug_url = '$slug' AND status = 1 LIMIT 1");
+if (!$pageQuery || mysqli_num_rows($pageQuery) == 0) {
+    header("Location: " . $safe_base_url . "404.php");
+    exit();
+}
+$pageData = mysqli_fetch_assoc($pageQuery);
+
+// 2. SEO & META VARIABLES SETUP
+$cleanContentText = trim(preg_replace('/\s+/', ' ', strip_tags((string)$pageData['content'])));
+$defaultMetaDesc = mb_substr($cleanContentText, 0, 160);
+
+$meta_title = !empty($pageData['meta_title']) ? $pageData['meta_title'] : $pageData['page_title'] . " | Khetarpal Trading Co.";
+$meta_desc  = !empty($pageData['meta_desc']) ? $pageData['meta_desc'] : $defaultMetaDesc;
+$meta_key   = !empty($pageData['meta_key']) ? $pageData['meta_key'] : 'Khetarpal Trading, Agro Export India, B2B Spices';
+
+$breadcrumb_name  = !empty($pageData['breadcrumb_title']) ? $pageData['breadcrumb_title'] : $pageData['page_title'];
+
+// 3. AGRICULTURAL / B2B EXPORT SCHEMA MARKUP
+$page_schema = trim($pageData['schema_markup'] ?? '');
+if (empty($page_schema)) {
+    $autoSchema = [
+        "@context" => "https://schema.org",
+        "@type" => "WholesaleStore",
+        "name" => "Khetarpal Trading Co.",
+        "description" => $meta_desc,
+        "telephone" => "+91-6354765516",
+        "email" => "khetarpaltradingc@gmail.com",
+        "address" => [
+            "@type" => "PostalAddress",
+            "streetAddress" => "155, APMC Market Yard",
+            "addressLocality" => "Tharad",
+            "addressRegion" => "Gujarat",
+            "postalCode" => "385565",
+            "addressCountry" => "IN"
+        ]
+    ];
+    $page_schema = '<script type="application/ld+json">' . json_encode($autoSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+}
+
+// Add schema global variable so header.php prints it properly
+$schema_code = $page_schema; 
+
+// 4. NOW WE CAN INCLUDE HEADER
+// Use the updated header.php which defines $base_url
+include 'include/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found | Khetarpal Trading Co.</title>
-    <meta name="description"
-        content="The page you are looking for could not be found. Explore Khetarpal Trading Co.'s premium export-quality Indian spices, seeds, and agricultural commodities.">
-    <meta name="robots" content="noindex, follow">
+<style>
+/* KTC Content Page Styling */
+.page-content-wrapper {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
+}
 
-    <style>
-    :root {
-        --ktc-navy: #0e1b2e;
-        /* Homepage Dark Navy Theme */
-        --ktc-navy-light: #16263f;
-        /* Secondary Navy */
-        --ktc-gold: #c59b27;
-        /* Homepage Golden Mustard Accent */
-        --ktc-gold-hover: #ab841d;
-        /* Darker Gold for Hover */
-        --ktc-bg-light: #f8f9fa;
-        /* Soft Section Background */
-        --ktc-text-dark: #1e293b;
-        --ktc-text-muted: #64748b;
-    }
+.ktc-trust-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    background: var(--primary-blue, #0e1b2e);
+    color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
 
-    .ktc-404-wrap {
-        background-color: var(--ktc-bg-light);
-        background-image:
-            radial-gradient(circle at 85% 15%, rgba(197, 155, 39, 0.10), transparent 45%),
-            radial-gradient(circle at 15% 85%, rgba(14, 27, 46, 0.06), transparent 45%);
-        color: var(--ktc-text-dark);
-        padding: 90px 20px;
-        min-height: 72vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        border-bottom: 4px solid var(--ktc-gold);
-    }
+.ktc-trust-item strong {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+}
 
-    .ktc-404-card {
-        position: relative;
-        z-index: 2;
-        max-width: 700px;
-        width: 100%;
-        margin: 0 auto;
-        background: #ffffff;
-        border: 1px solid rgba(14, 27, 46, 0.08);
-        border-top: 5px solid var(--ktc-navy);
-        padding: 55px 45px;
-        border-radius: 10px;
-        box-shadow: 0 18px 40px rgba(14, 27, 46, 0.07);
-    }
+.ktc-trust-item strong span {
+    color: var(--primary-gold, #c59b27);
+}
 
-    @media (max-width: 576px) {
-        .ktc-404-wrap {
-            padding: 60px 15px;
-        }
+.ktc-trust-item small {
+    color: #cbd5e1;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+}
 
-        .ktc-404-card {
-            padding: 40px 22px;
-        }
-    }
+.page-content-body {
+    line-height: 1.8;
+    color: #444;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+}
 
-    .ktc-404-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(197, 155, 39, 0.14);
-        color: #9a7513;
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        padding: 7px 18px;
-        border-radius: 50px;
-        margin-bottom: 18px;
-    }
+.page-content-body h2 {
+    color: var(--primary-blue, #0e1b2e);
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-left: 4px solid var(--primary-gold, #c59b27);
+    padding-left: 15px;
+}
 
-    .ktc-404-code {
-        font-size: clamp(5rem, 12vw, 7.5rem);
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 8px;
-        color: var(--ktc-navy);
-        text-shadow: 3px 3px 0 rgba(197, 155, 39, 0.25);
-        letter-spacing: -2px;
-    }
+.page-content-body h3 {
+    color: var(--primary-blue, #0e1b2e);
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 25px;
+}
 
-    .ktc-404-divider {
-        width: 60px;
-        height: 3px;
-        background-color: var(--ktc-gold);
-        margin: 0 auto 20px;
-        border-radius: 2px;
-    }
+.page-content-body ul {
+    padding-left: 20px;
+}
 
-    .ktc-404-title {
-        font-size: clamp(1.4rem, 3vw, 1.9rem);
-        font-weight: 800;
-        margin-bottom: 14px;
-        color: var(--ktc-navy);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+.page-content-body ul li {
+    margin-bottom: 10px;
+}
 
-    .ktc-404-desc {
-        color: var(--ktc-text-muted);
-        font-size: 1.02rem;
-        margin-bottom: 32px;
-        line-height: 1.65;
-        max-width: 560px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+/* Sidebar Widget Adjustments */
+.sidebar-widget {
+    background: #fcfcfc;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 1px solid #eaeaea;
+}
 
-    .ktc-404-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-        margin-bottom: 35px;
-    }
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-blue, #0e1b2e);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-gold, #c59b27);
+}
 
-    .btn-ktc-gold {
-        background-color: var(--ktc-gold);
-        color: #ffffff !important;
-        padding: 13px 28px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 2px solid var(--ktc-gold);
-    }
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-    .btn-ktc-gold:hover {
-        background-color: var(--ktc-navy);
-        border-color: var(--ktc-navy);
-        color: #ffffff !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(14, 27, 46, 0.18);
-    }
+.category-list li {
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 12px;
+}
 
-    .btn-ktc-outline {
-        background-color: transparent;
-        color: var(--ktc-navy) !important;
-        padding: 13px 28px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 2px solid rgba(14, 27, 46, 0.25);
-    }
+.category-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
 
-    .btn-ktc-outline:hover {
-        background-color: var(--ktc-navy);
-        border-color: var(--ktc-navy);
-        color: #ffffff !important;
-        transform: translateY(-2px);
-    }
+.category-list a {
+    color: #444 !important;
+    text-decoration: none;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    transition: color 0.2s;
+    display: flex;
+    justify-content: space-between;
+}
 
-    .ktc-quick-links {
-        padding-top: 22px;
-        border-top: 1px solid rgba(14, 27, 46, 0.08);
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 18px;
-        font-size: 0.92rem;
-        font-weight: 600;
-    }
+.category-list a:hover {
+    color: var(--primary-gold, #c59b27) !important;
+}
 
-    .ktc-quick-links span {
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.8px;
-    }
+.btn-custom-solid {
+    background-color: var(--primary-gold, #c59b27);
+    color: #fff;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s;
+}
 
-    .ktc-quick-links a {
-        color: var(--ktc-navy);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
+.btn-custom-solid:hover {
+    background-color: #fff;
+    color: var(--primary-blue, #0e1b2e);
+}
+</style>
 
-    .ktc-quick-links a:hover {
-        color: var(--ktc-gold);
-    }
-    </style>
-</head>
+<main class="main bg-light">
+    <!-- Use this Breadcrumb block -->
+    <div class="site-breadcrumb"
+        style="background-image: url('<?php echo isset($base_url) ? $base_url : ''; ?>assets/img/bg/breadcrumb-bg.jpg'); background-size: cover; background-position: center; padding: 100px 0; text-align: center; position: relative;">
 
-<body>
+        <!-- Add an overlay if the text is not readable -->
+        <div
+            style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(14, 27, 46, 0.7); z-index: 1;">
+        </div>
 
-    <div class="ktc-404-wrap">
-        <div class="ktc-404-card">
-            <div class="ktc-404-badge">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Error 404 • Page Not Found
-            </div>
+        <div class="container" style="position: relative; z-index: 2;">
+            <h2 class="breadcrumb-title"
+                style="color: #fff; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 36px; margin-bottom: 10px;">
+                <?= htmlspecialchars($breadcrumb_name) ?></h2>
 
-            <h1 class="ktc-404-code">404</h1>
-            <div class="ktc-404-divider"></div>
+            <ul class="breadcrumb-menu"
+                style="list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 10px; color: #fff; font-size: 15px;">
+                <li><a href="<?php echo isset($base_url) ? $base_url : ''; ?>index.php"
+                        style="color: var(--primary-gold, #c59b27); text-decoration: none;">Home</a> <i
+                        class="fa fa-angle-double-right" style="font-size: 12px; margin-left: 5px;"></i></li>
 
-            <h2 class="ktc-404-title">Oops! We Couldn't Find That Page</h2>
-            <p class="ktc-404-desc">
-                The agricultural product, category, or page you are looking for might have been moved, renamed, or is
-                temporarily unavailable. Explore our export catalog or return to the homepage below.
-            </p>
+                <li><a href="<?php echo isset($base_url) ? $base_url : ''; ?>locations.php"
+                        style="color: var(--primary-gold, #c59b27); text-decoration: none;">Pages</a> <i
+                        class="fa fa-angle-double-right" style="font-size: 12px; margin-left: 5px;"></i></li>
 
-            <div class="ktc-404-actions">
-                <a href="<?php echo $site ?? 'index.php'; ?>" class="btn-ktc-gold">
-                    <i class="fa fa-home" aria-hidden="true"></i> Back to Homepage
-                </a>
-                <a href="<?php echo isset($site) ? $site . 'products.php' : 'products.php'; ?>" class="btn-ktc-outline">
-                    <i class="fa fa-leaf" aria-hidden="true"></i> View Our Products
-                </a>
-            </div>
-
-            <div class="ktc-quick-links">
-                <span>Quick Links:</span>
-                <a href="<?php echo isset($site) ? $site . 'about.php' : 'about.php'; ?>">About Us</a>
-                <a href="<?php echo isset($site) ? $site . 'products.php' : 'products.php'; ?>">Spices & Seeds</a>
-                <a href="<?php echo isset($site) ? $site . 'blog.php' : 'blog.php'; ?>">Latest News</a>
-                <a href="<?php echo isset($site) ? $site . 'contact.php' : 'contact.php'; ?>">Request a Quote</a>
-            </div>
+                <li class="active"><?= htmlspecialchars($breadcrumb_name) ?></li>
+            </ul>
         </div>
     </div>
 
-    <?php 
-    if (file_exists('include/footer.php')) {
-        include 'include/footer.php';
-    }
-    ?>
+    <section class="py-5 mt-4 pb-5">
+        <div class="container">
+            <div class="row g-5">
+                <!-- Left Content -->
+                <div class="col-lg-8">
+                    <article class="page-content-wrapper">
+                        <h1 class="mb-4 fw-bold"
+                            style="color: var(--primary-blue, #0e1b2e); font-family: 'Poppins', sans-serif;">
+                            <?= htmlspecialchars($pageData['page_title']); ?></h1>
 
-</body>
+                        <!-- KTC Agro Export Stats -->
+                        <div class="ktc-trust-strip">
+                            <div class="ktc-trust-item">
+                                <strong>10<span>+</span></strong>
+                                <small>Years Experience</small>
+                            </div>
+                            <div class="ktc-trust-item">
+                                <strong>20<span>+</span></strong>
+                                <small>Countries Exported</small>
+                            </div>
+                            <div class="ktc-trust-item">
+                                <strong>500<span>+</span></strong>
+                                <small>Happy Clients</small>
+                            </div>
+                            <div class="ktc-trust-item">
+                                <strong>1000<span>+</span></strong>
+                                <small>MT Monthly Supply</small>
+                            </div>
+                        </div>
 
-</html>
+                        <!-- Dynamic Content Rendered Here -->
+                        <div class="page-content-body">
+                            <?= $pageData['content']; ?>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Right Sidebar -->
+                <div class="col-lg-4">
+                    <aside class="sidebar">
+
+                        <!-- Other Custom Pages -->
+                        <div class="sidebar-widget">
+                            <h3 class="sidebar-title">Explore Other Pages</h3>
+                            <ul class="category-list">
+                                <?php
+                                $otherPagesQuery = mysqli_query($conn, "SELECT page_title, slug_url FROM custom_pages WHERE status = 1 AND slug_url != '$slug' ORDER BY id DESC LIMIT 5");
+                                if ($otherPagesQuery && mysqli_num_rows($otherPagesQuery) > 0) {
+                                    while ($op = mysqli_fetch_assoc($otherPagesQuery)) {
+                                        echo '<li><a href="'. (isset($base_url) ? $base_url : '') .'page/'.rawurlencode($op['slug_url']).'">'.htmlspecialchars($op['page_title']).' <i class="fa fa-angle-right"></i></a></li>';
+                                    }
+                                } else {
+                                    echo '<li class="text-muted">No other pages found.</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+
+                        <!-- Products Category Widget -->
+                        <div class="sidebar-widget">
+                            <h3 class="sidebar-title">Export Categories</h3>
+                            <ul class="category-list">
+                                <?php
+                                $catQuery = mysqli_query($conn, "SELECT categories, slug_url FROM categories WHERE status = 1 ORDER BY categories ASC LIMIT 6");
+                                if ($catQuery && mysqli_num_rows($catQuery) > 0) {
+                                    while ($c = mysqli_fetch_assoc($catQuery)) {
+                                        echo '<li><a href="'. (isset($base_url) ? $base_url : '') .'category/'.htmlspecialchars($c['slug_url']).'">'.htmlspecialchars($c['categories']).' <i class="fa fa-angle-right"></i></a></li>';
+                                    }
+                                }
+                                ?>
+                            </ul>
+                        </div>
+
+                        <!-- Quick Contact Banner -->
+                        <div class="sidebar-widget rounded-3 p-4 border-0 mt-4 text-center"
+                            style="background-color: var(--primary-blue, #0e1b2e); color: #fff;">
+                            <i class="fa-solid fa-ship fa-3x mb-3" style="color: var(--primary-gold, #c59b27);"></i>
+                            <h4 class="text-white fw-bold mb-3" style="font-family: 'Poppins', sans-serif;">Need Bulk
+                                Export?</h4>
+                            <p class="small text-light mb-4">Partner with Khetarpal Trading Co. for premium quality
+                                Indian spices and agricultural commodities.</p>
+                            <a href="<?php echo isset($base_url) ? $base_url : ''; ?>contact.php"
+                                class="btn-custom-solid w-100">Request A Quote</a>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<?php include 'include/footer.php'; ?>

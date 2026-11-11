@@ -2,14 +2,16 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 include 'admin/db-conn.php';
 
-if (!isset($site)) {
-    $site = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/bestok/";
+// Safe Base URL fallback in case header is not processed first
+$safe_base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/office_php_project/khetarpal/";
+if (isset($base_url)) {
+    $safe_base_url = $base_url;
 }
 
 // Global SEO Setup for Header
-$meta_title = 'Information Hub & Services | Bestok Industries Pvt Ltd';
-$meta_desc = 'Explore regional service locations, turnkey industrial projects, air compressor solutions, and compressed air networks by Bestok Industries.';
-$meta_key = 'Bestok locations, Air Compressor supplier, Industrial Air Solutions, Turnkey compressed air projects';
+$meta_title = 'Export Hubs & Information | Khetarpal Trading Co.';
+$meta_desc = 'Explore regional export locations, agricultural commodities, premium spices, and B2B agro services by Khetarpal Trading Co.';
+$meta_key = 'Khetarpal locations, Spices exporter, Agricultural Solutions, B2B agro projects, custom export pages';
 
 // Fetch active custom pages
 $customPages = [];
@@ -29,23 +31,29 @@ $totalPages = count($customPages);
 // Fetch Contact Info for CTA
 $contactQuery = mysqli_query($conn, "SELECT phone, email, address FROM contacts LIMIT 1");
 $contactInfo = $contactQuery ? mysqli_fetch_assoc($contactQuery) : [];
-$sitePhone = !empty($contactInfo['phone']) ? $contactInfo['phone'] : '+91-9871126707';
-$siteEmail = !empty($contactInfo['email']) ? $contactInfo['email'] : 'bestocompressors@gmail.com';
+$sitePhone = !empty($contactInfo['phone']) ? $contactInfo['phone'] : '+91 63547 65516';
+$siteEmail = !empty($contactInfo['email']) ? $contactInfo['email'] : 'khetarpaltradingc@gmail.com';
 
-function bestokCleanText($value): string {
+function ktcCleanText($value): string {
     return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
-// Ensure header is included correctly
+// Ensure header is included correctly (This defines $base_url properly)
 include 'include/header.php';
 ?>
 
 <style>
-/* Bestok Custom Pages Grid Styling */
-.bestok-page-card {
+:root {
+    --ktc-navy: #0e1b2e;
+    --ktc-gold: #c59b27;
+    --ktc-gold-hover: #ab841d;
+}
+
+/* KTC Custom Pages Grid Styling */
+.ktc-page-card {
     background: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #eaeaea;
     padding: 25px;
     height: 100%;
     display: flex;
@@ -57,25 +65,25 @@ include 'include/header.php';
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
-.bestok-page-card:hover {
+.ktc-page-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(19, 52, 93, 0.1);
-    border-color: #13345d;
+    box-shadow: 0 15px 30px rgba(14, 27, 46, 0.1);
+    border-color: var(--ktc-navy);
 }
 
-.bestok-card-top {
+.ktc-card-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 15px;
 }
 
-.bestok-card-icon {
+.ktc-card-icon {
     width: 50px;
     height: 50px;
     border-radius: 8px;
-    background: rgba(19, 52, 93, 0.1);
-    color: #13345d;
+    background: rgba(197, 155, 39, 0.1);
+    color: var(--ktc-gold);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,36 +91,38 @@ include 'include/header.php';
     transition: all 0.3s ease;
 }
 
-.bestok-page-card:hover .bestok-card-icon {
-    background: #13345d;
+.ktc-page-card:hover .ktc-card-icon {
+    background: var(--ktc-navy);
     color: #ffffff;
 }
 
-.bestok-card-tag {
+.ktc-card-tag {
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     padding: 4px 12px;
     border-radius: 4px;
-    background: #f1f5f9;
+    background: #f8f9fa;
     color: #475569;
 }
 
-.bestok-page-card h3 {
-    color: #1e293b;
+.ktc-page-card h3 {
+    color: var(--ktc-navy);
+    font-family: 'Poppins', sans-serif;
     font-size: 1.2rem;
     font-weight: 700;
     line-height: 1.4;
     margin-bottom: 10px;
+    transition: 0.3s;
 }
 
-.bestok-page-card:hover h3 {
-    color: #e30613;
-    /* Bestok Red Hover */
+.ktc-page-card:hover h3 {
+    color: var(--ktc-gold);
 }
 
-.bestok-page-card p {
+.ktc-page-card p {
     color: #64748b;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -123,20 +133,21 @@ include 'include/header.php';
     overflow: hidden;
 }
 
-.bestok-card-footer {
+.ktc-card-footer {
     padding-top: 15px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 0.85rem;
     font-weight: 700;
-    color: #13345d;
+    color: var(--ktc-navy);
     text-transform: uppercase;
+    transition: 0.3s;
 }
 
-.bestok-page-card:hover .bestok-card-footer {
-    color: #e30613;
+.ktc-page-card:hover .ktc-card-footer {
+    color: var(--ktc-gold);
 }
 
 /* Filter Search Bar */
@@ -148,17 +159,34 @@ include 'include/header.php';
     margin-top: -30px;
     position: relative;
     z-index: 9;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #eaeaea;
+}
+
+.badge-gold {
+    background-color: var(--ktc-gold);
+    color: #fff;
 }
 </style>
 
 <main class="main">
-    <!-- Breadcrumb using Bestok Theme -->
-    <div class="site-breadcrumb" style="background: url(<?= $site ?>assets/img/bradcrambanner.jpg)">
-        <div class="container">
-            <h2 class="breadcrumb-title">Information Hub & Services</h2>
-            <ul class="breadcrumb-menu">
-                <li><a href="<?= $site ?>index.php">Home</a> <i class="fa fa-angle-double-right"></i></li>
+    <!-- Breadcrumb using Khetarpal Theme with Inline CSS for stability -->
+    <div class="site-breadcrumb"
+        style="background-image: url('<?php echo isset($base_url) ? $base_url : ''; ?>assets/img/bg/breadcrumb-bg.jpg'); background-size: cover; background-position: center; padding: 100px 0; text-align: center; position: relative;">
+        <!-- Overlay -->
+        <div
+            style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(14, 27, 46, 0.7); z-index: 1;">
+        </div>
+
+        <div class="container" style="position: relative; z-index: 2;">
+            <h2 class="breadcrumb-title"
+                style="color: #fff; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 36px; margin-bottom: 10px;">
+                Export Hubs & Information</h2>
+
+            <ul class="breadcrumb-menu"
+                style="list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 10px; color: #fff; font-size: 15px;">
+                <li><a href="<?php echo isset($base_url) ? $base_url : ''; ?>index.php"
+                        style="color: var(--ktc-gold); text-decoration: none;">Home</a> <i
+                        class="fa fa-angle-double-right" style="font-size: 12px; margin-left: 5px;"></i></li>
                 <li class="active">Pages</li>
             </ul>
         </div>
@@ -169,15 +197,16 @@ include 'include/header.php';
         <div class="search-filter-box">
             <div class="row align-items-center">
                 <div class="col-md-6 mb-3 mb-md-0">
-                    <h5 class="m-0 fw-bold text-dark">
-                        <span class="badge bg-danger me-2"><?= $totalPages; ?></span> Active Solutions & Pages
+                    <h5 class="m-0 fw-bold text-dark" style="font-family: 'Poppins', sans-serif;">
+                        <span class="badge badge-gold me-2"><?= $totalPages; ?></span> Active Export Pages
                     </h5>
                 </div>
                 <div class="col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fa fa-search"></i></span>
-                        <input type="text" id="pageSearchInput" class="form-control"
-                            placeholder="Search by location, keyword or service...">
+                        <span class="input-group-text bg-light border-end-0"><i
+                                class="fa fa-search text-muted"></i></span>
+                        <input type="text" id="pageSearchInput" class="form-control border-start-0"
+                            placeholder="Search by location, product or service..." style="box-shadow: none;">
                     </div>
                 </div>
             </div>
@@ -190,12 +219,13 @@ include 'include/header.php';
             <?php if (!empty($customPages)): ?>
             <div class="row g-4" id="customPagesGrid">
                 <?php 
-                // Industrial Icons Array
-                $icons = ['fa-industry', 'fa-cogs', 'fa-wrench', 'fa-fan', 'fa-bolt', 'fa-tools'];
+                // Agricultural / Export Icons Array
+                $icons = ['fa-leaf', 'fa-seedling', 'fa-wheat-awn', 'fa-earth-americas', 'fa-truck-fast', 'fa-box-open'];
                 $index = 0;
+                
                 foreach ($customPages as $customPage):
                     $cardTitle = trim($customPage['page_title'] ?: $customPage['breadcrumb_title']);
-                    $badgeText = trim($customPage['breadcrumb_title'] ?: 'Industrial Solution');
+                    $badgeText = trim($customPage['breadcrumb_title'] ?: 'Export Service');
                     
                     $rawDesc = trim(strip_tags($customPage['meta_desc']));
                     if (empty($rawDesc)) {
@@ -203,23 +233,23 @@ include 'include/header.php';
                     }
 
                     $slug = trim($customPage['slug_url']);
-                    // Link mapping to your htaccess rule
-                    $pageUrl = $site . 'page/' . rawurlencode($slug);
+                    // Clean URL logic matching .htaccess
+                    $pageUrl = (isset($base_url) ? $base_url : $safe_base_url) . 'page/' . rawurlencode($slug);
                     $iconClass = $icons[$index % count($icons)];
                     $index++;
                 ?>
                 <div class="col-lg-4 col-md-6 page-grid-item"
-                    data-search="<?= bestokCleanText(strtolower($cardTitle . ' ' . $badgeText . ' ' . $rawDesc)); ?>">
-                    <a href="<?= $pageUrl; ?>" class="bestok-page-card">
-                        <div class="bestok-card-top">
-                            <div class="bestok-card-icon">
+                    data-search="<?= ktcCleanText(strtolower($cardTitle . ' ' . $badgeText . ' ' . $rawDesc)); ?>">
+                    <a href="<?= $pageUrl; ?>" class="ktc-page-card">
+                        <div class="ktc-card-top">
+                            <div class="ktc-card-icon">
                                 <i class="fa-solid <?= $iconClass; ?>"></i>
                             </div>
-                            <span class="bestok-card-tag"><?= bestokCleanText($badgeText); ?></span>
+                            <span class="ktc-card-tag"><?= ktcCleanText($badgeText); ?></span>
                         </div>
-                        <h3><?= bestokCleanText($cardTitle); ?></h3>
-                        <p><?= bestokCleanText($rawDesc); ?></p>
-                        <div class="bestok-card-footer">
+                        <h3><?= ktcCleanText($cardTitle); ?></h3>
+                        <p><?= ktcCleanText($rawDesc); ?></p>
+                        <div class="ktc-card-footer">
                             <span>Explore Details</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </div>
@@ -229,15 +259,15 @@ include 'include/header.php';
             </div>
 
             <div id="noMatchMsg" class="text-center py-5 d-none">
-                <h4 class="fw-bold text-muted">No matching pages found</h4>
-                <p>Try searching with a different industrial keyword.</p>
+                <h4 class="fw-bold text-muted" style="font-family: 'Poppins', sans-serif;">No matching pages found</h4>
+                <p>Try searching with a different product or location keyword.</p>
             </div>
 
             <?php else: ?>
             <div class="text-center py-5">
-                <i class="fa fa-folder-open fa-3x text-muted mb-3"></i>
-                <h3>No Custom Pages Found</h3>
-                <p>Pages created from the admin panel will appear here.</p>
+                <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
+                <h3 style="font-family: 'Poppins', sans-serif; color: var(--ktc-navy);">No Custom Pages Found</h3>
+                <p class="text-muted">Pages created from the admin panel will appear here.</p>
             </div>
             <?php endif; ?>
         </div>
