@@ -375,7 +375,8 @@ $recentBlogResult = $conn->query($recentBlogSql);
                     <!-- Search Widget -->
                     <div class="sidebar-widget">
                         <h4 class="widget-title">Search Products</h4>
-                        <form action="category.php" method="GET" class="search-box">
+                        <!-- FIX: Added $base_url to the form action -->
+                        <form action="<?php echo $base_url; ?>category.php" method="GET" class="search-box">
                             <input type="text" name="q" placeholder="Search...">
                             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
@@ -390,10 +391,12 @@ $recentBlogResult = $conn->query($recentBlogSql);
                                 while($cat = $catResult->fetch_assoc()) {
                                     $cat_slug_link = htmlspecialchars($cat['slug_url'] ?? '');
                                     $cat_name = htmlspecialchars($cat['categories']);
-                                    echo "<li><a href='category.php?slug={$cat_slug_link}'>{$cat_name} <i class='fa-solid fa-angle-right'></i></a></li>";
+                                    // FIX: Added {$base_url} inside the href
+                                    echo "<li><a href='{$base_url}category/{$cat_slug_link}'>{$cat_name} <i class='fa-solid fa-angle-right'></i></a></li>";
                                 }
                             } else {
-                                echo "<li><a href='product.php'>All Products <i class='fa-solid fa-angle-right'></i></a></li>";
+                                // FIX: Added {$base_url} inside the href
+                                echo "<li><a href='{$base_url}product.php'>All Products <i class='fa-solid fa-angle-right'></i></a></li>";
                             }
                             ?>
                         </ul>
@@ -413,7 +416,9 @@ $recentBlogResult = $conn->query($recentBlogSql);
                         <div class="recent-blog-item">
                             <img src="<?php echo $rb_img; ?>" alt="<?php echo $rb_title; ?>" class="rb-img">
                             <div class="rb-content">
-                                <h6><a href="blog-details.php?slug=<?php echo $rb_slug; ?>"><?php echo $rb_title; ?></a>
+                                <!-- FIX: Added echo $base_url before the blog link -->
+                                <h6><a
+                                        href="<?php echo $base_url; ?>blog/<?php echo $rb_slug; ?>"><?php echo $rb_title; ?></a>
                                 </h6>
                                 <span><i class="fa-regular fa-clock"
                                         style="color: var(--primary-gold, #C49B3B); margin-right: 5px;"></i>
