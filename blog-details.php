@@ -393,9 +393,10 @@ $recentBlogResult = $conn->query($recentBlogSql);
 
                     <!-- Search Widget -->
                     <div class="sidebar-widget">
-                        <h4 class="widget-title">Search</h4>
-                        <form action="blogs.php" method="GET" class="search-box">
-                            <input type="text" name="q" placeholder="Search news...">
+                        <h4 class="widget-title">Search Products</h4>
+                        <!-- FIX: Added $base_url to the form action -->
+                        <form action="<?php echo $base_url; ?>category.php" method="GET" class="search-box">
+                            <input type="text" name="q" placeholder="Search...">
                             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
                     </div>
@@ -404,16 +405,17 @@ $recentBlogResult = $conn->query($recentBlogSql);
                     <div class="sidebar-widget">
                         <h4 class="widget-title">Product Categories</h4>
                         <ul class="cat-list">
-                            <?php
+                            <?php 
                             if ($catResult && $catResult->num_rows > 0) {
-                                while ($cat = $catResult->fetch_assoc()) {
+                                while($cat = $catResult->fetch_assoc()) {
                                     $cat_slug_link = htmlspecialchars($cat['slug_url'] ?? '');
                                     $cat_name = htmlspecialchars($cat['categories']);
-                                    // Naya category page slug link
-                                    echo "<li><a href='category.php?slug={$cat_slug_link}'>{$cat_name} <i class='fa-solid fa-angle-right'></i></a></li>";
+                                    // FIX: Added {$base_url} inside the href
+                                    echo "<li><a href='{$base_url}category/{$cat_slug_link}'>{$cat_name} <i class='fa-solid fa-angle-right'></i></a></li>";
                                 }
                             } else {
-                                echo "<li><a href='product.php'>All Products <i class='fa-solid fa-angle-right'></i></a></li>";
+                                // FIX: Added {$base_url} inside the href
+                                echo "<li><a href='{$base_url}product.php'>All Products <i class='fa-solid fa-angle-right'></i></a></li>";
                             }
                             ?>
                         </ul>
@@ -422,25 +424,27 @@ $recentBlogResult = $conn->query($recentBlogSql);
                     <!-- Recent Blogs Widget -->
                     <div class="sidebar-widget">
                         <h4 class="widget-title">Recent Updates</h4>
-                        <?php
+                        <?php 
                         if ($recentBlogResult && $recentBlogResult->num_rows > 0) {
-                            while ($rb = $recentBlogResult->fetch_assoc()) {
+                            while($rb = $recentBlogResult->fetch_assoc()) {
                                 $rb_slug = htmlspecialchars($rb['slug']);
                                 $rb_title = htmlspecialchars($rb['title']);
                                 $rb_date = date('M d, Y', strtotime($rb['created_at']));
-                                $rb_img = !empty($rb['image']) ? $base_url . "admin/assets/img/uploads/" . htmlspecialchars($rb['image']) : "https://placehold.co/100x100";
+                                $rb_img = !empty($rb['image']) ? $base_url . "admin/assets/img/uploads/".htmlspecialchars($rb['image']) : "https://placehold.co/100x100";
                         ?>
                         <div class="recent-blog-item">
                             <img src="<?php echo $rb_img; ?>" alt="<?php echo $rb_title; ?>" class="rb-img">
                             <div class="rb-content">
-                                <h6><a href="blog-details.php?slug=<?php echo $rb_slug; ?>"><?php echo $rb_title; ?></a>
+                                <!-- FIX: Added echo $base_url before the blog link -->
+                                <h6><a
+                                        href="<?php echo $base_url; ?>blog/<?php echo $rb_slug; ?>"><?php echo $rb_title; ?></a>
                                 </h6>
                                 <span><i class="fa-regular fa-clock"
                                         style="color: var(--primary-gold, #C49B3B); margin-right: 5px;"></i>
                                     <?php echo $rb_date; ?></span>
                             </div>
                         </div>
-                        <?php
+                        <?php 
                             }
                         } else {
                             echo "<p class='text-muted' style='font-size: 14px;'>No recent updates available.</p>";
